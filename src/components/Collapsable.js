@@ -9,6 +9,9 @@ export default React.memo(function Collapsable (props) {
 
   const toggleTutorial = (event) => {
     event.stopPropagation();
+    if (!tutorialOpen) {
+      setOpen(true);
+    }
     setTutorialOpen(!tutorialOpen);
   };
 
