@@ -45,11 +45,12 @@
   background: #EDF5ED;
 
   .carousel-control-prev, .carousel-control-next, .carousel-control-prev:focus, .carousel-control-next:focus {
-    color: #88BB88;
+    color: #699669;
     width: 10%;
+    opacity: 0.8;
   }
   .carousel-control-prev:hover, .carousel-control-next:hover {
-    color: #6eb36e;
+    color: #699669;
   }
   .carousel-item {
     padding: 20px 100px 60px;
