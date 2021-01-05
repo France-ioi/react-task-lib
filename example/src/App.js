@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Collapsable} from 'react-task-lib';
+import {Collapsable, TutorialCarousel} from 'react-task-lib';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'react-task-lib/dist/index.css';
 
@@ -9,9 +9,18 @@ const App = () => {
     <div className="main-block">
       <Collapsable
         title={<div className="main-block-header">{"Texte chiffré"}</div>}
-        tutorial={<div>dggfgfg</div>}
+        tutorial={<TutorialCarousel>
+          <div>
+            <h3>Titre 1</h3>
+            <p>Explication 1</p>
+          </div>
+          <div>
+            <h3>Titre 2</h3>
+            <p>Explication 2</p>
+          </div>
+        </TutorialCarousel>}
       >
-        <div>Element</div>
+        <div>Contenu du bloc</div>
       </Collapsable>
     </div>
   </div>;

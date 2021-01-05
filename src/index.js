@@ -1,6 +1,5 @@
-import React from 'react'
-import styles from './style.scss'
-import Collapsable from "./components/Collapsable";
+import React from 'react';
+
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
 import {faStickyNote} from '@fortawesome/free-solid-svg-icons/faStickyNote';
@@ -20,4 +19,12 @@ library.add(
   faChevronDown, faChevronLeft, faChevronRight, faQuestionCircle,
 );
 
-export {Collapsable};
+import styles from './style.scss'
+
+import Collapsable from "./components/Collapsable";
+import TutorialCarousel from "./components/TutorialCarousel";
+
+export {
+  Collapsable,
+  TutorialCarousel,
+};

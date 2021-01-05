@@ -21,9 +21,7 @@
   cursor: pointer;
 }
 .main-block-header .icon-tutorial {
-  position: absolute;
-  right: 36px;
-  top: 10px;
+  margin-left: 5px;
   cursor: pointer;
 }
 .main-block .main-block-header {
@@ -31,4 +29,57 @@
   border-bottom: solid 1px #88BB88;
 }
 
+// Carousel
+.carousel-container {
+  position: relative;
+}
+.icon-tutorial-close {
+  cursor: pointer;
+  color: #88BB88 !important;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 5;
+}
+.carousel {
+  background: #EDF5ED;
 
+  .carousel-control-prev, .carousel-control-next, .carousel-control-prev:focus, .carousel-control-next:focus {
+    color: #88BB88;
+    width: 10%;
+  }
+  .carousel-control-prev:hover, .carousel-control-next:hover {
+    color: #6eb36e;
+  }
+  .carousel-item {
+    padding: 20px 100px 60px;
+  }
+  .carousel-indicators li {
+    background-color: #88BB88;
+    opacity: 0.3;
+    &.active {
+      opacity: 1;
+    }
+  }
+  .carousel-item h3 {
+    color: #699669;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .carousel-item {
+    color: #727272;
+  }
+  .carousel-item .row {
+    align-items: center;
+  }
+  .carousel-item .row.is-vertical-top {
+    align-items: flex-start;
+  }
+  .carousel-item img {
+    width: 100%;
+  }
+  .carousel-item ul {
+    margin-bottom: 0;
+  }
+}

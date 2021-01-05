@@ -15,10 +15,10 @@ export default React.memo(function Collapsable (props) {
   const newTitle = React.cloneElement(title, {
     onClick: () => setOpen(!open),
     children: [
-      <FontAwesomeIcon key="icon-tutorial" className="icon-tutorial" icon="question-circle" size="lg" onClick={(e) => toggleTutorial(e)}/>,
-      <FontAwesomeIcon key="icon-collapse" className="icon-collapse" icon={open ? 'chevron-up' : 'chevron-down'} />,
+      title.props.children,
       " ",
-      title.props.children
+      ...(props.tutorial ? [<FontAwesomeIcon key="icon-tutorial" className="icon-tutorial" icon="question-circle" onClick={(e) => toggleTutorial(e)}/>] : []),
+      <FontAwesomeIcon key="icon-collapse" className="icon-collapse" icon={open ? 'chevron-up' : 'chevron-down'} />,
     ]
   });
 
@@ -28,8 +28,9 @@ export default React.memo(function Collapsable (props) {
       <Collapse in={open}>
         <div>
           <Collapse in={tutorialOpen}>
-            <div>
+            <div className="carousel-container">
               {props.tutorial}
+              <FontAwesomeIcon icon="times" className="icon-tutorial-close" size="lg" onClick={() => setTutorialOpen(false)}/>
             </div>
           </Collapse>
           {children}
