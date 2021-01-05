@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 export default React.memo(function Collapsable (props) {
   const [open, setOpen] = useState(true);
-  const [tutorialOpen, setTutorialOpen] = useState(true);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const {title, children} = props;
 
   const toggleTutorial = (event) => {
