@@ -1,10 +1,20 @@
-import React from 'react'
+import React from 'react';
 
-import { ExampleComponent } from 'react-task-lib'
-import 'react-task-lib/dist/index.css'
+import {Collapsable} from 'react-task-lib';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'react-task-lib/dist/index.css';
 
 const App = () => {
-  return <ExampleComponent text="Create React Library Example 😄" />
+  return <div className="container" id="container">
+    <div className="main-block">
+      <Collapsable
+        title={<div className="main-block-header">{"Texte chiffré"}</div>}
+        tutorial={<div>dggfgfg</div>}
+      >
+        <div>Element</div>
+      </Collapsable>
+    </div>
+  </div>;
 }
 
-export default App
+export default App;

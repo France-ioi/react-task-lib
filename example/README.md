@@ -1,5 +1,5 @@
-This example was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is an example of how to use the `react-task-lib`.
 
-It is linked to the react-task-lib package in the parent directory for development purposes.
-
-You can run `yarn install` and then `yarn start` to test your package.
+## Run the example
+You can run `yarn install` and then `yarn start` to test the library
+in your browser.
