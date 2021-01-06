@@ -13,20 +13,29 @@
   justify-content: center;
   font-weight: bold;
   position: relative;
-}
-.main-block-header .icon-collapse {
-  position: absolute;
-  right: 10px;
-  top: 12px;
-  cursor: pointer;
-}
-.main-block-header .icon-tutorial {
-  margin-left: 5px;
-  cursor: pointer;
-}
-.main-block .main-block-header {
   color: #699669;
   border-bottom: solid 1px #88BB88;
+
+  .icon-collapse {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    cursor: pointer;
+  }
+  .icon-tutorial {
+    color: #699669 !important;
+    margin-top: -2px;
+  }
+
+  .icon-tutorial-container {
+    cursor: pointer;
+    height: 40px;
+    width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -10px;
+  }
 }
 
 // Carousel
@@ -41,9 +50,9 @@
   top: 10px;
   z-index: 5;
 }
+
 .carousel {
   background: #EDF5ED;
-
   .carousel-control-prev, .carousel-control-next, .carousel-control-prev:focus, .carousel-control-next:focus {
     color: #699669;
     width: 10%;

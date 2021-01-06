@@ -20,7 +20,11 @@ export default React.memo(function Collapsable (props) {
     children: [
       title.props.children,
       " ",
-      ...(props.tutorial ? [<FontAwesomeIcon key="icon-tutorial" className="icon-tutorial" icon="question-circle" onClick={(e) => toggleTutorial(e)}/>] : []),
+      ...(props.tutorial ? [
+        <a className="icon-tutorial-container" key="icon-tutorial" onClick={(e) => toggleTutorial(e)}>
+          <FontAwesomeIcon className="icon-tutorial" icon="question-circle"/>
+        </a>
+        ] : []),
       <FontAwesomeIcon key="icon-collapse" className="icon-collapse" icon={open ? 'chevron-up' : 'chevron-down'} />,
     ]
   });
