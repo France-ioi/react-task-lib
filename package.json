@@ -1,10 +1,10 @@
 {
   "name": "@france-ioi/react-task-lib",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Library to create France IOI tasks with React.js",
   "author": "SebastienTainon",
   "license": "MIT",
-  "repository": "France-ioi/react-task-lib",
+  "repository": "https://github.com/France-ioi/react-task-lib",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
