@@ -23,8 +23,10 @@ import styles from './style.scss'
 
 import Collapsable from "./components/Collapsable";
 import TutorialCarousel from "./components/TutorialCarousel";
+import algoreaReactTask from './algorea_react_task';
 
 export {
   Collapsable,
   TutorialCarousel,
+  algoreaReactTask,
 };
