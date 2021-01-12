@@ -1,11 +1,3 @@
-/*
-Change method of use:
-- export a bundle that the task can include;
-- export a function(saga?) that (creates the API objects and ) dispatches the
-  appInit action;
-
-*/
-
 //import './shim'
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -88,8 +80,6 @@ export default function (container, options, TaskBundle, serverTask = null) {
     if(!taskToken) {
         taskToken = window.task_token.get();
     }
-    console.log('ici');
-    console.log(options, taskToken, platform);
     store.dispatch({type: actions.appInit, payload: {options, taskToken, platform, serverTask}});
 
     /* Start rendering. */

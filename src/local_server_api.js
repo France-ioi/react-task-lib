@@ -67,7 +67,6 @@ function decodeAnswer (token) {
 }
 
 export default function makeServerApi (serverTask) {
-  console.log(serverTask);
   return function (service, action, body) {
     return new Promise(function (resolve, reject) {
       if ('taskData' === action) {

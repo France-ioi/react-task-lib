@@ -3,8 +3,8 @@ import {Alert} from 'react-bootstrap';
 import {connect} from 'react-redux';
 import {call, fork, takeEvery, select, take, put} from 'redux-saga/effects';
 
-import TaskBar from './ui/task_bar';
-import Spinner from './ui/spinner';
+import TaskBar from './components/Taskbar';
+import Spinner from './components/Spinner';
 import makeTaskChannel from './legacy/task';
 import makePlatformAdapter from './legacy/platform_adapter';
 import makeLocalServerApi from "./local_server_api";
