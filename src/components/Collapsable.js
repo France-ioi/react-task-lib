@@ -22,7 +22,7 @@ export default React.memo(function Collapsable (props) {
       " ",
       ...(props.tutorial ? [
         <a className="tutorial-link" key="icon-tutorial" onClick={(e) => toggleTutorial(e)}>
-          Lire les explications
+          {tutorialOpen ? 'Cacher' : 'Lire'} les explications
           <FontAwesomeIcon className="icon-tutorial" icon={tutorialOpen ? 'chevron-up' : 'chevron-down'} size="xs"/>
         </a>
         ] : []),
@@ -38,7 +38,6 @@ export default React.memo(function Collapsable (props) {
           <Collapse in={tutorialOpen}>
             <div className="carousel-container">
               {props.tutorial}
-              <FontAwesomeIcon icon="times" className="icon-tutorial-close" size="lg" onClick={() => setTutorialOpen(false)}/>
             </div>
           </Collapse>
           {children}

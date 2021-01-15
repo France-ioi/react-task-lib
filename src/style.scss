@@ -89,7 +89,7 @@ h2.collapsible {
     text-transform: initial;
     text-decoration: initial;
     font-size: 16px;
-    z-index: 1;
+    z-index: 3;
     box-shadow: inset 0 2px 0 0 #699669;
   }
 }
@@ -129,14 +129,6 @@ h2.collapsible {
 // Carousel
 .carousel-container {
   position: relative;
-}
-.icon-tutorial-close {
-  cursor: pointer;
-  color: #88BB88 !important;
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  z-index: 5;
 }
 
 .carousel {
