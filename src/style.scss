@@ -59,6 +59,7 @@ h2.collapsible {
   position: relative;
   color: #699669;
   border-bottom: solid 1px #88BB88;
+  position: relative;
 
   .main-block-header-icon {
     color: #699669;
@@ -70,18 +71,26 @@ h2.collapsible {
     cursor: pointer;
   }
   .icon-tutorial {
-    color: #699669 !important;
-    margin-top: -2px;
+    margin-left: 10px;
   }
 
-  .icon-tutorial-container {
+  .tutorial-link {
     cursor: pointer;
-    height: 40px;
-    width: 40px;
+    position: absolute;
+    right: 40px;
+    top: 28px;
+    background: #EDF5ED;
+    color: #699669;
+    border-radius: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: -10px;
+    padding: 0 14px;
+    text-transform: initial;
+    text-decoration: initial;
+    font-size: 16px;
+    z-index: 1;
+    box-shadow: inset 0 2px 0 0 #699669;
   }
 }
 

@@ -21,8 +21,9 @@ export default React.memo(function Collapsable (props) {
       title.props.children,
       " ",
       ...(props.tutorial ? [
-        <a className="icon-tutorial-container" key="icon-tutorial" onClick={(e) => toggleTutorial(e)}>
-          <FontAwesomeIcon className="icon-tutorial" icon="question-circle"/>
+        <a className="tutorial-link" key="icon-tutorial" onClick={(e) => toggleTutorial(e)}>
+          Lire les explications
+          <FontAwesomeIcon className="icon-tutorial" icon={tutorialOpen ? 'chevron-up' : 'chevron-down'} size="xs"/>
         </a>
         ] : []),
       <FontAwesomeIcon key="icon-collapse" className="icon-collapse" icon={open ? 'chevron-up' : 'chevron-down'} />,
