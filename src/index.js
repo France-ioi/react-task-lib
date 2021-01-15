@@ -22,11 +22,13 @@ library.add(
 import styles from './style.scss'
 
 import Collapsable from "./components/Collapsable";
+import NumberPicker from "./components/NumberPicker";
 import TutorialCarousel from "./components/TutorialCarousel";
 import reactTask from './react_task';
 
 export {
   Collapsable,
+  NumberPicker,
   TutorialCarousel,
   reactTask,
 };

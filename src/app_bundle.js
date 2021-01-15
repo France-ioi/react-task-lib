@@ -93,14 +93,14 @@ function* platformValidateSaga ({payload: {mode}}) {
 }
 
 function AppSelector (state) {
-    const {taskReady, fatalError, views: {Workspace}, actions: {platformValidate}, grading} = state;
+    const {taskReady, fatalError, views: {Workspace}, actions: {platformValidate}, grading, taskData} = state;
 
-    return {taskReady, fatalError, Workspace, platformValidate, grading};
+    return {taskReady, fatalError, Workspace, platformValidate, grading, taskData};
 }
 
 class App extends React.PureComponent {
     render () {
-        const {taskReady, Workspace, fatalError, grading} = this.props;
+        const {taskReady, Workspace, fatalError, grading, taskData} = this.props;
         if (fatalError) {
             return (
                 <div>
@@ -124,7 +124,7 @@ class App extends React.PureComponent {
                             <FontAwesomeIcon icon={typeof grading.score === 'number' && grading.score > 0 ? 'check' : 'times'} />
                             <span dangerouslySetInnerHTML={{__html: grading.message}} />
                         </p>}
-                        {typeof grading.score === 'number' &&
+                        {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
                         <p><br/>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
                     </Alert>
                     }
