@@ -33,7 +33,7 @@ function* appSaga () {
     yield takeEvery(actions.platformValidate, platformValidateSaga);
     yield takeEvery('*', function* clearFeedback (action) {
         const {type} = action;
-        const keywords = ['Started', 'Moved', 'Changed', 'Added'];
+        const keywords = ['Started', 'Moved', 'Changed', 'Added', 'Pressed', 'Reset'];
         const splittedType = type.split('.');
         if (-1 !== keywords.indexOf(splittedType[splittedType.length-1])) {
             yield put({type: actions.hintRequestFeedbackCleared});
