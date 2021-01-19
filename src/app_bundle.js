@@ -15,8 +15,8 @@ import HintsBundle from './hints_bundle';
 import {windowHeightMonitorSaga} from './window_height_monitor';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-function appInitReducer (state, {payload: {taskToken, options}}) {
-    return {...state, taskToken, options};
+function appInitReducer (state, {payload: {options}}) {
+    return {...state, options};
 }
 
 function appInitDoneReducer (state, {payload: {platformApi, taskApi, serverApi}}) {
@@ -77,12 +77,12 @@ function* appInitSaga ({payload: {options, platform, serverTask}}) {
         yield put({type: actions.appInitFailed, payload: {message: ex.toString()}});
         return;
     }
+
     yield put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi}});
-    /* XXX Ideally platform.initWithTask would take care of setting its global. */
+
     window.task = taskApi;
     yield call(platformApi.initWithTask, taskApi);
-    /* XXX platform.initWithTask fails to conform to Operations API and never
-           return, causing the saga to remain stuck at this point. */
+
     yield fork(windowHeightMonitorSaga, platformApi);
 }
 

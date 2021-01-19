@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
-import queryString from 'query-string';
 import {createStore, applyMiddleware, compose} from 'redux';
 import {default as createSagaMiddleware} from 'redux-saga';
 import {call} from 'redux-saga/effects';
@@ -56,31 +55,7 @@ export default function (container, options, TaskBundle, serverTask = null) {
     }
     start();
 
-    /* Check token, taskID and version */
-    const query = queryString.parse(location.search);
-    let taskToken = query.sToken;
-
-    if(!query.taskID || !query.version) {
-        if(taskToken) {
-            // We are inside a platform, alert that there is not taskID /
-            // version as it means the task is not configured properly
-            alert("taskID or version missing in the URL, cannot continue.");
-            // Stop there
-            return;
-        }
-        // Redirect when in standalone mode
-        let newSearch = '?';
-        query.taskID = window.options.defaults.taskID;
-        query.version = window.options.defaults.version;
-        for(var key in query) {
-            newSearch += '&' + key + '=' + query[key];
-        }
-        window.location = window.location.origin + window.location.pathname + newSearch;
-    }
-    if(!taskToken) {
-        taskToken = window.task_token.get();
-    }
-    store.dispatch({type: actions.appInit, payload: {options, taskToken, platform, serverTask}});
+    store.dispatch({type: actions.appInit, payload: {options, platform, serverTask}});
 
     /* Start rendering. */
     ReactDOM.render(<Provider store={store}><views.App/></Provider>, container);

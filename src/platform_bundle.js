@@ -6,8 +6,10 @@
 
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import stringify from 'json-stable-stringify-without-jsonify';
+import queryString from 'query-string';
+import {TaskToken, generateTokenUrl} from "./task_token";
 
-function appInitReducer (state, {payload: {_taskToken, _options}}) {
+function appInitReducer (state) {
     return {...state, grading: {}};
 }
 
@@ -104,10 +106,43 @@ function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
 }
 
 function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
-    const {taskDataLoaded, taskInit} = yield select(({actions}) => actions);
+    const platformApi = yield select(state => state.platformApi);
+    const {taskDataLoaded, taskInit, taskTokenUpdated} = yield select(({actions}) => actions);
+
+    let {randomSeed, options} = yield call(platformApi.getTaskParams);
+    if (Number(randomSeed) === 0) {
+      randomSeed = Math.floor(Math.random() * 10);
+    }
+
+    let version;
+    const query = queryString.parse(location.search);
+    if (options && options.version) {
+      version = options.version;
+    } else {
+      if (!query.version) {
+        query.taskID = window.options.defaults.taskID;
+        query.version = window.options.defaults.version;
+        window.location = generateTokenUrl(query);
+        return;
+      } else {
+        version = query.version;
+      }
+    }
+
+    query.taskID = window.options.defaults.taskID;
+    query.version = version;
+
+    window.task_token = new TaskToken({
+      itemUrl: generateTokenUrl(query),
+      randomSeed: randomSeed,
+    }, 'buddy');
+
+    const taskToken = window.task_token.get();
+    yield put({type: taskTokenUpdated, payload: {taskToken}});
+
     /* TODO: do something with views */
     try {
-        const {taskToken, serverApi} = yield select(state => state);
+        const {serverApi} = yield select(state => state);
         const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
         yield put({type: taskDataLoaded, payload: {taskData}});
         yield put({type: taskInit});
@@ -147,6 +182,10 @@ function platformFeedbackClearedReducer (state) {
     return {...state, grading: {}};
 }
 
+function taskTokenUpdatedReducer (state, data) {
+  return taskUpdateTokenEventReducer(state, data);
+}
+
 export default {
     actions: {
         taskInit: 'Task.Init',
@@ -167,6 +206,7 @@ export default {
         taskStateLoaded: 'Task.State.Loaded',
         taskAnswerLoaded: 'Task.Answer.Loaded',
         taskAnswerGraded: 'Task.Answer.Graded',
+        taskTokenUpdated: 'Task.Token.Updated',
         platformFeedbackCleared: 'Platform.FeedbackCleared',
     },
     actionReducers: {
@@ -177,6 +217,7 @@ export default {
         taskStateLoaded: taskStateLoadedReducer,
         taskAnswerLoaded: taskAnswerLoadedReducer,
         taskAnswerGraded: taskAnswerGradedReducer,
+        taskTokenUpdated: taskTokenUpdatedReducer,
         platformFeedbackCleared: platformFeedbackClearedReducer,
     },
     saga: function* () {
