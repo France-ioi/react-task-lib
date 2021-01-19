@@ -73,7 +73,7 @@ function generateTokenUrl(options) {
   const params = new URLSearchParams(options);
   const stringified = params.toString();
 
-  return window.location.origin + window.location.pathname + (stringified ? '?' + stringified : '');
+  return window.location.protocol + '//' + window.location.host + window.location.pathname + (stringified ? '?' + stringified : '');
 }
 
 export {
