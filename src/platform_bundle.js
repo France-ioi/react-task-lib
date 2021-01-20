@@ -143,7 +143,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   }
 
   const taskToken = window.task_token.get();
-  yield put({type: taskTokenUpdated, payload: {taskToken}});
+  yield put({type: taskTokenUpdated, payload: {token: taskToken}});
 
   /* TODO: do something with views */
   try {
@@ -192,8 +192,8 @@ function platformFeedbackClearedReducer (state) {
   return {...state, grading: {}};
 }
 
-function taskTokenUpdatedReducer (state, data) {
-  return taskUpdateTokenEventReducer(state, data);
+function taskTokenUpdatedReducer (state, {payload: {token}}) {
+  return {...state, taskToken: token};
 }
 
 export default {
