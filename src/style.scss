@@ -178,6 +178,10 @@ h2.collapsible {
 .task-bar {
   text-align: center;
   margin-top: 20px;
+
+  .btn:not(:last-child) {
+    margin-right: 10px;
+  }
 }
 
 // Modal

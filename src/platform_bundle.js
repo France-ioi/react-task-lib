@@ -46,6 +46,7 @@ function taskUpdateTokenEventReducer (state, {payload: {token}}) {
     console.warn('ignored task.updateToken with null token');
     return state;
   }
+
   return {...state, taskToken: token};
 }
 
@@ -134,10 +135,12 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   query.taskID = window.options.defaults.taskID;
   query.version = version;
 
-  window.task_token = new TaskToken({
-    itemUrl: generateTokenUrl(query),
-    randomSeed: randomSeed,
-  }, 'buddy');
+  if (!window.task_token) {
+    window.task_token = new TaskToken({
+      itemUrl: generateTokenUrl(query),
+      randomSeed: randomSeed,
+    }, 'buddy');
+  }
 
   const taskToken = window.task_token.get();
   yield put({type: taskTokenUpdated, payload: {taskToken}});
