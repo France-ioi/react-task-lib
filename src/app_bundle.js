@@ -2,6 +2,7 @@ import React from 'react';
 import {Alert} from 'react-bootstrap';
 import {connect} from 'react-redux';
 import {call, fork, takeEvery, select, take, put} from 'redux-saga/effects';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
@@ -11,9 +12,6 @@ import makeLocalServerApi from "./local_server_api";
 import makeServerApi from "./server_api";
 import PlatformBundle from './platform_bundle';
 import HintsBundle from './hints_bundle';
-
-import {windowHeightMonitorSaga} from './window_height_monitor';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function appInitReducer (state, {payload: {options}}) {
     return {...state, options};
