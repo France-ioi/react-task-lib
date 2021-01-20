@@ -3,7 +3,9 @@ import React from 'react';
 export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
   const incrementValue = increment ? increment : 1;
   const incrementCount = (value) => {
-    changeCount(count + value);
+    if (count + value >= minValue && count + value <= maxValue) {
+      changeCount(count + value);
+    }
   }
   const changeCount = (value) => {
     let newValue = value;
