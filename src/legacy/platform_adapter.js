@@ -3,7 +3,8 @@ export default function (platform) {
 
     function initWithTask (task) {
         return new Promise(function (resolve, reject) {
-            platform.initWithTask(task, resolve, reject);
+            platform.initWithTask(task);
+            resolve();
         });
     }
 

@@ -79,11 +79,8 @@ function* appInitSaga ({payload: {options, platform, serverTask}}) {
     }
 
     yield put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi}});
-
     window.task = taskApi;
     yield call(platformApi.initWithTask, taskApi);
-
-    yield fork(windowHeightMonitorSaga, platformApi);
 }
 
 function* platformValidateSaga ({payload: {mode}}) {
