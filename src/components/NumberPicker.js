@@ -37,7 +37,7 @@ export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
           className="button-minus"
           data-field="quantity"
           onClick={() => incrementCount(-incrementValue)}
-          disabled={null !== minValue && undefined !== minValue && count + incrementValue < minValue}
+          disabled={null !== minValue && undefined !== minValue && count - incrementValue < minValue}
         />
         <input
           type="number"
