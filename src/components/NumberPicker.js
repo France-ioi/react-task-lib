@@ -3,16 +3,21 @@ import React from 'react';
 export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
   const incrementValue = increment ? increment : 1;
   const incrementCount = (value) => {
-    if (count + value >= minValue && count + value <= maxValue) {
-      changeCount(count + value);
+    if (null !== minValue && undefined !== minValue && count + value < minValue) {
+      return;
     }
+    if (null !== maxValue && undefined !== maxValue && count + value > maxValue) {
+      return;
+    }
+
+    changeCount(count + value);
   }
   const changeCount = (value) => {
     let newValue = value;
-    if (null !== minValue) {
+    if (null !== minValue && undefined !== minValue) {
       newValue = Math.max(minValue, newValue);
     }
-    if (null !== maxValue) {
+    if (null !== maxValue && undefined !== maxValue) {
       newValue = Math.min(maxValue, newValue);
     }
 
