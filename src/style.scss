@@ -312,3 +312,16 @@ hr {
 .alert p {
   margin-bottom: 0 !important;
 }
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #88BB88;
+  border-color: #88BB88;
+}
+
+.is-flex {
+  display: flex;
+}
+
+h2 {
+  margin-bottom: 1rem;
+}
