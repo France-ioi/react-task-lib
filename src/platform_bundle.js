@@ -9,6 +9,7 @@ import stringify from 'json-stable-stringify-without-jsonify';
 import queryString from 'query-string';
 import {TaskToken, generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
+import {levels} from "./levels";
 
 function appInitReducer (state) {
   return {...state, grading: {}};
@@ -71,19 +72,51 @@ function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
 }
 
 function* taskGetAnswerEventSaga ({payload: {success}}) {
-  const answer = yield select(state => state.selectors.getTaskAnswer(state));
-  const strAnswer = stringify(answer);
-  yield call(success, strAnswer);
+  const answer = yield getTaskAnswer();
+  yield call(success, stringify(answer));
+}
+
+function* getTaskAnswer () {
+  const currentAnswer = yield select(state => state.selectors.getTaskAnswer(state));
+
+  const clientVersions = yield select(state => state.clientVersions);
+  if (clientVersions) {
+    const taskData = yield select(state => state.taskData);
+    const currentVersion = taskData.version.version;
+    const answers = {};
+    for (let [level, {version, answer}] of Object.entries(clientVersions)) {
+      answers[level] = version === currentVersion ? currentAnswer : answer;
+    }
+
+    return answers;
+  } else {
+    return currentAnswer;
+  }
 }
 
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
-  const {taskAnswerLoaded, taskRefresh} = yield select(({actions}) => actions);
+  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, platformFeedbackCleared} = yield select(({actions}) => actions);
   try {
-    if (answer) {
+    const clientVersions = yield select(state => state.clientVersions);
+    if (clientVersions && answer) {
+      const currentVersion = yield select(state => state.taskData.version);
+      const answerObject = JSON.parse(answer);
+      for (let [level, {version}] of Object.entries(clientVersions)) {
+        yield put({type: taskAnswerSaved, payload: {answer: answerObject[level], version}});
+        if (version === currentVersion.version) {
+          yield put({type: taskAnswerLoaded, payload: {answer: answerObject[level]}});
+          yield put({type: taskRefresh});
+        }
+      }
+      yield call(taskGradeAnswerEventSaga, {payload: {_answer: answer, success, error, silent: true}});
+      yield put({type: platformFeedbackCleared});
+    } else if (answer) {
       yield put({type: taskAnswerLoaded, payload: {answer: JSON.parse(answer)}});
       yield put({type: taskRefresh});
+      yield call(success);
+    } else {
+      yield call(success);
     }
-    yield call(success);
   } catch (ex) {
     yield call(error, `bad answer: ${ex.message}`);
   }
@@ -132,6 +165,13 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     }
   }
 
+  const clientVersions = yield select(state => state.clientVersions);
+  if (clientVersions) {
+    const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === version);
+    const randomSeedUpgrade = levels[versionLevel].stars;
+    randomSeed += randomSeedUpgrade[versionLevel];
+  }
+
   query.taskID = window.options.defaults.taskID;
   query.version = version;
 
@@ -158,29 +198,74 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   }
 }
 
-function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, error}}) {
-  const {taskAnswerGraded} = yield select(({actions}) => actions);
+function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, error, silent}}) {
+  const {taskAnswerGraded, taskScoreSaved} = yield select(({actions}) => actions);
   try {
-    if (!answerToken) {
-      const answer = yield select(state => state.selectors.getTaskAnswer(state));
-      answerToken = window.task_token.getAnswerToken(JSON.stringify(answer));
-    }
-    const {taskToken, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
+    const clientVersions = yield select(state => state.clientVersions);
+    const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
     const {minScore, maxScore, noScore} = yield call(getTaskParams, null, null);
-    const {score, message, token: scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
-      task: taskToken, /* XXX task should be named taskToken */
-      answer: answerToken,  /* XXX answer should be named answerToken */
-      min_score: minScore, /* XXX no real point passing min_score, max_score, no_score to server-side grader */
-      max_score: maxScore,
-      no_score: noScore
-    });
-    yield put({type: taskAnswerGraded, payload: {grading: {score, message}}});
-    yield call(success, score, message, scoreToken);
+    if (clientVersions) {
+      const answer = yield getTaskAnswer();
+      const versionsScore = {};
+      let currentScore = null;
+      let currentMessage = null;
+      let currentScoreToken = null;
+      for (let level of Object.keys(levels)) {
+        if (!answer[level]) {
+          versionsScore[level] = 0;
+          continue;
+        }
+
+        answerToken = window.task_token.getAnswerToken(stringify(answer[level]));
+        const {score, message, scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
+          task: taskToken,
+          answer: answerToken,
+          min_score: minScore,
+          max_score: maxScore,
+          no_score: noScore,
+        });
+        versionsScore[level] = score;
+        if (clientVersions[level].version === taskData.version.version) {
+          currentScore = score;
+          currentMessage = message;
+          currentScoreToken = scoreToken;
+        }
+        yield put({type: taskScoreSaved, payload: {score, answer, version: clientVersions[level].version}});
+      }
+
+      let reconciledScore = 0;
+      for (let [level, {scoreCoefficient}] of Object.entries(levels)) {
+        let versionScore = versionsScore[level] * scoreCoefficient;
+        reconciledScore = Math.max(reconciledScore, versionScore);
+      }
+
+      if (!silent) {
+        yield put({type: taskAnswerGraded, payload: {grading: {score: currentScore, message: currentMessage}}});
+      }
+      yield call(success, reconciledScore, currentMessage, currentScoreToken);
+    } else {
+      if (!answerToken) {
+        const answer = yield getTaskAnswer();
+        answerToken = window.task_token.getAnswerToken(stringify(answer));
+      }
+      const {score, message, token: scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
+        task: taskToken, /* XXX task should be named taskToken */
+        answer: answerToken,  /* XXX answer should be named answerToken */
+        min_score: minScore, /* XXX no real point passing min_score, max_score, no_score to server-side grader */
+        max_score: maxScore,
+        no_score: noScore,
+      });
+      yield put({type: taskAnswerGraded, payload: {grading: {score, message}}});
+      yield call(success, score, message, scoreToken);
+    }
   } catch (ex) {
     const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
       : (ex.message ? ex.message : ex.toString());
     yield put({type: taskAnswerGraded, payload: {grading: {error: message}}});
-    yield call(error, message);
+    console.error(ex);
+    if (error) {
+      yield call(error, message);
+    }
   }
 }
 

@@ -15,7 +15,7 @@ import jwt from 'jsonwebtoken';
 window.jwt = jwt;
 
 
-export default function (container, options, TaskBundle, serverTask = null) {
+export default function (container, options, TaskBundle, serverTask = null, clientVersions) {
     const platform = window.platform;
     if (process.env.NODE_ENV === 'development') platform.debug = true;
 
@@ -55,7 +55,7 @@ export default function (container, options, TaskBundle, serverTask = null) {
     }
     start();
 
-    store.dispatch({type: actions.appInit, payload: {options, platform, serverTask}});
+    store.dispatch({type: actions.appInit, payload: {options, platform, serverTask, clientVersions}});
 
     /* Start rendering. */
     ReactDOM.render(<Provider store={store}><views.App/></Provider>, container);

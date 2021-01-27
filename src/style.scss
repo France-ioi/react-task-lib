@@ -387,3 +387,38 @@ h2 {
     appearance: none;
   }
 }
+
+.version-tabs {
+  margin-top: 1rem;
+  border-bottom: 2px solid #8d9daa;
+  justify-content: center;
+
+  .nav-item.nav-link {
+    cursor: pointer;
+    width: 170px;
+    margin: 0 20px;
+    background: #88BB88;
+    border: 2px solid #8d9daa;
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    text-align: center;
+    padding: 8px;
+    color: #30242B;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.active {
+      margin-bottom: -2px;
+      padding-bottom: 10px;
+      background: white;
+    }
+
+    .star-rating {
+      display: inline-flex;
+    }
+  }
+}

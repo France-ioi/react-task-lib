@@ -50,8 +50,8 @@ function makeTask (emit) {
         load: function (views, success, error) {
             emit({type: 'load', payload: {views, success, error}});
         },
-        gradeAnswer: function (answer, answerToken, success, error) {
-            emit({type: 'gradeAnswer', payload: {answer, answerToken, success, error}});
+        gradeAnswer: function (answer, answerToken, success, error, silent = false) {
+            emit({type: 'gradeAnswer', payload: {answer, answerToken, success, error, silent}});
         },
     };
 }
