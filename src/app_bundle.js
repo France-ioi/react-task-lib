@@ -28,9 +28,10 @@ function appInitDoneReducer (state, {payload: {platformApi, taskApi, serverApi, 
   let clientVersionsData = null;
   if (clientVersions) {
     clientVersionsData = {};
-    for (let [level, version] of Object.entries(clientVersions)) {
+    for (let [level, {version, locked}] of Object.entries(clientVersions)) {
       clientVersionsData[level] = {
         version,
+        locked: !!locked,
         answer: null,
         bestAnswer: null,
         score: 0,
@@ -68,11 +69,22 @@ function taskScoreSavedReducer (state, {payload: {score, answer, version: answer
 
   const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === (answerVersion ? answerVersion : version));
   const currentScore = clientVersions[versionLevel].score;
+  let newState = state;
   if (score > currentScore) {
-    return update(state, {clientVersions: {[versionLevel]: {bestAnswer: {$set: answer}, score: {$set: score}}}});
+    newState = update(newState, {clientVersions: {[versionLevel]: {bestAnswer: {$set: answer}, score: {$set: score}}}});
+
+    if (score >= 100) {
+      const levelNumber = Object.keys(clientVersions).indexOf(versionLevel);
+      if (levelNumber + 1 <= Object.keys(clientVersions).length - 1) {
+        const nextLevel = Object.keys(clientVersions)[levelNumber + 1];
+        if (clientVersions[nextLevel].locked) {
+          newState = update(newState, {clientVersions: {[nextLevel]: {locked: {$set: false}}}});
+        }
+      }
+    }
   }
 
-  return state;
+  return newState;
 }
 
 function* appSaga () {
@@ -232,6 +244,7 @@ class App extends React.PureComponent {
     super(props);
     this.state = {
       upgradeModalShow: false,
+      lockedModalShow: false,
       previousScore: 0,
       nextLevel: null,
     };
@@ -298,14 +311,36 @@ class App extends React.PureComponent {
             <Button variant="primary" onClick={() => this.upgradeLevel()}>Passer à la suite</Button>
           </Modal.Footer>
         </Modal>
+        <Modal
+          show={this.state.lockedModalShow}
+          onHide={() => this.setLockedModalShow(false)}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              Version verrouillée
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Cette version est verrouillée, et la précédente doit être résolue avant de pouvoir afficher cette version.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="primary" onClick={() => this.setLockedModalShow(false)}>D'accord</Button>
+          </Modal.Footer>
+        </Modal>
         {clientVersions && <nav className="nav nav-tabs version-tabs">
           {Object.entries(levels).map(([level, {stars}]) =>
             level in clientVersions && <a
               key={level}
               role="tab"
               tabIndex="-1"
-              className={`nav-item nav-link ${taskData && clientVersions[level].version === taskData.version.version ? 'active' : ''}`}
-              onClick={() => this.changeVersion(clientVersions[level].version)}
+              className={`
+                nav-item
+                nav-link
+                ${taskData && clientVersions[level].version === taskData.version.version ? 'active' : ''}
+                ${clientVersions[level].locked ? 'is-locked' : ''}
+              `}
+              onClick={() => this.changeLevel(level)}
             >
               Version
 
@@ -344,16 +379,26 @@ class App extends React.PureComponent {
   _restart = () => {
     this.props.dispatch({type: this.props.taskRestart});
   };
-  changeVersion = (version) => {
+  changeLevel = (level) => {
+    const {version, locked} = this.props.clientVersions[level];
+    if (locked) {
+      this.setLockedModalShow(true);
+      return;
+    }
     this.props.dispatch({type: this.props.taskChangeVersion, payload: {version}});
   };
   upgradeLevel = () => {
-    this.changeVersion(this.props.clientVersions[this.state.nextLevel].version);
+    this.changeLevel(this.state.nextLevel);
     this.setModalShow(false);
   };
   setModalShow = (newValue) => {
     this.setState({
       upgradeModalShow: newValue,
+    });
+  };
+  setLockedModalShow = (newValue) => {
+    this.setState({
+      lockedModalShow: newValue,
     });
   };
 }

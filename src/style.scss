@@ -416,6 +416,17 @@ h2 {
       padding-bottom: 10px;
       background: white;
     }
+    &.is-locked {
+      background: #999;
+      .star-rating svg {
+        path:first-child {
+          fill: #666;
+        }
+        path:nth-child(2) {
+          stroke: #666;
+        }
+      }
+    }
 
     .star-rating {
       display: inline-flex;
