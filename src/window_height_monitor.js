@@ -7,7 +7,7 @@ let lastHeight;
 export function* windowHeightMonitorSaga (platformApi) {
   while (true) {
     yield sleep(200);
-    const height = window.document.body.clientHeight;
+    const height = Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
     if (height !== lastHeight) {
       yield call(platformApi.updateDisplay, {height});
       lastHeight = height;
