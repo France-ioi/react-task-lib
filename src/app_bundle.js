@@ -45,6 +45,10 @@ function appInitFailedReducer (state, {payload: {message}}) {
   return {...state, fatalError: message};
 }
 
+function taskInitReducer (state, {payload: {taskData}}) {
+  return {...state, taskData};
+}
+
 function taskAnswerSavedReducer (state, {payload: {answer, version: answerVersion}}) {
   const {taskData: {version: {version}}, clientVersions} = state;
   if (!clientVersions) {
@@ -148,7 +152,6 @@ function* taskLoadVersionSaga () {
   const actions = yield select(({actions}) => actions);
   const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
 
-
   const clientVersions = yield select(state => state.clientVersions);
   if (clientVersions) {
     const clientVersion = Object.values(clientVersions).find(clientVersion => clientVersion.version === taskData.version.version);
@@ -156,12 +159,10 @@ function* taskLoadVersionSaga () {
       yield put({type: actions.taskAnswerLoaded, payload: {taskData, answer: clientVersion.answer}});
       yield put({type: actions.taskRefresh});
     } else {
-      yield put({type: actions.taskDataLoaded, payload: {taskData}});
-      yield put({type: actions.taskInit});
+      yield put({type: actions.taskInit, payload: {taskData}});
     }
   } else {
-    yield put({type: actions.taskDataLoaded, payload: {taskData}});
-    yield put({type: actions.taskInit});
+    yield put({type: actions.taskInit, payload: {taskData}});
   }
 
   yield put({type: actions.hintRequestFeedbackCleared});
@@ -373,6 +374,7 @@ export default {
     appInit: appInitReducer,
     appInitDone: appInitDoneReducer,
     appInitFailed: appInitFailedReducer,
+    taskInit: taskInitReducer,
     taskAnswerSaved: taskAnswerSavedReducer,
     taskScoreSaved: taskScoreSavedReducer,
   },

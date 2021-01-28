@@ -176,8 +176,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   try {
     const {serverApi} = yield select(state => state);
     const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
-    yield put({type: taskDataLoaded, payload: {taskData}});
-    yield put({type: taskInit});
+    yield put({type: taskInit, payload: {taskData}});
     yield call(success);
     yield fork(windowHeightMonitorSaga, platformApi);
   } catch (ex) {
