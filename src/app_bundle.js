@@ -13,9 +13,8 @@ import makeLocalServerApi from "./local_server_api";
 import makeServerApi from "./server_api";
 import PlatformBundle from './platform_bundle';
 import HintsBundle from './hints_bundle';
-import {generateTokenUrl, TaskToken} from "./task_token";
 import Stars from "./components/Stars";
-import {levels} from './levels';
+import {levels, getTaskTokenForVersion} from './levels';
 
 function appInitReducer (state, {payload}) {
   if (payload.options) {
@@ -77,6 +76,7 @@ function* appSaga () {
   yield takeEvery(actions.appInit, appInitSaga);
   yield takeEvery(actions.platformValidate, platformValidateSaga);
   yield takeEvery(actions.taskRestart, taskRestartSaga);
+  yield takeEvery(actions.taskAnswerReloaded, taskAnswerReloadedSaga);
   yield takeEvery(actions.taskChangeVersion, taskChangeVersionSaga);
   yield takeEvery('*', function* clearFeedback (action) {
     const {type} = action;
@@ -148,23 +148,38 @@ function* taskLoadVersionSaga () {
   const actions = yield select(({actions}) => actions);
   const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
 
-  yield put({type: actions.taskDataLoaded, payload: {taskData}});
 
   const clientVersions = yield select(state => state.clientVersions);
   if (clientVersions) {
     const clientVersion = Object.values(clientVersions).find(clientVersion => clientVersion.version === taskData.version.version);
     if (clientVersion.answer) {
-      yield put({type: actions.taskAnswerLoaded, payload: {answer: clientVersion.answer}});
+      yield put({type: actions.taskAnswerLoaded, payload: {taskData, answer: clientVersion.answer}});
       yield put({type: actions.taskRefresh});
     } else {
+      yield put({type: actions.taskDataLoaded, payload: {taskData}});
       yield put({type: actions.taskInit});
     }
   } else {
+    yield put({type: actions.taskDataLoaded, payload: {taskData}});
     yield put({type: actions.taskInit});
   }
 
   yield put({type: actions.hintRequestFeedbackCleared});
   yield put({type: actions.platformFeedbackCleared});
+}
+
+function* taskAnswerReloadedSaga () {
+  const clientVersions = yield select(state => state.clientVersions);
+  let nextVersion = null;
+  for (let {version, score} of Object.values(clientVersions)) {
+    if (score < 100) {
+      nextVersion = version;
+      break;
+    }
+  }
+  if (null !== nextVersion) {
+    yield call(taskChangeVersionSaga, {payload: {version: nextVersion}});
+  }
 }
 
 function* taskChangeVersionSaga ({payload: {version}}) {
@@ -178,24 +193,9 @@ function* taskChangeVersionSaga ({payload: {version}}) {
     taskApi.gradeAnswer(null, null, resolve, reject, true);
   })
 
-  const query = {};
-  query.taskID = window.options.defaults.taskID;
-  query.version = version;
-
-  let {randomSeed} = yield call(platformApi.getTaskParams);
-  if (Number(randomSeed) === 0) {
-    randomSeed = Math.floor(Math.random() * 10);
-  }
   const clientVersions = yield select(state => state.clientVersions);
-  const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === version);
-  randomSeed += levels[versionLevel].stars;
-
-  window.task_token = new TaskToken({
-    itemUrl: generateTokenUrl(query),
-    randomSeed: randomSeed,
-  }, 'buddy');
-
-  const taskToken = window.task_token.get();
+  let {randomSeed} = yield call(platformApi.getTaskParams);
+  const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
 
   yield put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
 

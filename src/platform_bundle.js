@@ -7,9 +7,9 @@
 import {call, fork, put, select, takeEvery} from 'redux-saga/effects';
 import stringify from 'json-stable-stringify-without-jsonify';
 import queryString from 'query-string';
-import {TaskToken, generateTokenUrl} from "./task_token";
+import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
-import {levels} from "./levels";
+import {getAnswerTokenForVersion, getTaskTokenForVersion, levels} from "./levels";
 
 function appInitReducer (state) {
   return {...state, grading: {}};
@@ -23,8 +23,12 @@ function taskStateLoadedReducer (state, {payload: {hints}}) {
   return {...state, hints};
 }
 
-function taskAnswerLoadedReducer (state, {payload: {answer}}) {
-  return {...state, answer};
+function taskAnswerLoadedReducer (state, {payload: {taskData, answer}}) {
+  if (taskData) {
+    return {...state, taskData, answer};
+  } else {
+    return {...state, answer};
+  }
 }
 
 function taskShowViewsEventReducer (state, {payload: {views}}) {
@@ -95,7 +99,7 @@ function* getTaskAnswer () {
 }
 
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
-  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, platformFeedbackCleared} = yield select(({actions}) => actions);
+  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, platformFeedbackCleared, taskAnswerReloaded} = yield select(({actions}) => actions);
   try {
     const clientVersions = yield select(state => state.clientVersions);
     if (clientVersions && answer) {
@@ -109,7 +113,7 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
         }
       }
       yield call(taskGradeAnswerEventSaga, {payload: {_answer: answer, success, error, silent: true}});
-      yield put({type: platformFeedbackCleared});
+      yield put({type: taskAnswerReloaded});
     } else if (answer) {
       yield put({type: taskAnswerLoaded, payload: {answer: JSON.parse(answer)}});
       yield put({type: taskRefresh});
@@ -145,47 +149,30 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   const platformApi = yield select(state => state.platformApi);
   const {taskDataLoaded, taskInit, taskTokenUpdated} = yield select(({actions}) => actions);
 
-  let {randomSeed, options} = yield call(platformApi.getTaskParams);
-  if (Number(randomSeed) === 0) {
-    randomSeed = Math.floor(Math.random() * 10);
-  }
-
+  const {randomSeed, options} = yield call(platformApi.getTaskParams);
+  const clientVersions = yield select(state => state.clientVersions);
   let version;
-  const query = queryString.parse(location.search);
-  if (options && options.version) {
-    version = options.version;
+  if (clientVersions) {
+    version = clientVersions[Object.keys(clientVersions)[0]].version;
   } else {
-    if (!query.version) {
-      query.taskID = window.options.defaults.taskID;
-      query.version = window.options.defaults.version;
-      window.location = generateTokenUrl(query);
-      return;
+    const query = queryString.parse(location.search);
+    if (options && options.version) {
+      version = options.version;
     } else {
-      version = query.version;
+      if (!query.version) {
+        query.taskID = window.options.defaults.taskID;
+        query.version = window.options.defaults.version;
+        window.location = generateTokenUrl(query);
+        return;
+      } else {
+        version = query.version;
+      }
     }
   }
 
-  const clientVersions = yield select(state => state.clientVersions);
-  if (clientVersions) {
-    const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === version);
-    const randomSeedUpgrade = levels[versionLevel].stars;
-    randomSeed += randomSeedUpgrade[versionLevel];
-  }
-
-  query.taskID = window.options.defaults.taskID;
-  query.version = version;
-
-  if (!window.task_token) {
-    window.task_token = new TaskToken({
-      itemUrl: generateTokenUrl(query),
-      randomSeed: randomSeed,
-    }, 'buddy');
-  }
-
-  const taskToken = window.task_token.get();
+  const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
   yield put({type: taskTokenUpdated, payload: {token: taskToken}});
 
-  /* TODO: do something with views */
   try {
     const {serverApi} = yield select(state => state);
     const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
@@ -203,7 +190,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
   try {
     const clientVersions = yield select(state => state.clientVersions);
     const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
-    const {minScore, maxScore, noScore} = yield call(getTaskParams, null, null);
+    const {minScore, maxScore, noScore, randomSeed} = yield call(getTaskParams, null, null);
     if (clientVersions) {
       const answer = yield getTaskAnswer();
       const versionsScore = {};
@@ -215,10 +202,10 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
           versionsScore[level] = 0;
           continue;
         }
-
-        answerToken = window.task_token.getAnswerToken(stringify(answer[level]));
+        const newTaskToken = getTaskTokenForVersion(clientVersions[level].version, randomSeed, clientVersions);
+        const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
         const {score, message, scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
-          task: taskToken,
+          task: newTaskToken,
           answer: answerToken,
           min_score: minScore,
           max_score: maxScore,
@@ -300,6 +287,7 @@ export default {
     taskDataLoaded: 'Task.Data.Loaded',
     taskStateLoaded: 'Task.State.Loaded',
     taskAnswerLoaded: 'Task.Answer.Loaded',
+    taskAnswerReloaded: 'Task.Answer.Reloaded',
     taskAnswerGraded: 'Task.Answer.Graded',
     taskTokenUpdated: 'Task.Token.Updated',
     platformFeedbackCleared: 'Platform.FeedbackCleared',

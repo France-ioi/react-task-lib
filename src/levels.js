@@ -1,3 +1,5 @@
+import {generateTokenUrl, TaskToken} from "./task_token";
+
 export const levels = {
   basic: {
     stars: 1,
@@ -17,3 +19,29 @@ export const levels = {
   },
 }
 
+export const getTaskTokenForVersion = (version, randomSeed, clientVersions) => {
+  return getTaskTokenObject(version, randomSeed, clientVersions).get();
+}
+
+export const getAnswerTokenForVersion = (answer, version, randomSeed, clientVersions) => {
+  return getTaskTokenObject(version, randomSeed, clientVersions).getAnswerToken(answer);
+}
+
+export const getTaskTokenObject = (version, randomSeed, clientVersions) => {
+  const query = {};
+  query.taskID = window.options.defaults.taskID;
+  query.version = version;
+
+  if (Number(randomSeed) === 0) {
+    randomSeed = Math.floor(Math.random() * 10);
+  }
+  if (clientVersions) {
+    const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === version);
+    randomSeed += levels[versionLevel].stars;
+  }
+
+  return new TaskToken({
+    itemUrl: generateTokenUrl(query),
+    randomSeed: randomSeed,
+  }, 'buddy');
+}
