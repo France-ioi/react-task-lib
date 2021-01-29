@@ -44,11 +44,5 @@ export const getTaskTokenObject = (version, randomSeed, clientVersions) => {
 }
 
 export const getHeight = () => {
-  if (window.parent && window.parent.document.getElementById('question-iframe')) {
-    const iframeTop = window.parent.document.getElementById('question-iframe').getBoundingClientRect().top + window.parent.document.documentElement.scrollTop
-
-    return window.parent.innerHeight - iframeTop - 36;
-  }
-
   return Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
 };
