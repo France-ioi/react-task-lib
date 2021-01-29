@@ -204,7 +204,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       let currentScore = null;
       let currentMessage = null;
       let currentScoreToken = null;
-      for (let level of Object.keys(levels)) {
+      for (let level of Object.keys(clientVersions)) {
         if (!answer[level]) {
           versionsScore[level] = 0;
           continue;
@@ -228,7 +228,8 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       }
 
       let reconciledScore = 0;
-      for (let [level, {scoreCoefficient}] of Object.entries(levels)) {
+      for (let level of Object.keys(clientVersions)) {
+        let {scoreCoefficient} = levels[level];
         let versionScore = versionsScore[level] * scoreCoefficient;
         reconciledScore = Math.max(reconciledScore, versionScore);
       }

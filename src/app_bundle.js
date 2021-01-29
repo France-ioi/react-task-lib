@@ -187,12 +187,22 @@ function* taskLoadVersionSaga () {
 function* taskAnswerReloadedSaga () {
   const clientVersions = yield select(state => state.clientVersions);
   let nextVersion = null;
-  for (let {version, score} of Object.values(clientVersions)) {
-    if (score < 100) {
+
+  let currentReconciledScore = 0;
+  for (let level of Object.keys(clientVersions)) {
+    const {scoreCoefficient} = levels[level];
+    const versionScore = clientVersions[level].score * scoreCoefficient;
+    currentReconciledScore = Math.max(currentReconciledScore, versionScore);
+  }
+
+  for (let [level, {version}] of Object.entries(clientVersions)) {
+    const maxScore = 100 * levels[level].scoreCoefficient;
+    if (maxScore > currentReconciledScore) {
       nextVersion = version;
       break;
     }
   }
+
   if (null !== nextVersion) {
     yield call(taskChangeVersionSaga, {payload: {version: nextVersion}});
   }
