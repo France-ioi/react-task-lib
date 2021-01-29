@@ -9,7 +9,7 @@ import stringify from 'json-stable-stringify-without-jsonify';
 import queryString from 'query-string';
 import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
-import {getAnswerTokenForVersion, getTaskTokenForVersion, levels} from "./levels";
+import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
 
 function appInitReducer (state) {
   return {...state, grading: {}};
@@ -60,9 +60,7 @@ function* taskUpdateTokenEventSaga ({payload: {success}}) {
 }
 
 function* taskGetHeightEventSaga ({payload: {success}}) {
-  const d = document;
-  const h = Math.max(d.body.offsetHeight, d.documentElement.offsetHeight);
-  yield call(success, h);
+  yield call(success, getHeight());
 }
 
 function* taskUnloadEventSaga ({payload: {success}}) {
