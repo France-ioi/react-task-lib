@@ -155,6 +155,9 @@ function* platformValidateSaga ({payload: {mode}}) {
 function* taskRestartSaga () {
   const actions = yield select(({actions}) => actions);
   yield put({type: actions.taskAnswerSaved, payload: {answer: null}});
+  const {clientVersions, randomSeed, taskData} = yield select();
+  const taskToken = getTaskTokenForVersion(taskData.version.version, randomSeed, clientVersions);
+  yield put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
   yield call(taskLoadVersionSaga);
 }
 
@@ -208,7 +211,6 @@ function* taskChangeVersionSaga ({payload: {version}}) {
   const clientVersions = yield select(state => state.clientVersions);
   const randomSeed = yield select(state => state.randomSeed);
   const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
-
   yield put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
 
   yield call(taskLoadVersionSaga);
@@ -244,6 +246,7 @@ class App extends React.PureComponent {
     this.state = {
       upgradeModalShow: false,
       lockedModalShow: false,
+      restartModalShow: false,
       previousScore: 0,
       nextLevel: null,
     };
@@ -327,6 +330,24 @@ class App extends React.PureComponent {
             <Button variant="primary" onClick={() => this.setLockedModalShow(false)}>D'accord</Button>
           </Modal.Footer>
         </Modal>
+        <Modal
+          show={this.state.restartModalShow}
+          onHide={() => this.setRestartModalShow(false)}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              Confirmation
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Êtes-vous certain de vouloir recommencer cette version à partir de zéro ?</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => this.setRestartModalShow(false)}>Annuler</Button>
+            <Button variant="primary" onClick={() => this._restart()}>Recommencer</Button>
+          </Modal.Footer>
+        </Modal>
         {clientVersions && <nav className="nav nav-tabs version-tabs">
           {Object.entries(levels).map(([level, {stars}]) =>
             level in clientVersions && <a
@@ -367,7 +388,7 @@ class App extends React.PureComponent {
           </Alert>
           }
         </div>
-        <TaskBar onValidate={this._validate} onRestart={this._restart}/>
+        <TaskBar onValidate={this._validate} onRestart={() => this.setRestartModalShow(true)}/>
       </div>
     );
   };
@@ -377,6 +398,7 @@ class App extends React.PureComponent {
   };
   _restart = () => {
     this.props.dispatch({type: this.props.taskRestart});
+    this.setRestartModalShow(false);
   };
   changeLevel = (level) => {
     const {version, locked} = this.props.clientVersions[level];
@@ -398,6 +420,11 @@ class App extends React.PureComponent {
   setLockedModalShow = (newValue) => {
     this.setState({
       lockedModalShow: newValue,
+    });
+  };
+  setRestartModalShow = (newValue) => {
+    this.setState({
+      restartModalShow: newValue,
     });
   };
 }
