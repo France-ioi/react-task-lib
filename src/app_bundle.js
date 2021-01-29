@@ -198,7 +198,6 @@ function* taskAnswerReloadedSaga () {
 function* taskChangeVersionSaga ({payload: {version}}) {
   const actions = yield select(({actions}) => actions);
   const taskApi = yield select(state => state.taskApi);
-  const platformApi = yield select(state => state.platformApi);
 
   const currentAnswer = yield select(state => state.selectors.getTaskAnswer(state));
   yield put({type: actions.taskAnswerSaved, payload: {answer: currentAnswer}});
@@ -207,7 +206,7 @@ function* taskChangeVersionSaga ({payload: {version}}) {
   })
 
   const clientVersions = yield select(state => state.clientVersions);
-  let {randomSeed} = yield call(platformApi.getTaskParams);
+  const randomSeed = yield select(state => state.randomSeed);
   const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
 
   yield put({type: actions.taskTokenUpdated, payload: {token: taskToken}});

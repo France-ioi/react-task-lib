@@ -32,9 +32,6 @@ export const getTaskTokenObject = (version, randomSeed, clientVersions) => {
   query.taskID = window.options.defaults.taskID;
   query.version = version;
 
-  if (Number(randomSeed) === 0) {
-    randomSeed = Math.floor(Math.random() * 10);
-  }
   if (clientVersions) {
     const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === version);
     randomSeed += levels[versionLevel].stars;

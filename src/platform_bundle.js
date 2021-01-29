@@ -19,6 +19,10 @@ function taskDataLoadedReducer (state, {payload: {taskData}}) {
   return {...state, taskData};
 }
 
+function taskRandomSeedUpdatedReducer (state, {payload: {randomSeed}}) {
+  return {...state, randomSeed};
+}
+
 function taskStateLoadedReducer (state, {payload: {hints}}) {
   return {...state, hints};
 }
@@ -145,9 +149,14 @@ function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
 
 function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   const platformApi = yield select(state => state.platformApi);
-  const {taskDataLoaded, taskInit, taskTokenUpdated} = yield select(({actions}) => actions);
+  const {taskInit, taskTokenUpdated, taskRandomSeedUpdated} = yield select(({actions}) => actions);
 
-  const {randomSeed, options} = yield call(platformApi.getTaskParams);
+  let {randomSeed, options} = yield call(platformApi.getTaskParams);
+  if (Number(randomSeed) === 0) {
+    randomSeed = Math.floor(Math.random() * 10);
+  }
+  yield put({type: taskRandomSeedUpdated, payload: {randomSeed}});
+
   const clientVersions = yield select(state => state.clientVersions);
   let version;
   if (clientVersions) {
@@ -186,8 +195,9 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
   const {taskAnswerGraded, taskScoreSaved} = yield select(({actions}) => actions);
   try {
     const clientVersions = yield select(state => state.clientVersions);
+    const randomSeed = yield select(state => state.randomSeed);
     const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
-    const {minScore, maxScore, noScore, randomSeed} = yield call(getTaskParams, null, null);
+    const {minScore, maxScore, noScore} = yield call(getTaskParams, null, null);
     if (clientVersions) {
       const answer = yield getTaskAnswer();
       const versionsScore = {};
@@ -287,6 +297,7 @@ export default {
     taskAnswerReloaded: 'Task.Answer.Reloaded',
     taskAnswerGraded: 'Task.Answer.Graded',
     taskTokenUpdated: 'Task.Token.Updated',
+    taskRandomSeedUpdated: 'Task.RandomSeed.Updated',
     platformFeedbackCleared: 'Platform.FeedbackCleared',
   },
   actionReducers: {
@@ -298,6 +309,7 @@ export default {
     taskAnswerLoaded: taskAnswerLoadedReducer,
     taskAnswerGraded: taskAnswerGradedReducer,
     taskTokenUpdated: taskTokenUpdatedReducer,
+    taskRandomSeedUpdated: taskRandomSeedUpdatedReducer,
     platformFeedbackCleared: platformFeedbackClearedReducer,
   },
   saga: function* () {
