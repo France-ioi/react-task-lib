@@ -6,6 +6,7 @@ body {
 #container {
   user-select: none;
   width: 800px;
+  max-width: none !important;
 }
 
 ::selection {
