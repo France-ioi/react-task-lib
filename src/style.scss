@@ -336,13 +336,11 @@ h2 {
     font-size: 20px;
     font-weight: bold;
     height: 30px;
-    max-width: 30px;
-    width: 30px;
-    display: inline-block;
     line-height: 20px;
     border-radius: 0;
     border: none;
     outline: none;
+    flex: 0 0 30px;
 
     &[disabled] {
       background-color: #aaa;
