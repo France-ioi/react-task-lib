@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {useStore} from 'react-redux'
 import {Collapse} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
@@ -6,6 +7,18 @@ export default React.memo(function Collapsable (props) {
   const [open, setOpen] = useState(true);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const {title, children} = props;
+  const [previousVersion, setPreviousVersion] = useState(null);
+
+  const store = useStore();
+  store.subscribe(() => {
+    const state = store.getState();
+    if (state.taskData && state.taskData.version) {
+      if (null !== previousVersion && previousVersion !== state.taskData.version.version) {
+        setOpen(true);
+      }
+      setPreviousVersion(state.taskData.version.version);
+    }
+  });
 
   const toggleTutorial = (event) => {
     event.stopPropagation();
