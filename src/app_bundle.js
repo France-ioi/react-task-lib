@@ -421,6 +421,7 @@ class App extends React.PureComponent {
   upgradeLevel = () => {
     this.changeLevel(this.state.nextLevel);
     this.setModalShow(false);
+    window.scrollTo({top: 0, behavior: 'smooth'});
   };
   setModalShow = (newValue) => {
     this.setState({
