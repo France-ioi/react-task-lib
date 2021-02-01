@@ -1,11 +1,11 @@
 //import './shim'
+import 'url-search-params-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import {createStore, applyMiddleware, compose} from 'redux';
 import {default as createSagaMiddleware} from 'redux-saga';
 import {call} from 'redux-saga/effects';
-
 import link from './linker';
 
 import AppBundle from './app_bundle';
@@ -13,7 +13,6 @@ import AppBundle from './app_bundle';
 // TODO :: Make jwt available for miniPlatform in a much better way
 import jwt from 'jsonwebtoken';
 window.jwt = jwt;
-
 
 export default function (container, options, TaskBundle, serverTask = null, clientVersions) {
     const platform = window.platform;
