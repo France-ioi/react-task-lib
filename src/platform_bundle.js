@@ -10,6 +10,7 @@ import queryString from 'query-string';
 import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
 import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
+import jwt from "jsonwebtoken";
 
 function appInitReducer (state) {
   return {...state, grading: {}};
@@ -156,6 +157,13 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   randomSeed = Number(String(randomSeed).substring(0, 8));
   if (Number(randomSeed) === 0) {
     randomSeed = Math.floor(Math.random() * 10);
+    if (window.task_token) {
+      const token = window.task_token.get();
+      const payload = jwt.decode(token);
+      if (payload.randomSeed) {
+        randomSeed = payload.randomSeed;
+      }
+    }
   }
   yield put({type: taskRandomSeedUpdated, payload: {randomSeed}});
 
