@@ -430,10 +430,10 @@ h2 {
     &.is-locked {
       background: #999;
       .star-rating svg {
-        path:first-child {
+        path:nth-child(2) {
           fill: #666;
         }
-        path:nth-child(2) {
+        path:nth-child(3) {
           stroke: #666;
         }
       }
