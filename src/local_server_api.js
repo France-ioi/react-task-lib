@@ -43,8 +43,8 @@ function decodeTask (token) {
   if (!task_id) {
     throw new Error('Task token error: taskID missing from itemUrl');
   }
-  const random_seed = parseInt(payload.randomSeed, 10);
-  if (!Number.isInteger(random_seed) || random_seed < 0) {
+  const random_seed = payload.randomSeed;
+  if (random_seed < 0) {
     throw new Error('Task token error: randomSeed missing or incorrect');
   }
 
