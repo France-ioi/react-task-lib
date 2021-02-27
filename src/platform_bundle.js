@@ -155,7 +155,6 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   let {randomSeed, options} = yield call(platformApi.getTaskParams);
   // Fix issue with too large randomSeed that overflow int capacity
   randomSeed = String(randomSeed);
-  console.log({randomSeed});
   if ('0' === randomSeed) {
     randomSeed = String(Math.floor(Math.random() * 10));
     if (window.task_token) {
