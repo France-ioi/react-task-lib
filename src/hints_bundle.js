@@ -77,6 +77,7 @@ function* requestHintSaga ({payload: {request}}) {
     } catch (ex) {
         const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
           : (ex.message ? ex.message : ex.toString());
+        console.error(ex);
         yield put({type: actions.hintRequestRejected, payload: {code: code, error: message}});
     }
 }

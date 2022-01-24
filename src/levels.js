@@ -37,6 +37,15 @@ export const getTaskTokenObject = (version, randomSeed, clientVersions) => {
     randomSeed += levels[versionLevel].stars;
   }
 
+  if (window.task_token) {
+    window.task_token.update({
+      itemUrl: generateTokenUrl(query),
+      randomSeed: randomSeed,
+    });
+
+    return window.task_token;
+  }
+
   return new TaskToken({
     itemUrl: generateTokenUrl(query),
     randomSeed: randomSeed,
