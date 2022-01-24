@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import update from 'immutability-helper';
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {getTaskTokenForVersion} from "./levels";
 
 function hintRequestFulfilledReducer (state, _action) {
     return update(state, {
@@ -54,13 +55,17 @@ function* requestHintSaga ({payload: {request}}) {
     const actions = yield select(({actions}) => actions);
     let code = 0;
     try {
-        const {actions, taskToken: initialTaskToken, serverApi} = yield select(state => state);
+        const {actions, taskToken: initialTaskToken, serverApi, clientVersions, taskData: originalTaskData, randomSeed} = yield select(state => state);
         code = 10;
         yield put({type: actions.hintRequestActivated, payload: {}});
         const {askHint} = yield select(state => state.platformApi);
         code = 20;
+        let newTaskToken = initialTaskToken;
+        if (clientVersions) {
+          newTaskToken = getTaskTokenForVersion(originalTaskData.version.version, randomSeed, clientVersions);
+        }
         /* Contact serverApi to obtain a hintToken for the requested hint. */
-        const {hintToken} = yield call(serverApi, 'tasks', 'requestHint', {task: initialTaskToken, request});
+        const {hintToken} = yield call(serverApi, 'tasks', 'requestHint', {task: newTaskToken, request});
         code = 30;
         /* Contact the platform to authorize the hint request. */
         yield call(askHint, hintToken);
