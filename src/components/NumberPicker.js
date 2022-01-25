@@ -1,16 +1,21 @@
 import React from 'react';
 
-export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
+export default ({minValue, maxValue, increment, count, onChange, readOnly, loop}) => {
   const incrementValue = increment ? increment : 1;
   const incrementCount = (value) => {
-    if (null !== minValue && undefined !== minValue && count + value < minValue) {
+    let newValue = count + value;
+    if (loop) {
+      newValue = ((newValue + (maxValue - minValue + 1)) % (maxValue - minValue + 1)) + minValue;
+    }
+
+    if (null !== minValue && undefined !== minValue && newValue < minValue) {
       return;
     }
-    if (null !== maxValue && undefined !== maxValue && count + value > maxValue) {
+    if (null !== maxValue && undefined !== maxValue && newValue > maxValue) {
       return;
     }
 
-    changeCount(count + value);
+    changeCount(newValue);
   }
   const changeCount = (value) => {
     let newValue = value;
@@ -26,7 +31,7 @@ export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
 
   const handleCountChange = (e) => {
     changeCount(Number(e.target.value));
-  }
+  };
 
   return (
     <div className="control picker-control">
@@ -37,7 +42,7 @@ export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
           className="button-minus"
           data-field="quantity"
           onClick={() => incrementCount(-incrementValue)}
-          disabled={null !== minValue && undefined !== minValue && count - incrementValue < minValue}
+          disabled={readOnly || (!loop && null !== minValue && undefined !== minValue && count - incrementValue < minValue)}
         />
         <input
           type="number"
@@ -55,7 +60,7 @@ export default ({minValue, maxValue, increment, count, onChange, readOnly}) => {
           className="button-plus"
           data-field="quantity"
           onClick={() => incrementCount(incrementValue)}
-          disabled={null !== maxValue && undefined !== maxValue && count + incrementValue > maxValue}
+          disabled={readOnly || (!loop && null !== maxValue && undefined !== maxValue && count + incrementValue > maxValue)}
         />
       </div>
     </div>
