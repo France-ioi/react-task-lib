@@ -425,7 +425,7 @@ h2 {
     &.active {
       margin-bottom: -2px;
       padding-bottom: 10px;
-      background: white;
+      background: white !important;
     }
     &.is-locked {
       background: #999;
