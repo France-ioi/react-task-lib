@@ -412,7 +412,7 @@ class App extends React.PureComponent {
   };
   changeLevel = (level) => {
     const {version, locked} = this.props.clientVersions[level];
-    if (locked && window.location.protocol !== 'file:') {
+    if (locked && window.location.protocol !== 'file:' && -1 === ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(window.location.hostname)) {
       this.setLockedModalShow(true);
       return;
     }
