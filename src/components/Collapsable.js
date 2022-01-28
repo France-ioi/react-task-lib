@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {useStore} from 'react-redux'
+import React, {useEffect, useState} from 'react';
+import {useSelector} from 'react-redux';
 import {Button, Collapse, Modal} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
@@ -8,19 +8,12 @@ export default React.memo(function Collapsable (props) {
 
   const [open, setOpen] = useState(true);
   const [tutorialOpen, setTutorialOpen] = useState(false);
-  const [previousVersion, setPreviousVersion] = useState(null);
   const [confirmCloseModal, setConfirmCloseModal] = useState(false);
+  const taskVersion = useSelector(state => state.taskData ? state.taskData.version.version : null);
 
-  const store = useStore();
-  store.subscribe(() => {
-    const state = store.getState();
-    if (state.taskData && state.taskData.version) {
-      if (null !== previousVersion && previousVersion !== state.taskData.version.version) {
-        setOpen(true);
-      }
-      setPreviousVersion(state.taskData.version.version);
-    }
-  });
+  useEffect(() => {
+    setOpen(true);
+  }, [taskVersion])
 
   const toggleTutorial = (event) => {
     event.stopPropagation();
