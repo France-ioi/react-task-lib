@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({minValue, maxValue, increment, count, onChange, readOnly, loop}) => {
+export default ({minValue, maxValue, increment, count, onChange, readOnly, loop, onFocus, onBlur}) => {
   const incrementValue = increment ? increment : 1;
   const incrementCount = (value) => {
     let newValue = count + value;
@@ -52,6 +52,8 @@ export default ({minValue, maxValue, increment, count, onChange, readOnly, loop}
           name="quantity"
           className="quantity-field"
           onChange={(e) => handleCountChange(e)}
+          onFocus={onFocus}
+          onBlur={onBlur}
           readOnly={readOnly}
         />
         <input
