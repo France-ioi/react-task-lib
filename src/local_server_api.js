@@ -72,6 +72,7 @@ export default function makeServerApi (serverTask) {
       if ('taskData' === action) {
         const {task} = body;
         const params = {
+          ...body,
           task: decodeTask(task),
         };
 
@@ -85,6 +86,7 @@ export default function makeServerApi (serverTask) {
       } else if ('gradeAnswer' === action) {
         const {task, answer} = body;
         const params = {
+          ...body,
           task: decodeTask(task),
           answer: decodeAnswer(answer),
         };
@@ -104,6 +106,7 @@ export default function makeServerApi (serverTask) {
       } else if ('requestHint' === action) {
         const {task, request} = body;
         const params = {
+          ...body,
           task: decodeTask(task),
           request,
         };
