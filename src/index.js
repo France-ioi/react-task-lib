@@ -24,11 +24,13 @@ import styles from './style.scss'
 import Collapsable from "./components/Collapsable";
 import NumberPicker from "./components/NumberPicker";
 import TutorialCarousel from "./components/TutorialCarousel";
+import {Tutorial} from "./components/Tutorial";
 import reactTask from './react_task';
 
 export {
   Collapsable,
   NumberPicker,
   TutorialCarousel,
+  Tutorial,
   reactTask,
 };
