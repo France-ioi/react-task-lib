@@ -17,8 +17,10 @@ export const Tutorial = (props) => {
 
   const html = document.getElementById(props.category).innerHTML;
 
+  const carouselElements = ReactHtmlParser(html, {transform: (node) => transformNode(node, props)});
+
   return <TutorialCarousel>
-    {ReactHtmlParser(html, {transform: (node) => transformNode(node, props)})}
+    {Array.isArray(carouselElements) ? carouselElements.filter(a => null !== a) : carouselElements}
   </TutorialCarousel>;
 }
 
