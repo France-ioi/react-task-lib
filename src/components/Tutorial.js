@@ -1,3 +1,4 @@
+import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import ReactHtmlParser from 'react-html-parser/src';
 import TutorialCarousel from './TutorialCarousel';
@@ -27,10 +28,7 @@ function transformNode(node, props) {
   }
 
   if (node.attribs && node.attribs['data-version']) {
-    let authorizedVersions = node.attribs['data-version'];
-    if (!Array.isArray(authorizedVersions)) {
-      authorizedVersions = [authorizedVersions];
-    }
+    let authorizedVersions = node.attribs['data-version'].split(',');
 
     return (-1 !== authorizedVersions.indexOf(props.version.version) ? undefined : null);
   }
