@@ -16,7 +16,7 @@ window.jwt = jwt;
 
 export default function (container, options, TaskBundle, serverTask = null, clientVersions) {
     const platform = window.platform;
-    if (process.env.NODE_ENV === 'development') platform.debug = true;
+    if (process.env['NODE_ENV'] === 'development') platform.debug = true;
 
     const {actions, views, selectors, reducer, rootSaga} = link({includes: [AppBundle, TaskBundle]});
 
@@ -24,7 +24,7 @@ export default function (container, options, TaskBundle, serverTask = null, clie
     const safeReducer = function (state, action) {
         try {
             return reducer(state, action);
-        } catch (ex) {
+        } catch (ex: any) {
             console.error('action failed to reduce', action, ex);
             return {...state, errors: [ex]};
         }
@@ -33,7 +33,7 @@ export default function (container, options, TaskBundle, serverTask = null, clie
     const sagaMiddleware = createSagaMiddleware();
     let enhancer;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
         const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
         enhancer = composeEnhancers(applyMiddleware(sagaMiddleware));
     } else {

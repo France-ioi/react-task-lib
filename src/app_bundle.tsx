@@ -1,10 +1,9 @@
 import React from 'react';
 import {Alert, Modal, Button} from 'react-bootstrap';
-import {connect} from 'react-redux';
 import {call, takeEvery, select, take, put} from 'redux-saga/effects';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import update from 'immutability-helper';
-
+import {connect, TypedUseSelectorHook, useSelector} from "react-redux";
 import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
 import makeTaskChannel from './legacy/task';
@@ -15,13 +14,25 @@ import PlatformBundle from './platform_bundle';
 import HintsBundle from './hints_bundle';
 import Stars from "./components/Stars";
 import {levels, getTaskTokenForVersion} from './levels';
+import produce, {current} from "immer";
 
-function appInitReducer (state, {payload}) {
-  if (payload.options) {
-    return {...state, options};
+export interface TaskState {
+  taskData: any,
+  platformApi: any,
+  serverApi: any,
+  taskApi: any,
+  options: any,
+}
+
+export const useAppSelector: TypedUseSelectorHook<TaskState> = useSelector;
+
+export const reducer = (reduce: (state: TaskState, action: any) => void) => (state, action) =>
+  produce<TaskState>(state, (draft) => reduce(draft, action));
+
+function appInitReducer (state: TaskState, {payload: {options}}) {
+  if (options) {
+    state.options = options;
   }
-
-  return state;
 }
 
 function appInitDoneReducer (state, {payload: {platformApi, taskApi, serverApi, clientVersions}}) {
@@ -136,7 +147,7 @@ function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}
       yield put(action);
     });
     platformApi = makePlatformAdapter(platform);
-  } catch (ex) {
+  } catch (ex: any) {
     yield put({type: actions.appInitFailed, payload: {message: ex.toString()}});
     return;
   }
@@ -453,7 +464,7 @@ export default {
     taskScoreSaved: 'Task.Score.Saved',
   },
   actionReducers: {
-    appInit: appInitReducer,
+    appInit: reducer(appInitReducer),
     appInitDone: appInitDoneReducer,
     appInitFailed: appInitFailedReducer,
     taskInit: taskInitReducer,

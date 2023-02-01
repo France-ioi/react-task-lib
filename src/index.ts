@@ -21,6 +21,9 @@ declare global {
   interface Window {
     task_token: any,
     options: any,
+    jwt: any,
+    platform: any,
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any,
   }
 }
 

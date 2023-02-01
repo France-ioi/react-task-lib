@@ -1,10 +1,10 @@
 import React from 'react';
 import {Alert} from 'react-bootstrap';
-import {connect} from 'react-redux';
 import update from 'immutability-helper';
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getTaskTokenForVersion} from "./levels";
+import {useAppSelector} from "./app_bundle";
 
 function hintRequestFulfilledReducer (state, _action) {
     return update(state, {
@@ -78,7 +78,7 @@ function* requestHintSaga ({payload: {request}}) {
         yield put({type: actions.taskDataLoaded, payload: {taskData}});
         yield put({type: actions.taskRefresh});
         yield put({type: actions.hintRequestFulfilled, payload: {}});
-    } catch (ex) {
+    } catch (ex: any) {
         const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
           : (ex.message ? ex.message : ex.toString());
         console.error(ex);
@@ -86,44 +86,41 @@ function* requestHintSaga ({payload: {request}}) {
     }
 }
 
-function HintRequestFeedbackSelector (state) {
-    const {actions, hintRequest} = state;
-    if (!hintRequest.data) return {};
-    const {hintRequestFeedbackCleared} = actions;
-    const {success, code, error} = hintRequest.data;
-    return {visible: true, success, code, error, hintRequestFeedbackCleared};
-}
+function HintRequestFeedback() {
+  const hintRequest = useAppSelector(state => state.hintRequest);
+  let visible = false;
+  let success = null;
+  let code = null;
+  let error = null;
 
-class HintRequestFeedback extends React.PureComponent {
-    render () {
-        const {visible, success} = this.props;
-        if (!visible) return false;
-        if (success) {
-            return (
-                <Alert variant={'success'}>
-                    <p>
-                        <FontAwesomeIcon icon="check" />
-                        {"L'indice demandé a été délivré."}
-                    </p>
-                </Alert>
-            );
-        } else {
-            const {code, error} = this.props;
-            return (
-                <Alert variant={'danger'}>
-                    <p>
-                        <FontAwesomeIcon icon="times" />
-                        {"L'indice demandé n'a pas pu être délivré."}
-                    </p>
-                    <p>{"Code "}{code}</p>
-                    {error && <p>{error}</p>}
-                </Alert>
-            );
-        }
-    }
-    handleDismiss = () => {
-        this.props.dispatch({type: this.props.hintRequestFeedbackCleared, payload: {}});
-    }
+  if (hintRequest.data)  {
+    ({success, code, error} = hintRequest.data);
+    visible = true;
+  }
+
+  if (!visible) return false;
+
+  if (success) {
+    return (
+      <Alert variant={'success'}>
+        <p>
+          <FontAwesomeIcon icon="check"/>
+          {"L'indice demandé a été délivré."}
+        </p>
+      </Alert>
+    );
+  } else {
+    return (
+      <Alert variant={'danger'}>
+        <p>
+          <FontAwesomeIcon icon="times"/>
+          {"L'indice demandé n'a pas pu être délivré."}
+        </p>
+        <p>{"Code "}{code}</p>
+        {error && <p>{error}</p>}
+      </Alert>
+    );
+  }
 }
 
 export default {
@@ -142,7 +139,7 @@ export default {
         hintRequestActivated: hintRequestActivatedReducer,
     },
     views: {
-        HintRequestFeedback: connect(HintRequestFeedbackSelector)(HintRequestFeedback)
+        HintRequestFeedback,
     },
     saga: function* hintsSaga () {
         const actions = yield select(({actions}) => actions);

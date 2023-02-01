@@ -124,7 +124,7 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
     } else {
       yield call(success);
     }
-  } catch (ex) {
+  } catch (ex: any) {
     yield call(error, `bad answer: ${ex.message}`);
   }
 }
@@ -143,7 +143,7 @@ function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
       yield put({type: taskRefresh});
     }
     yield call(success);
-  } catch (ex) {
+  } catch (ex: any) {
     yield call(error, `bad state: ${ex.message}`);
   }
 }
@@ -196,7 +196,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     yield put({type: taskInit, payload: {taskData}});
     yield call(success);
     yield fork(windowHeightMonitorSaga, platformApi);
-  } catch (ex) {
+  } catch (ex: any) {
     yield call(error, ex.toString());
   }
 }
@@ -263,7 +263,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       yield put({type: taskAnswerGraded, payload: {grading: {score, message}}});
       yield call(success, score, message, scoreToken);
     }
-  } catch (ex) {
+  } catch (ex: any) {
     const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
       : (ex.message ? ex.message : ex.toString());
     yield put({type: taskAnswerGraded, payload: {grading: {error: message}}});

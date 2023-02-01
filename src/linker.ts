@@ -5,9 +5,17 @@
 
 import {all, call} from 'redux-saga/effects';
 
-export default function link (rootBundle, features) {
+export interface App {
+  actions?: any,
+  views?: any,
+  selectors?: any,
+  reducer?: any,
+  rootSaga?: any,
+}
+
+export default function link (rootBundle, features = null): App {
   features = features || [Actions, Views, Selectors, EarlyReducers, Reducers, ActionReducers, LateReducers, Sagas];
-  const app = {};
+  const app: App = {};
   for (let feature of features) {
     feature.prepare(app);
   }
@@ -15,6 +23,7 @@ export default function link (rootBundle, features) {
   for (let feature of features) {
     feature.finalize(app);
   }
+
   return app;
 }
 
