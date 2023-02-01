@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
 import {faStickyNote} from '@fortawesome/free-solid-svg-icons/faStickyNote';
@@ -19,7 +17,7 @@ library.add(
   faChevronDown, faChevronLeft, faChevronRight, faQuestionCircle,
 );
 
-import styles from './style.scss'
+import './style.scss';
 import Collapsable from "./components/Collapsable";
 import NumberPicker from "./components/NumberPicker";
 import TutorialCarousel from "./components/TutorialCarousel";
