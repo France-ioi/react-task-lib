@@ -17,6 +17,13 @@ library.add(
   faChevronDown, faChevronLeft, faChevronRight, faQuestionCircle,
 );
 
+declare global {
+  interface Window {
+    task_token: any,
+    options: any,
+  }
+}
+
 import './style.scss';
 import Collapsable from "./components/Collapsable";
 import NumberPicker from "./components/NumberPicker";

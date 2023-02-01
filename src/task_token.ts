@@ -63,7 +63,7 @@ function TaskToken(data, key) {
     for (var key in this.data) {
       answerData[key] = this.data[key];
     }
-    answerData.sAnswer = answer;
+    answerData['sAnswer'] = answer;
     return this.getToken(answerData, callback);
   }
 }

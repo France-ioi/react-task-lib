@@ -3,7 +3,16 @@ import {useSelector} from 'react-redux';
 import {Button, Collapse, Modal} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-export default React.memo(function Collapsable (props) {
+export interface CollapsableProps {
+  title: any,
+  children: any,
+  tutorial: any,
+  closable: boolean,
+  onClose: () => void,
+  closeConfirmText?: string,
+}
+
+export default React.memo(function Collapsable (props: CollapsableProps) {
   const {title, children, tutorial, closable, onClose, closeConfirmText} = props;
 
   const [open, setOpen] = useState(true);

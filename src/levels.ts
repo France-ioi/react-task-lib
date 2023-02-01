@@ -28,7 +28,7 @@ export const getAnswerTokenForVersion = (answer, version, randomSeed, clientVers
 }
 
 export const getTaskTokenObject = (version, randomSeed, clientVersions) => {
-  const query = {};
+  const query: {taskID?: string, version?: string} = {};
   query.taskID = window.options.defaults.taskID;
   query.version = version;
 

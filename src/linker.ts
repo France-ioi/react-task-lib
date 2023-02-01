@@ -168,7 +168,7 @@ function sequenceReducers (...reducers) {
       continue;
     }
     if (typeof reducer !== 'function') {
-      throw new Error('reducer must be a function', reducer);
+      throw new Error('reducer must be a function');
     }
     if (!result) {
       result = reducer;
