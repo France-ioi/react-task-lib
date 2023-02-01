@@ -1,6 +1,6 @@
 {
   "name": "@france-ioi/react-task-lib",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Library to create France IOI tasks with React.js",
   "author": "SebastienTainon",
   "license": "MIT",
@@ -11,6 +11,9 @@
   "engines": {
     "node": ">=10"
   },
+  "files": [
+    "dist"
+  ],
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
