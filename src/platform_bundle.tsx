@@ -115,7 +115,7 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
           yield* put({type: taskRefresh});
         }
       }
-      yield* call(taskGradeAnswerEventSaga, {payload: {_answer: answer, success, error, silent: true}});
+      yield* call(taskGradeAnswerEventSaga, {payload: {_answer: answer, answerToken: null, success, error, silent: true}});
       yield* put({type: taskAnswerReloaded});
     } else if (answer) {
       yield* put({type: taskAnswerLoaded, payload: {answer: JSON.parse(answer)}});

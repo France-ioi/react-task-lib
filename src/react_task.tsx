@@ -57,6 +57,7 @@ export default function (container, options, TaskBundle, serverTask = null, clie
     store.dispatch({type: actions.appInit, payload: {options, platform, serverTask, clientVersions}});
 
     /* Start rendering. */
+    // @ts-ignore
     ReactDOM.render(<Provider store={store}><views.App/></Provider>, container);
 
     return {actions, views, store, start};

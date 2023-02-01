@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
 import {Button, Collapse, Modal} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {useAppSelector} from "../app_bundle";
 
 export interface CollapsableProps {
   title: any,
@@ -18,7 +18,7 @@ export default React.memo(function Collapsable (props: CollapsableProps) {
   const [open, setOpen] = useState(true);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [confirmCloseModal, setConfirmCloseModal] = useState(false);
-  const taskVersion = useSelector(state => state.taskData ? state.taskData.version.version : null);
+  const taskVersion = useAppSelector(state => state.taskData ? state.taskData.version.version : null);
 
   useEffect(() => {
     setOpen(true);

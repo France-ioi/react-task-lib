@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Alert, Modal, Button} from 'react-bootstrap';
 import {call, takeEvery, select, take, put} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {connect, TypedUseSelectorHook, useSelector} from "react-redux";
+import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
 import makeTaskChannel from './legacy/task';
@@ -14,6 +14,7 @@ import HintsBundle from './hints_bundle';
 import Stars from "./components/Stars";
 import {levels, getTaskTokenForVersion} from './levels';
 import produce from "immer";
+import {EventChannel} from "redux-saga";
 
 export interface HintRequest {
   isActive: boolean,
@@ -32,10 +33,24 @@ export interface TaskClientVersion {
   score: number,
 }
 
+export interface TaskParams {
+  randomSeed: string,
+  minScore: number,
+  maxScore: number,
+  noScore: number,
+  options: any,
+}
+
+export interface TaskPlatformApi {
+  getTaskParams: () => Promise<TaskParams>,
+  askHint: (hintToken: string) => void,
+  validate: () => void,
+}
+
 export interface TaskState {
   taskData: any,
-  platformApi: any,
-  serverApi: any,
+  platformApi: TaskPlatformApi,
+  serverApi: (service, action, body) => Promise<any>,
   taskApi: any,
   options: any,
   clientVersions: {[level: string]: TaskClientVersion},
@@ -48,7 +63,9 @@ export interface TaskState {
   hints: any,
   answer: any,
   taskViews: any,
+  views: any,
   fatalError?: string,
+  taskReady: boolean,
 }
 
 export const useAppSelector: TypedUseSelectorHook<TaskState> = useSelector;
@@ -160,7 +177,7 @@ const taskActions = { /* map task method names to action types */
 
 function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}}) {
   const actions = yield* select(({actions}) => actions);
-  let taskChannel, taskApi, platformApi, serverApi;
+  let taskChannel: EventChannel<any>, taskApi, platformApi, serverApi;
   try {
     if (null !== serverTask) {
       serverApi = makeLocalServerApi(serverTask);
@@ -168,7 +185,7 @@ function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}
       serverApi = makeServerApi(options.server_module);
     }
     taskChannel = yield* call(makeTaskChannel);
-    taskApi = (yield* take(taskChannel)).task;
+    taskApi = (yield* take<{task: any}>(taskChannel)).task;
     yield* takeEvery(taskChannel, function* ({type, payload}) {
       const action = {type: actions[taskActions[type]], payload};
       yield* put(action);
@@ -264,43 +281,23 @@ function* taskChangeVersionSaga ({payload: {version}}) {
   yield* call(taskLoadVersionSaga);
 }
 
-function AppSelector (state) {
-  const {
-    taskReady,
-    fatalError,
-    views: {Workspace},
-    actions: {platformValidate, taskRestart, taskChangeVersion},
-    grading,
-    taskData,
-    clientVersions,
-  } = state;
+function App() {
+  const [upgradeModalShow, setUpgradeModalShow] = useState(false);
+  const [lockedModalShow, setLockedModalShow] = useState(false);
+  const [restartModalShow, setRestartModalShow] = useState(false);
+  const [previousScore, setPreviousScore] = useState(0);
+  const [nextLevel, setNextLevel] = useState(null);
 
-  return {
-    taskReady,
-    fatalError,
-    clientVersions,
-    Workspace,
-    platformValidate,
-    taskRestart,
-    grading,
-    taskData,
-    taskChangeVersion,
-  };
-}
+  const taskReady = useAppSelector(state => state.taskReady);
+  const fatalError = useAppSelector(state => state.fatalError);
+  const grading = useAppSelector(state => state.grading);
+  const taskData = useAppSelector(state => state.taskData);
+  const clientVersions = useAppSelector(state => state.clientVersions);
+  const {Workspace} = useAppSelector(state => state.views);
+  const {platformValidate, taskRestart, taskChangeVersion} = useAppSelector(state => state.actions);
+  const dispatch = useDispatch();
 
-class App extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      upgradeModalShow: false,
-      lockedModalShow: false,
-      restartModalShow: false,
-      previousScore: 0,
-      nextLevel: null,
-    };
-  };
-
-  static getDerivedStateFromProps({clientVersions, grading, taskData}, currentState) {
+  useEffect(() => {
     if (!clientVersions || !taskData) {
       return null;
     }
@@ -311,171 +308,148 @@ class App extends React.PureComponent {
 
     const nextLevel = Object.keys(clientVersions)[versionLevelIndex + 1];
 
-    if (grading && grading.score === 100 && currentState.previousScore !== 100) {
-      return {
-        upgradeModalShow: true,
-        previousScore: grading.score,
-        nextLevel,
-      }
-    } else if (!grading || grading.score !== currentState.previousScore) {
-      return {
-        previousScore: grading.score,
-      };
+    if (grading && grading.score === 100 && previousScore !== 100) {
+      setUpgradeModalShow(true);
+      setPreviousScore(grading.score);
+      setNextLevel(nextLevel);
+    } else if (!grading || grading.score !== previousScore) {
+      setPreviousScore(grading.score);
     }
 
     return null;
-  }
+  }, [clientVersions, grading, taskData, previousScore]);
 
-  render () {
-    const {taskReady, Workspace, fatalError, grading, taskData, clientVersions} = this.props;
-
-    if (fatalError) {
-      return (
-        <div>
-          <h1>{"A fatal error has occurred"}</h1>
-          <p>{fatalError}</p>
-        </div>
-      );
-    }
-    if (!taskReady) {
-      return <Spinner/>;
-    }
-
-    return (
-      <div>
-        <Modal
-          show={this.state.upgradeModalShow}
-          onHide={() => this.setModalShow(false)}
-          size="lg"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              Bravo !
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>Bravo, vous avez réussi !</p>
-            <p>Nous vous proposons d'essayer la version {this.state.nextLevel ? levels[this.state.nextLevel].stars : ''} étoiles.</p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="primary" onClick={() => this.upgradeLevel()}>Passer à la suite</Button>
-          </Modal.Footer>
-        </Modal>
-        <Modal
-          show={this.state.lockedModalShow}
-          onHide={() => this.setLockedModalShow(false)}
-          size="lg"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              Version verrouillée
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>Cette version est verrouillée, et la précédente doit être résolue avant de pouvoir afficher cette version.</p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="primary" onClick={() => this.setLockedModalShow(false)}>D'accord</Button>
-          </Modal.Footer>
-        </Modal>
-        <Modal
-          show={this.state.restartModalShow}
-          onHide={() => this.setRestartModalShow(false)}
-          size="lg"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              Confirmation
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>Êtes-vous certain de vouloir recommencer cette version à partir de zéro ?</p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => this.setRestartModalShow(false)}>Annuler</Button>
-            <Button variant="primary" onClick={() => this._restart()}>Recommencer</Button>
-          </Modal.Footer>
-        </Modal>
-        {clientVersions && <nav className="nav nav-tabs version-tabs">
-          {Object.entries(levels).map(([level, {stars}]) =>
-            level in clientVersions && <a
-              key={level}
-              role="tab"
-              tabIndex="-1"
-              className={`
-                nav-item
-                nav-link
-                ${taskData && clientVersions[level].version === taskData.version.version ? 'active' : ''}
-                ${clientVersions[level].locked ? 'is-locked' : ''}
-              `}
-              onClick={() => this.changeLevel(level)}
-            >
-              Version
-
-              <Stars starsCount={stars} rating={clientVersions[level].score}/>
-            </a>
-          )}
-        </nav>}
-        <Workspace/>
-        <div className="result">
-          {!grading.error && (grading.score || grading.message) &&
-          <Alert variant={typeof grading.score === 'number' && grading.score > 0 ? 'success' : 'danger'}>
-            {!grading.error && grading.message &&
-            <p style={{fontWeight: 'bold'}}>
-              <FontAwesomeIcon icon={typeof grading.score === 'number' && grading.score > 0 ? 'check' : 'times'}/>
-              <span dangerouslySetInnerHTML={{__html: grading.message}}/>
-            </p>}
-            {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
-            <p><br/>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
-          </Alert>
-          }
-          {grading.error &&
-          <Alert variant='danger'>
-            <FontAwesomeIcon icon="times"/>
-            {grading.error}
-          </Alert>
-          }
-        </div>
-        <TaskBar onValidate={this._validate} onRestart={() => this.setRestartModalShow(true)}/>
-      </div>
-    );
+  const _validate = () => {
+    dispatch({type: platformValidate, payload: {mode: 'done'}});
   };
-
-  _validate = () => {
-    this.props.dispatch({type: this.props.platformValidate, payload: {mode: 'done'}});
+  const _restart = () => {
+    dispatch({type: taskRestart});
+    setRestartModalShow(false);
   };
-  _restart = () => {
-    this.props.dispatch({type: this.props.taskRestart});
-    this.setRestartModalShow(false);
-  };
-  changeLevel = (level) => {
-    const {version, locked} = this.props.clientVersions[level];
+  const changeLevel = (level) => {
+    const {version, locked} = clientVersions[level];
     if (locked && window.location.protocol !== 'file:' && -1 === ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(window.location.hostname)) {
-      this.setLockedModalShow(true);
+      setLockedModalShow(true);
       return;
     }
-    this.props.dispatch({type: this.props.taskChangeVersion, payload: {version}});
+    dispatch({type: taskChangeVersion, payload: {version}});
   };
-  upgradeLevel = () => {
-    this.changeLevel(this.state.nextLevel);
-    this.setModalShow(false);
+  const upgradeLevel = () => {
+    changeLevel(nextLevel);
+    setUpgradeModalShow(false);
     window.scrollTo({top: 0, behavior: 'smooth'});
   };
-  setModalShow = (newValue) => {
-    this.setState({
-      upgradeModalShow: newValue,
-    });
-  };
-  setLockedModalShow = (newValue) => {
-    this.setState({
-      lockedModalShow: newValue,
-    });
-  };
-  setRestartModalShow = (newValue) => {
-    this.setState({
-      restartModalShow: newValue,
-    });
-  };
+
+  if (fatalError) {
+    return (
+      <div>
+        <h1>{"A fatal error has occurred"}</h1>
+        <p>{fatalError}</p>
+      </div>
+    );
+  }
+  if (!taskReady) {
+    return <Spinner/>;
+  }
+
+  return (
+    <div>
+      <Modal
+        show={upgradeModalShow}
+        onHide={() => setUpgradeModalShow(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Bravo !
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Bravo, vous avez réussi !</p>
+          <p>Nous vous proposons d'essayer la version {nextLevel ? levels[nextLevel].stars : ''} étoiles.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => upgradeLevel()}>Passer à la suite</Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={lockedModalShow}
+        onHide={() => setLockedModalShow(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Version verrouillée
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Cette version est verrouillée, et la précédente doit être résolue avant de pouvoir afficher cette version.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setLockedModalShow(false)}>D'accord</Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={restartModalShow}
+        onHide={() => setRestartModalShow(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Confirmation
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Êtes-vous certain de vouloir recommencer cette version à partir de zéro ?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setRestartModalShow(false)}>Annuler</Button>
+          <Button variant="primary" onClick={() => _restart()}>Recommencer</Button>
+        </Modal.Footer>
+      </Modal>
+      {clientVersions && <nav className="nav nav-tabs version-tabs">
+        {Object.entries(levels).map(([level, {stars}]) =>
+          level in clientVersions && <a
+            key={level}
+            role="tab"
+            tabIndex={-1}
+            className={`
+              nav-item
+              nav-link
+              ${taskData && clientVersions[level].version === taskData.version.version ? 'active' : ''}
+              ${clientVersions[level].locked ? 'is-locked' : ''}
+            `}
+            onClick={() => changeLevel(level)}
+          >
+            Version
+
+            <Stars starsCount={stars} rating={clientVersions[level].score}/>
+          </a>
+        )}
+      </nav>}
+      <Workspace/>
+      <div className="result">
+        {!grading.error && (grading.score || grading.message) &&
+        <Alert variant={typeof grading.score === 'number' && grading.score > 0 ? 'success' : 'danger'}>
+          {!grading.error && grading.message &&
+          <p style={{fontWeight: 'bold'}}>
+            <FontAwesomeIcon icon={typeof grading.score === 'number' && grading.score > 0 ? 'check' : 'times'}/>
+            <span dangerouslySetInnerHTML={{__html: grading.message}}/>
+          </p>}
+          {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
+          <p><br/>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
+        </Alert>
+        }
+        {grading.error &&
+        <Alert variant='danger'>
+          <FontAwesomeIcon icon="times"/>
+          {grading.error}
+        </Alert>
+        }
+      </div>
+      <TaskBar onValidate={_validate} onRestart={() => setRestartModalShow(true)}/>
+    </div>
+  );
 }
 
 export default {
@@ -500,7 +474,7 @@ export default {
   },
   saga: appSaga,
   views: {
-    App: connect(AppSelector)(App)
+    App,
   },
   includes: [
     PlatformBundle,

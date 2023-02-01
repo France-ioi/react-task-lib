@@ -1,7 +1,7 @@
 
-import {buffers, eventChannel} from 'redux-saga';
+import {buffers, EventChannel, eventChannel} from 'redux-saga';
 
-export default function () {
+export default function (): EventChannel<any> {
     return eventChannel(function (emit) {
         const task = makeTask(emit);
         emit({task});
