@@ -1,63 +1,48 @@
 import React from 'react';
 import {Alert} from 'react-bootstrap';
-import update from 'immutability-helper';
 import {call, put, select, takeEvery} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getTaskTokenForVersion} from "./levels";
-import {useAppSelector} from "./app_bundle";
+import {reducer, TaskState, useAppSelector} from "./app_bundle";
 
-function hintRequestFulfilledReducer (state, _action) {
-    return update(state, {
-        hintRequest: {
-            data: {$set: {success: true}},
-            isActive: {$set: false},
-        }
-    });
+function hintRequestFulfilledReducer (state: TaskState, _action) {
+  state.hintRequest.data = {success: true};
+  state.hintRequest.isActive = false;
 }
 
-function hintRequestRejectedReducer (state, {payload: {code, error}}) {
-    return update(state, {
-        hintRequest: {
-            data: {$set: {success: false, code, error}},
-            isActive: {$set: false},
-        }
-    });
+function hintRequestRejectedReducer (state: TaskState, {payload: {code, error}}) {
+  state.hintRequest.data = {
+    success: false,
+    code,
+    error,
+  };
+  state.hintRequest.isActive = false;
 }
 
-function hintRequestFeedbackClearedReducer (state, _action) {
-    return update(state, {
-        hintRequest: {
-            data: {$set: null},
-            isActive: {$set: false},
-        }
-    });
+function hintRequestFeedbackClearedReducer (state: TaskState) {
+  state.hintRequest.data = null;
+  state.hintRequest.isActive = false;
 }
 
-function hintRequestActivatedReducer (state, _action) {
-    return update(state, {
-        hintRequest: {
-            isActive: {$set: true},
-        }
-    });
+function hintRequestActivatedReducer (state: TaskState) {
+  state.hintRequest.isActive = true;
 }
 
-function appInitReducer (state, _action) {
-    return update(state, {
-        hintRequest: {$set: {
-            data: null,
-            isActive: false,
-        }}
-    });
+function appInitReducer (state: TaskState) {
+  state.hintRequest = {
+    data: null,
+    isActive: false,
+  };
 }
 
 function* requestHintSaga ({payload: {request}}) {
     const actions = yield* select(({actions}) => actions);
     let code = 0;
     try {
-        const {actions, taskToken: initialTaskToken, serverApi, clientVersions, taskData: originalTaskData, randomSeed} = yield* select(state => state);
+        const {actions, taskToken: initialTaskToken, serverApi, clientVersions, taskData: originalTaskData, randomSeed} = yield* select((state: TaskState) => state);
         code = 10;
         yield* put({type: actions.hintRequestActivated, payload: {}});
-        const {askHint} = yield* select(state => state.platformApi);
+        const {askHint} = yield* select((state: TaskState) => state.platformApi);
         code = 20;
         let newTaskToken = initialTaskToken;
         if (clientVersions) {
@@ -70,7 +55,7 @@ function* requestHintSaga ({payload: {request}}) {
         yield* call(askHint, hintToken);
         code = 40;
         /* When askHint returns an updated taskToken is obtained from the store. */
-        const updatedTaskToken = yield* select(state => state.taskToken);
+        const updatedTaskToken = yield* select((state: TaskState) => state.taskToken);
         code = 50;
         /* Finally, contact the serverApi to obtain the updated taskData. */
         const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: updatedTaskToken});
@@ -132,11 +117,11 @@ export default {
         hintRequestFeedbackCleared: 'Hint.Request.FeedbackCleared',
     },
     actionReducers: {
-        taskInit: appInitReducer,
-        hintRequestFulfilled: hintRequestFulfilledReducer,
-        hintRequestRejected: hintRequestRejectedReducer,
-        hintRequestFeedbackCleared: hintRequestFeedbackClearedReducer,
-        hintRequestActivated: hintRequestActivatedReducer,
+        taskInit: reducer(appInitReducer),
+        hintRequestFulfilled: reducer(hintRequestFulfilledReducer),
+        hintRequestRejected: reducer(hintRequestRejectedReducer),
+        hintRequestFeedbackCleared: reducer(hintRequestFeedbackClearedReducer),
+        hintRequestActivated: reducer(hintRequestActivatedReducer),
     },
     views: {
         HintRequestFeedback,

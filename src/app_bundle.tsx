@@ -2,7 +2,6 @@ import React from 'react';
 import {Alert, Modal, Button} from 'react-bootstrap';
 import {call, takeEvery, select, take, put} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import update from 'immutability-helper';
 import {connect, TypedUseSelectorHook, useSelector} from "react-redux";
 import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
@@ -14,7 +13,24 @@ import PlatformBundle from './platform_bundle';
 import HintsBundle from './hints_bundle';
 import Stars from "./components/Stars";
 import {levels, getTaskTokenForVersion} from './levels';
-import produce, {current} from "immer";
+import produce from "immer";
+
+export interface HintRequest {
+  isActive: boolean,
+  data?: {
+    success: boolean,
+    code?: string,
+    error?: string,
+  },
+}
+
+export interface TaskClientVersion {
+  version: string,
+  answer: any,
+  bestAnswer: any,
+  locked: boolean,
+  score: number,
+}
 
 export interface TaskState {
   taskData: any,
@@ -22,6 +38,17 @@ export interface TaskState {
   serverApi: any,
   taskApi: any,
   options: any,
+  clientVersions: {[level: string]: TaskClientVersion},
+  selectors: any,
+  randomSeed: string,
+  actions: any,
+  taskToken: string,
+  hintRequest: HintRequest,
+  grading: any,
+  hints: any,
+  answer: any,
+  taskViews: any,
+  fatalError?: string,
 }
 
 export const useAppSelector: TypedUseSelectorHook<TaskState> = useSelector;
@@ -35,11 +62,11 @@ function appInitReducer (state: TaskState, {payload: {options}}) {
   }
 }
 
-function appInitDoneReducer (state, {payload: {platformApi, taskApi, serverApi, clientVersions}}) {
+function appInitDoneReducer (state: TaskState, {payload: {platformApi, taskApi, serverApi, clientVersions}}) {
   let clientVersionsData = null;
   if (clientVersions) {
     clientVersionsData = {};
-    for (let [level, {version, locked}] of Object.entries(clientVersions)) {
+    for (let [level, {version, locked}] of Object.entries<{version: string, locked: boolean}>(clientVersions)) {
       clientVersionsData[level] = {
         version,
         locked: !!locked,
@@ -50,52 +77,52 @@ function appInitDoneReducer (state, {payload: {platformApi, taskApi, serverApi, 
     }
   }
 
-  return {...state, platformApi, taskApi, serverApi, clientVersions: clientVersionsData};
+  state.platformApi = platformApi;
+  state.taskApi = taskApi;
+  state.serverApi = serverApi;
+  state.clientVersions = clientVersionsData;
 }
 
-function appInitFailedReducer (state, {payload: {message}}) {
-  return {...state, fatalError: message};
+function appInitFailedReducer (state: TaskState, {payload: {message}}) {
+  state.fatalError = message;
 }
 
-function taskInitReducer (state, {payload: {taskData}}) {
-  return {...state, taskData};
+function taskInitReducer (state: TaskState, {payload: {taskData}}) {
+  state.taskData = taskData;
 }
 
-function taskAnswerSavedReducer (state, {payload: {answer, version: answerVersion}}) {
+function taskAnswerSavedReducer (state: TaskState, {payload: {answer, version: answerVersion}}) {
   const {taskData: {version: {version}}, clientVersions} = state;
   if (!clientVersions) {
-    return state;
+    return;
   }
 
   const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === (answerVersion ? answerVersion : version));
 
-  return update(state, {clientVersions: {[versionLevel]: {answer: {$set: answer}}}});
+  state.clientVersions[versionLevel].answer = answer;
 }
 
-function taskScoreSavedReducer (state, {payload: {score, answer, version: answerVersion}}) {
+function taskScoreSavedReducer (state: TaskState, {payload: {score, answer, version: answerVersion}}) {
   const {taskData: {version: {version}}, clientVersions} = state;
   if (!clientVersions) {
-    return state;
+    return;
   }
 
   const versionLevel = Object.keys(clientVersions).find(key => clientVersions[key].version === (answerVersion ? answerVersion : version));
   const currentScore = clientVersions[versionLevel].score;
-  let newState = state;
   if (score > currentScore) {
-    newState = update(newState, {clientVersions: {[versionLevel]: {bestAnswer: {$set: answer}, score: {$set: score}}}});
-
+    state.clientVersions[versionLevel].bestAnswer = answer;
+    state.clientVersions[versionLevel].score = score;
     if (score >= 100) {
       const levelNumber = Object.keys(clientVersions).indexOf(versionLevel);
       if (levelNumber + 1 <= Object.keys(clientVersions).length - 1) {
         const nextLevel = Object.keys(clientVersions)[levelNumber + 1];
         if (clientVersions[nextLevel].locked) {
-          newState = update(newState, {clientVersions: {[nextLevel]: {locked: {$set: false}}}});
+          state.clientVersions[versionLevel].locked = false;
         }
       }
     }
   }
-
-  return newState;
 }
 
 function* appSaga () {
@@ -158,7 +185,7 @@ function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}
 }
 
 function* platformValidateSaga ({payload: {mode}}) {
-  const {validate} = yield* select(state => state.platformApi);
+  const {validate} = yield* select((state: TaskState) => state.platformApi);
   /* TODO: error handling, wrap in try/catch block */
   yield* call(validate, mode);
 }
@@ -173,12 +200,12 @@ function* taskRestartSaga () {
 }
 
 function* taskLoadVersionSaga () {
-  const serverApi = yield* select(state => state.serverApi);
+  const serverApi = yield* select((state: TaskState) => state.serverApi);
   const taskToken = yield* select(({taskToken}) => taskToken);
   const actions = yield* select(({actions}) => actions);
   const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
 
-  const clientVersions = yield* select(state => state.clientVersions);
+  const clientVersions = yield* select((state: TaskState) => state.clientVersions);
   if (clientVersions) {
     const clientVersion = Object.values(clientVersions).find(clientVersion => clientVersion.version === taskData.version.version);
     if (clientVersion.answer) {
@@ -196,7 +223,7 @@ function* taskLoadVersionSaga () {
 }
 
 function* taskAnswerReloadedSaga () {
-  const clientVersions = yield* select(state => state.clientVersions);
+  const clientVersions = yield* select((state: TaskState) => state.clientVersions);
   let nextVersion = null;
 
   let currentReconciledScore = 0;
@@ -221,16 +248,16 @@ function* taskAnswerReloadedSaga () {
 
 function* taskChangeVersionSaga ({payload: {version}}) {
   const actions = yield* select(({actions}) => actions);
-  const taskApi = yield* select(state => state.taskApi);
+  const taskApi = yield* select((state: TaskState) => state.taskApi);
 
-  const currentAnswer = yield* select(state => state.selectors.getTaskAnswer(state));
+  const currentAnswer = yield* select((state: TaskState) => state.selectors.getTaskAnswer(state));
   yield* put({type: actions.taskAnswerSaved, payload: {answer: currentAnswer}});
   yield new Promise((resolve, reject) => {
     taskApi.gradeAnswer(null, null, resolve, reject, true);
   })
 
-  const clientVersions = yield* select(state => state.clientVersions);
-  const randomSeed = yield* select(state => state.randomSeed);
+  const clientVersions = yield* select((state: TaskState) => state.clientVersions);
+  const randomSeed = yield* select((state: TaskState) => state.randomSeed);
   const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
   yield* put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
 
@@ -465,11 +492,11 @@ export default {
   },
   actionReducers: {
     appInit: reducer(appInitReducer),
-    appInitDone: appInitDoneReducer,
-    appInitFailed: appInitFailedReducer,
-    taskInit: taskInitReducer,
-    taskAnswerSaved: taskAnswerSavedReducer,
-    taskScoreSaved: taskScoreSavedReducer,
+    appInitDone: reducer(appInitDoneReducer),
+    appInitFailed: reducer(appInitFailedReducer),
+    taskInit: reducer(taskInitReducer),
+    taskAnswerSaved: reducer(taskAnswerSavedReducer),
+    taskScoreSaved: reducer(taskScoreSavedReducer),
   },
   saga: appSaga,
   views: {

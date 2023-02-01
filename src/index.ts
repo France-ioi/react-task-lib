@@ -23,6 +23,7 @@ declare global {
     options: any,
     jwt: any,
     platform: any,
+    task: any,
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any,
   }
 }

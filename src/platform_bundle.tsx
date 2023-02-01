@@ -11,33 +11,33 @@ import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
 import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
 import jwt from "jsonwebtoken";
+import {reducer, TaskState} from "./app_bundle";
 
-function appInitReducer (state) {
-  return {...state, grading: {}};
+function appInitReducer (state: TaskState) {
+  state.grading = {};
 }
 
-function taskDataLoadedReducer (state, {payload: {taskData}}) {
-  return {...state, taskData};
+function taskDataLoadedReducer (state: TaskState, {payload: {taskData}}) {
+  state.taskData = taskData;
 }
 
-function taskRandomSeedUpdatedReducer (state, {payload: {randomSeed}}) {
-  return {...state, randomSeed};
+function taskRandomSeedUpdatedReducer (state: TaskState, {payload: {randomSeed}}) {
+  state.randomSeed = randomSeed;
 }
 
-function taskStateLoadedReducer (state, {payload: {hints}}) {
-  return {...state, hints};
+function taskStateLoadedReducer (state: TaskState, {payload: {hints}}) {
+  state.hints = hints;
 }
 
-function taskAnswerLoadedReducer (state, {payload: {taskData, answer}}) {
+function taskAnswerLoadedReducer (state: TaskState, {payload: {taskData, answer}}) {
   if (taskData) {
-    return {...state, taskData, answer};
-  } else {
-    return {...state, answer};
+    state.taskData = taskData;
   }
+  state.answer = answer;
 }
 
-function taskShowViewsEventReducer (state, {payload: {views}}) {
-  return {...state, taskViews: views};
+function taskShowViewsEventReducer (state: TaskState, {payload: {views}}) {
+  state.taskViews = views;
 }
 
 function* taskShowViewsEventSaga ({payload: {success}}) {
@@ -50,14 +50,14 @@ function* taskGetViewsEventSaga ({payload: {success}}) {
   yield* call(success, {'task': {}});
 }
 
-function taskUpdateTokenEventReducer (state, {payload: {token}}) {
+function taskUpdateTokenEventReducer (state: TaskState, {payload: {token}}) {
   if (token === null) {
     // eslint-disable-next-line
     console.warn('ignored task.updateToken with null token');
-    return state;
+    return;
   }
 
-  return {...state, taskToken: token};
+  state.taskToken = token;
 }
 
 function* taskUpdateTokenEventSaga ({payload: {success}}) {
@@ -84,11 +84,11 @@ function* taskGetAnswerEventSaga ({payload: {success}}) {
 }
 
 function* getTaskAnswer () {
-  const currentAnswer = yield* select(state => state.selectors.getTaskAnswer(state));
+  const currentAnswer = yield* select((state: TaskState) => state.selectors.getTaskAnswer(state));
 
-  const clientVersions = yield* select(state => state.clientVersions);
+  const clientVersions = yield* select((state: TaskState) => state.clientVersions);
   if (clientVersions) {
-    const taskData = yield* select(state => state.taskData);
+    const taskData = yield* select((state: TaskState) => state.taskData);
     const currentVersion = taskData.version.version;
     const answers = {};
     for (let [level, {version, answer}] of Object.entries(clientVersions)) {
@@ -102,11 +102,11 @@ function* getTaskAnswer () {
 }
 
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
-  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, platformFeedbackCleared, taskAnswerReloaded} = yield* select(({actions}) => actions);
+  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, taskAnswerReloaded} = yield* select(({actions}) => actions);
   try {
-    const clientVersions = yield* select(state => state.clientVersions);
+    const clientVersions = yield* select((state: TaskState) => state.clientVersions);
     if (clientVersions && answer) {
-      const currentVersion = yield* select(state => state.taskData.version);
+      const currentVersion = yield* select((state: TaskState) => state.taskData.version);
       const answerObject = JSON.parse(answer);
       for (let [level, {version}] of Object.entries(clientVersions)) {
         yield* put({type: taskAnswerSaved, payload: {answer: answerObject[level], version}});
@@ -130,7 +130,7 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
 }
 
 function* taskGetStateEventSaga ({payload: {success}}) {
-  const dump = yield* select(state => state.selectors.getTaskState(state));
+  const dump = yield* select((state: TaskState) => state.selectors.getTaskState(state));
   const strDump = stringify(dump);
   yield* call(success, strDump);
 }
@@ -149,7 +149,7 @@ function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
 }
 
 function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
-  const platformApi = yield* select(state => state.platformApi);
+  const platformApi = yield* select((state: TaskState) => state.platformApi);
   const {taskInit, taskTokenUpdated, taskRandomSeedUpdated} = yield* select(({actions}) => actions);
 
   let {randomSeed, options} = yield* call(platformApi.getTaskParams);
@@ -167,7 +167,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   }
   yield* put({type: taskRandomSeedUpdated, payload: {randomSeed}});
 
-  const clientVersions = yield* select(state => state.clientVersions);
+  const clientVersions = yield* select((state: TaskState) => state.clientVersions);
   let version;
   if (clientVersions) {
     version = clientVersions[Object.keys(clientVersions)[0]].version;
@@ -179,7 +179,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
       if (!query.version) {
         query.taskID = window.options.defaults.taskID;
         query.version = window.options.defaults.version;
-        window.location = generateTokenUrl(query);
+        window.location.href = generateTokenUrl(query);
         return;
       } else {
         version = query.version;
@@ -191,7 +191,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
 
   try {
-    const {serverApi} = yield* select(state => state);
+    const {serverApi} = yield* select((state: TaskState) => state);
     const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
     yield* put({type: taskInit, payload: {taskData}});
     yield* call(success);
@@ -204,9 +204,9 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
 function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, error, silent}}) {
   const {taskAnswerGraded, taskScoreSaved} = yield* select(({actions}) => actions);
   try {
-    const clientVersions = yield* select(state => state.clientVersions);
-    const randomSeed = yield* select(state => state.randomSeed);
-    const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield* select(state => state);
+    const clientVersions = yield* select((state: TaskState) => state.clientVersions);
+    const randomSeed = yield* select((state: TaskState) => state.randomSeed);
+    const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield* select((state: TaskState) => state);
     const {minScore, maxScore, noScore} = yield* call(getTaskParams, null, null);
     if (clientVersions) {
       const answer = yield getTaskAnswer();
@@ -274,16 +274,16 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
   }
 }
 
-function taskAnswerGradedReducer (state, {payload: {grading}}) {
-  return {...state, grading};
+function taskAnswerGradedReducer (state: TaskState, {payload: {grading}}) {
+  state.grading = grading;
 }
 
-function platformFeedbackClearedReducer (state) {
-  return {...state, grading: {}};
+function platformFeedbackClearedReducer (state: TaskState) {
+  state.grading = {};
 }
 
-function taskTokenUpdatedReducer (state, {payload: {token}}) {
-  return {...state, taskToken: token};
+function taskTokenUpdatedReducer (state: TaskState, {payload: {token}}) {
+  state.taskToken = token;
 }
 
 export default {
@@ -312,16 +312,16 @@ export default {
     platformFeedbackCleared: 'Platform.FeedbackCleared',
   },
   actionReducers: {
-    appInit: appInitReducer,
-    taskShowViewsEvent: taskShowViewsEventReducer,
-    taskUpdateTokenEvent: taskUpdateTokenEventReducer,
-    taskDataLoaded: taskDataLoadedReducer,
-    taskStateLoaded: taskStateLoadedReducer,
-    taskAnswerLoaded: taskAnswerLoadedReducer,
-    taskAnswerGraded: taskAnswerGradedReducer,
-    taskTokenUpdated: taskTokenUpdatedReducer,
-    taskRandomSeedUpdated: taskRandomSeedUpdatedReducer,
-    platformFeedbackCleared: platformFeedbackClearedReducer,
+    appInit: reducer(appInitReducer),
+    taskShowViewsEvent: reducer(taskShowViewsEventReducer),
+    taskUpdateTokenEvent: reducer(taskUpdateTokenEventReducer),
+    taskDataLoaded: reducer(taskDataLoadedReducer),
+    taskStateLoaded: reducer(taskStateLoadedReducer),
+    taskAnswerLoaded: reducer(taskAnswerLoadedReducer),
+    taskAnswerGraded: reducer(taskAnswerGradedReducer),
+    taskTokenUpdated: reducer(taskTokenUpdatedReducer),
+    taskRandomSeedUpdated: reducer(taskRandomSeedUpdatedReducer),
+    platformFeedbackCleared: reducer(platformFeedbackClearedReducer),
   },
   saga: function* () {
     const actions = yield* select(({actions}) => actions);
