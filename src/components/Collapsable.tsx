@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Collapse, Modal} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {useAppSelector} from "../app_bundle";
+import {useAppSelector} from "../typings";
 
 export interface CollapsableProps {
   title: any,

@@ -3,7 +3,7 @@ import {Alert} from 'react-bootstrap';
 import {call, put, select, takeEvery} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getTaskTokenForVersion} from "./levels";
-import {reducer, TaskState, useAppSelector} from "./app_bundle";
+import {reducer, TaskState, useAppSelector} from "./typings";
 
 function hintRequestFulfilledReducer (state: TaskState, _action) {
   state.hintRequest.data = {success: true};

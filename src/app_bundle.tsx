@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Alert, Modal, Button} from 'react-bootstrap';
 import {call, takeEvery, select, take, put} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
 import makeTaskChannel from './legacy/task';
@@ -13,65 +13,8 @@ import PlatformBundle from './platform_bundle';
 import HintsBundle from './hints_bundle';
 import Stars from "./components/Stars";
 import {levels, getTaskTokenForVersion} from './levels';
-import produce from "immer";
 import {EventChannel} from "redux-saga";
-
-export interface HintRequest {
-  isActive: boolean,
-  data?: {
-    success: boolean,
-    code?: string,
-    error?: string,
-  },
-}
-
-export interface TaskClientVersion {
-  version: string,
-  answer: any,
-  bestAnswer: any,
-  locked: boolean,
-  score: number,
-}
-
-export interface TaskParams {
-  randomSeed: string,
-  minScore: number,
-  maxScore: number,
-  noScore: number,
-  options: any,
-}
-
-export interface TaskPlatformApi {
-  getTaskParams: () => Promise<TaskParams>,
-  askHint: (hintToken: string) => void,
-  validate: () => void,
-}
-
-export interface TaskState {
-  taskData: any,
-  platformApi: TaskPlatformApi,
-  serverApi: (service, action, body) => Promise<any>,
-  taskApi: any,
-  options: any,
-  clientVersions: {[level: string]: TaskClientVersion},
-  selectors: any,
-  randomSeed: string,
-  actions: any,
-  taskToken: string,
-  hintRequest: HintRequest,
-  grading: any,
-  hints: any,
-  answer: any,
-  taskViews: any,
-  views: any,
-  fatalError?: string,
-  taskReady: boolean,
-}
-
-export const useAppSelector: TypedUseSelectorHook<TaskState> = useSelector;
-
-export const reducer = (reduce: (state: TaskState, action: any) => void) => (state, action) =>
-  produce<TaskState>(state, (draft) => reduce(draft, action));
+import {reducer, TaskState, useAppSelector} from "./typings";
 
 function appInitReducer (state: TaskState, {payload: {options}}) {
   if (options) {

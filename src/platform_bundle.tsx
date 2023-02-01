@@ -11,7 +11,7 @@ import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
 import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
 import jwt from "jsonwebtoken";
-import {reducer, TaskState} from "./app_bundle";
+import {reducer, TaskState} from "./typings";
 
 function appInitReducer (state: TaskState) {
   state.grading = {};
