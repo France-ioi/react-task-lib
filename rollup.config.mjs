@@ -17,13 +17,13 @@ export default [
     input: "src/index.ts",
     output: [
       {
-        file: packageJson.module,
-        format: "esm",
+        file: packageJson.main,
+        format: "cjs",
         sourcemap: true,
       },
     ],
     plugins: [
-      nodePolyfills(),
+      // nodePolyfills(),
       peerDepsExternal(),
       resolve(),
       commonjs(),
@@ -31,7 +31,7 @@ export default [
       typescript({ tsconfig: "./tsconfig.json" }),
       terser(),
       scss({
-        fileName: 'style.css',
+        fileName: 'index.css',
         outputStyle: "compressed"
       }),
     ],
