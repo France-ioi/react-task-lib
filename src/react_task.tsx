@@ -14,7 +14,7 @@ import AppBundle from './app_bundle';
 import jwt from 'jsonwebtoken';
 window.jwt = jwt;
 
-export default function (container, options, TaskBundle, serverTask = null, clientVersions) {
+export default function (container, options, TaskBundle, serverTask = null, clientVersions = undefined) {
     const platform = window.platform;
     if (process.env['NODE_ENV'] === 'development') platform.debug = true;
 
