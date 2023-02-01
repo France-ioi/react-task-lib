@@ -5,8 +5,7 @@
   "author": "SebastienTainon",
   "license": "MIT",
   "repository": "https://github.com/France-ioi/react-task-lib",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "module": "dist/index.js",
   "type": "module",
   "files": [
     "dist"
@@ -87,6 +86,7 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
-    "rollup-plugin-node-polyfills": "^0.2.1"
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "rollup-plugin-scss": "^4.0.0"
   }
 }

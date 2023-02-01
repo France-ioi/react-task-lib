@@ -6,9 +6,9 @@ import {useAppSelector} from "../app_bundle";
 export interface CollapsableProps {
   title: any,
   children: any,
-  tutorial: any,
-  closable: boolean,
-  onClose: () => void,
+  tutorial?: any,
+  closable?: boolean,
+  onClose?: () => void,
   closeConfirmText?: string,
 }
 
