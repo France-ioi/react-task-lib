@@ -28,7 +28,7 @@
     "declarationDir": "types",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "emitDeclarationOnly": true
+//    "emitDeclarationOnly": true
   },
   "exclude": [
     "bebras-modules",

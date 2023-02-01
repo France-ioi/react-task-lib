@@ -17,12 +17,15 @@ library.add(
   faChevronDown, faChevronLeft, faChevronRight, faQuestionCircle,
 );
 
+setAutoFreeze(false);
+
 import './style.scss';
 import Collapsable from "./components/Collapsable";
 import NumberPicker from "./components/NumberPicker";
 import TutorialCarousel from "./components/TutorialCarousel";
 import {Tutorial, TaskInstructions} from "./components/Tutorial";
 import reactTask from './react_task';
+import {setAutoFreeze} from "immer";
 
 export {
   Collapsable,
