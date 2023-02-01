@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import {createStore, applyMiddleware, compose} from 'redux';
 import {default as createSagaMiddleware} from 'redux-saga';
-import {call} from 'redux-saga/effects';
+import {call} from 'typed-redux-saga';
 import link from './linker';
 
 import AppBundle from './app_bundle';
@@ -46,7 +46,7 @@ export default function (container, options, TaskBundle, serverTask = null, clie
     function start () {
         sagaMiddleware.run(function* () {
             try {
-                yield call(rootSaga);
+                yield* call(rootSaga);
             } catch (error) {
                 console.error('sagas crashed', error);
             }

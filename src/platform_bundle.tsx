@@ -4,7 +4,7 @@
 - task.getViews is called whenever the window's height changes
 */
 
-import {call, fork, put, select, takeEvery} from 'redux-saga/effects';
+import {call, fork, put, select, takeEvery} from 'typed-redux-saga';
 import stringify from 'json-stable-stringify-without-jsonify';
 import queryString from 'query-string';
 import {generateTokenUrl} from "./task_token";
@@ -42,12 +42,12 @@ function taskShowViewsEventReducer (state, {payload: {views}}) {
 
 function* taskShowViewsEventSaga ({payload: {success}}) {
   /* The reducer has stored the views to show, just call success. */
-  yield call(success);
+  yield* call(success);
 }
 
 function* taskGetViewsEventSaga ({payload: {success}}) {
   /* XXX only the 'task' view is declared */
-  yield call(success, {'task': {}});
+  yield* call(success, {'task': {}});
 }
 
 function taskUpdateTokenEventReducer (state, {payload: {token}}) {
@@ -61,34 +61,34 @@ function taskUpdateTokenEventReducer (state, {payload: {token}}) {
 }
 
 function* taskUpdateTokenEventSaga ({payload: {success}}) {
-  yield call(success);
+  yield* call(success);
 }
 
 function* taskGetHeightEventSaga ({payload: {success}}) {
-  yield call(success, getHeight());
+  yield* call(success, getHeight());
 }
 
 function* taskUnloadEventSaga ({payload: {success}}) {
   /* XXX No action needed? */
-  yield call(success);
+  yield* call(success);
 }
 
 function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
-  const metaData = yield select(({taskMetaData}) => taskMetaData);
-  yield call(success, metaData);
+  const metaData = yield* select(({taskMetaData}) => taskMetaData);
+  yield* call(success, metaData);
 }
 
 function* taskGetAnswerEventSaga ({payload: {success}}) {
   const answer = yield getTaskAnswer();
-  yield call(success, stringify(answer));
+  yield* call(success, stringify(answer));
 }
 
 function* getTaskAnswer () {
-  const currentAnswer = yield select(state => state.selectors.getTaskAnswer(state));
+  const currentAnswer = yield* select(state => state.selectors.getTaskAnswer(state));
 
-  const clientVersions = yield select(state => state.clientVersions);
+  const clientVersions = yield* select(state => state.clientVersions);
   if (clientVersions) {
-    const taskData = yield select(state => state.taskData);
+    const taskData = yield* select(state => state.taskData);
     const currentVersion = taskData.version.version;
     const answers = {};
     for (let [level, {version, answer}] of Object.entries(clientVersions)) {
@@ -102,57 +102,57 @@ function* getTaskAnswer () {
 }
 
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
-  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, platformFeedbackCleared, taskAnswerReloaded} = yield select(({actions}) => actions);
+  const {taskAnswerSaved, taskAnswerLoaded, taskRefresh, platformFeedbackCleared, taskAnswerReloaded} = yield* select(({actions}) => actions);
   try {
-    const clientVersions = yield select(state => state.clientVersions);
+    const clientVersions = yield* select(state => state.clientVersions);
     if (clientVersions && answer) {
-      const currentVersion = yield select(state => state.taskData.version);
+      const currentVersion = yield* select(state => state.taskData.version);
       const answerObject = JSON.parse(answer);
       for (let [level, {version}] of Object.entries(clientVersions)) {
-        yield put({type: taskAnswerSaved, payload: {answer: answerObject[level], version}});
+        yield* put({type: taskAnswerSaved, payload: {answer: answerObject[level], version}});
         if (version === currentVersion.version) {
-          yield put({type: taskAnswerLoaded, payload: {answer: answerObject[level]}});
-          yield put({type: taskRefresh});
+          yield* put({type: taskAnswerLoaded, payload: {answer: answerObject[level]}});
+          yield* put({type: taskRefresh});
         }
       }
-      yield call(taskGradeAnswerEventSaga, {payload: {_answer: answer, success, error, silent: true}});
-      yield put({type: taskAnswerReloaded});
+      yield* call(taskGradeAnswerEventSaga, {payload: {_answer: answer, success, error, silent: true}});
+      yield* put({type: taskAnswerReloaded});
     } else if (answer) {
-      yield put({type: taskAnswerLoaded, payload: {answer: JSON.parse(answer)}});
-      yield put({type: taskRefresh});
-      yield call(success);
+      yield* put({type: taskAnswerLoaded, payload: {answer: JSON.parse(answer)}});
+      yield* put({type: taskRefresh});
+      yield* call(success);
     } else {
-      yield call(success);
+      yield* call(success);
     }
   } catch (ex: any) {
-    yield call(error, `bad answer: ${ex.message}`);
+    yield* call(error, `bad answer: ${ex.message}`);
   }
 }
 
 function* taskGetStateEventSaga ({payload: {success}}) {
-  const dump = yield select(state => state.selectors.getTaskState(state));
+  const dump = yield* select(state => state.selectors.getTaskState(state));
   const strDump = stringify(dump);
-  yield call(success, strDump);
+  yield* call(success, strDump);
 }
 
 function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
-  const {taskStateLoaded, taskRefresh} = yield select(({actions}) => actions);
+  const {taskStateLoaded, taskRefresh} = yield* select(({actions}) => actions);
   try {
     if (state) {
-      yield put({type: taskStateLoaded, payload: {dump: JSON.parse(state)}});
-      yield put({type: taskRefresh});
+      yield* put({type: taskStateLoaded, payload: {dump: JSON.parse(state)}});
+      yield* put({type: taskRefresh});
     }
-    yield call(success);
+    yield* call(success);
   } catch (ex: any) {
-    yield call(error, `bad state: ${ex.message}`);
+    yield* call(error, `bad state: ${ex.message}`);
   }
 }
 
 function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
-  const platformApi = yield select(state => state.platformApi);
-  const {taskInit, taskTokenUpdated, taskRandomSeedUpdated} = yield select(({actions}) => actions);
+  const platformApi = yield* select(state => state.platformApi);
+  const {taskInit, taskTokenUpdated, taskRandomSeedUpdated} = yield* select(({actions}) => actions);
 
-  let {randomSeed, options} = yield call(platformApi.getTaskParams);
+  let {randomSeed, options} = yield* call(platformApi.getTaskParams);
   // Fix issue with too large randomSeed that overflow int capacity
   randomSeed = String(randomSeed);
   if ('0' === randomSeed) {
@@ -165,9 +165,9 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
       }
     }
   }
-  yield put({type: taskRandomSeedUpdated, payload: {randomSeed}});
+  yield* put({type: taskRandomSeedUpdated, payload: {randomSeed}});
 
-  const clientVersions = yield select(state => state.clientVersions);
+  const clientVersions = yield* select(state => state.clientVersions);
   let version;
   if (clientVersions) {
     version = clientVersions[Object.keys(clientVersions)[0]].version;
@@ -188,26 +188,26 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   }
 
   const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
-  yield put({type: taskTokenUpdated, payload: {token: taskToken}});
+  yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
 
   try {
-    const {serverApi} = yield select(state => state);
-    const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
-    yield put({type: taskInit, payload: {taskData}});
-    yield call(success);
-    yield fork(windowHeightMonitorSaga, platformApi);
+    const {serverApi} = yield* select(state => state);
+    const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
+    yield* put({type: taskInit, payload: {taskData}});
+    yield* call(success);
+    yield* fork(windowHeightMonitorSaga, platformApi);
   } catch (ex: any) {
-    yield call(error, ex.toString());
+    yield* call(error, ex.toString());
   }
 }
 
 function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, error, silent}}) {
-  const {taskAnswerGraded, taskScoreSaved} = yield select(({actions}) => actions);
+  const {taskAnswerGraded, taskScoreSaved} = yield* select(({actions}) => actions);
   try {
-    const clientVersions = yield select(state => state.clientVersions);
-    const randomSeed = yield select(state => state.randomSeed);
-    const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
-    const {minScore, maxScore, noScore} = yield call(getTaskParams, null, null);
+    const clientVersions = yield* select(state => state.clientVersions);
+    const randomSeed = yield* select(state => state.randomSeed);
+    const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield* select(state => state);
+    const {minScore, maxScore, noScore} = yield* call(getTaskParams, null, null);
     if (clientVersions) {
       const answer = yield getTaskAnswer();
       const versionsScore = {};
@@ -221,7 +221,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
         }
         const newTaskToken = getTaskTokenForVersion(clientVersions[level].version, randomSeed, clientVersions);
         const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
-        const {score, message, scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
+        const {score, message, scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
           task: newTaskToken,
           answer: answerToken,
           min_score: minScore,
@@ -234,7 +234,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
           currentMessage = message;
           currentScoreToken = scoreToken;
         }
-        yield put({type: taskScoreSaved, payload: {score, answer, version: clientVersions[level].version}});
+        yield* put({type: taskScoreSaved, payload: {score, answer, version: clientVersions[level].version}});
       }
 
       let reconciledScore = 0;
@@ -245,31 +245,31 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       }
 
       if (!silent) {
-        yield put({type: taskAnswerGraded, payload: {grading: {score: currentScore, message: currentMessage}}});
+        yield* put({type: taskAnswerGraded, payload: {grading: {score: currentScore, message: currentMessage}}});
       }
-      yield call(success, reconciledScore, currentMessage, currentScoreToken);
+      yield* call(success, reconciledScore, currentMessage, currentScoreToken);
     } else {
       if (!answerToken) {
         const answer = yield getTaskAnswer();
         answerToken = window.task_token.getAnswerToken(stringify(answer));
       }
-      const {score, message, token: scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
+      const {score, message, token: scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
         task: taskToken, /* XXX task should be named taskToken */
         answer: answerToken,  /* XXX answer should be named answerToken */
         min_score: minScore, /* XXX no real point passing min_score, max_score, no_score to server-side grader */
         max_score: maxScore,
         no_score: noScore,
       });
-      yield put({type: taskAnswerGraded, payload: {grading: {score, message}}});
-      yield call(success, score, message, scoreToken);
+      yield* put({type: taskAnswerGraded, payload: {grading: {score, message}}});
+      yield* call(success, score, message, scoreToken);
     }
   } catch (ex: any) {
     const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
       : (ex.message ? ex.message : ex.toString());
-    yield put({type: taskAnswerGraded, payload: {grading: {error: message}}});
+    yield* put({type: taskAnswerGraded, payload: {grading: {error: message}}});
     console.error(ex);
     if (error) {
-      yield call(error, message);
+      yield* call(error, message);
     }
   }
 }
@@ -324,18 +324,18 @@ export default {
     platformFeedbackCleared: platformFeedbackClearedReducer,
   },
   saga: function* () {
-    const actions = yield select(({actions}) => actions);
-    yield takeEvery(actions.taskShowViewsEvent, taskShowViewsEventSaga);
-    yield takeEvery(actions.taskGetViewsEvent, taskGetViewsEventSaga);
-    yield takeEvery(actions.taskUpdateTokenEvent, taskUpdateTokenEventSaga);
-    yield takeEvery(actions.taskGetHeightEvent, taskGetHeightEventSaga);
-    yield takeEvery(actions.taskUnloadEvent, taskUnloadEventSaga);
-    yield takeEvery(actions.taskGetStateEvent, taskGetStateEventSaga);
-    yield takeEvery(actions.taskGetMetaDataEvent, taskGetMetaDataEventSaga);
-    yield takeEvery(actions.taskReloadAnswerEvent, taskReloadAnswerEventSaga);
-    yield takeEvery(actions.taskReloadStateEvent, taskReloadStateEventSaga);
-    yield takeEvery(actions.taskGetAnswerEvent, taskGetAnswerEventSaga);
-    yield takeEvery(actions.taskLoadEvent, taskLoadEventSaga);
-    yield takeEvery(actions.taskGradeAnswerEvent, taskGradeAnswerEventSaga);
+    const actions = yield* select(({actions}) => actions);
+    yield* takeEvery(actions.taskShowViewsEvent, taskShowViewsEventSaga);
+    yield* takeEvery(actions.taskGetViewsEvent, taskGetViewsEventSaga);
+    yield* takeEvery(actions.taskUpdateTokenEvent, taskUpdateTokenEventSaga);
+    yield* takeEvery(actions.taskGetHeightEvent, taskGetHeightEventSaga);
+    yield* takeEvery(actions.taskUnloadEvent, taskUnloadEventSaga);
+    yield* takeEvery(actions.taskGetStateEvent, taskGetStateEventSaga);
+    yield* takeEvery(actions.taskGetMetaDataEvent, taskGetMetaDataEventSaga);
+    yield* takeEvery(actions.taskReloadAnswerEvent, taskReloadAnswerEventSaga);
+    yield* takeEvery(actions.taskReloadStateEvent, taskReloadStateEventSaga);
+    yield* takeEvery(actions.taskGetAnswerEvent, taskGetAnswerEventSaga);
+    yield* takeEvery(actions.taskLoadEvent, taskLoadEventSaga);
+    yield* takeEvery(actions.taskGradeAnswerEvent, taskGradeAnswerEventSaga);
   }
 };

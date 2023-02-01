@@ -1,4 +1,4 @@
-import {call} from 'redux-saga/effects';
+import {call} from 'typed-redux-saga';
 import {getHeight} from './levels';
 
 const sleep = (timeout) => (new Promise(resolve => setTimeout(resolve, timeout)));
@@ -10,7 +10,7 @@ export function* windowHeightMonitorSaga (platformApi) {
     yield sleep(200);
     const height = getHeight();
     if (height !== lastHeight) {
-      yield call(platformApi.updateDisplay, {height});
+      yield* call(platformApi.updateDisplay, {height});
       lastHeight = height;
     }
   }

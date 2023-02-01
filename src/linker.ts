@@ -3,7 +3,7 @@
  * terms of the MIT license.
  */
 
-import {all, call} from 'redux-saga/effects';
+import {all, call} from 'typed-redux-saga';
 
 export interface App {
   actions?: any,
@@ -140,7 +140,7 @@ const Sagas = {
   },
   finalize: function (app) {
     const effects = app.sagas.map(function (saga) { return call(saga); });
-    app.rootSaga = function* () { yield all(effects); };
+    app.rootSaga = function* () { yield* all(effects); };
     delete app.sagas;
   }
 };

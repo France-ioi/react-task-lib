@@ -79,10 +79,11 @@
     "rollup-plugin-postcss": "^4.0.2",
     "stream": "^0.0.2",
     "tslib": "^2.5.0",
+    "typed-redux-saga": "^1.5.0",
     "typescript": "^4.9.5",
     "url-search-params-polyfill": "^8.1.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
-  },
+  }
 }

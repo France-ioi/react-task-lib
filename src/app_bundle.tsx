@@ -1,6 +1,6 @@
 import React from 'react';
 import {Alert, Modal, Button} from 'react-bootstrap';
-import {call, takeEvery, select, take, put} from 'redux-saga/effects';
+import {call, takeEvery, select, take, put} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import update from 'immutability-helper';
 import {connect, TypedUseSelectorHook, useSelector} from "react-redux";
@@ -99,19 +99,19 @@ function taskScoreSavedReducer (state, {payload: {score, answer, version: answer
 }
 
 function* appSaga () {
-  const actions = yield select(({actions}) => actions);
-  yield takeEvery(actions.appInit, appInitSaga);
-  yield takeEvery(actions.platformValidate, platformValidateSaga);
-  yield takeEvery(actions.taskRestart, taskRestartSaga);
-  yield takeEvery(actions.taskAnswerReloaded, taskAnswerReloadedSaga);
-  yield takeEvery(actions.taskChangeVersion, taskChangeVersionSaga);
-  yield takeEvery('*', function* clearFeedback (action) {
+  const actions = yield* select(({actions}) => actions);
+  yield* takeEvery(actions.appInit, appInitSaga);
+  yield* takeEvery(actions.platformValidate, platformValidateSaga);
+  yield* takeEvery(actions.taskRestart, taskRestartSaga);
+  yield* takeEvery(actions.taskAnswerReloaded, taskAnswerReloadedSaga);
+  yield* takeEvery(actions.taskChangeVersion, taskChangeVersionSaga);
+  yield* takeEvery('*', function* clearFeedback (action) {
     const {type} = action;
     const keywords = ['Started', 'Moved', 'Changed', 'Added', 'Pressed', 'Reset'];
     const splittedType = type.split('.');
     if (-1 !== keywords.indexOf(splittedType[splittedType.length - 1])) {
-      yield put({type: actions.hintRequestFeedbackCleared});
-      yield put({type: actions.platformFeedbackCleared});
+      yield* put({type: actions.hintRequestFeedbackCleared});
+      yield* put({type: actions.platformFeedbackCleared});
     }
   });
 }
@@ -132,7 +132,7 @@ const taskActions = { /* map task method names to action types */
 };
 
 function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}}) {
-  const actions = yield select(({actions}) => actions);
+  const actions = yield* select(({actions}) => actions);
   let taskChannel, taskApi, platformApi, serverApi;
   try {
     if (null !== serverTask) {
@@ -140,63 +140,63 @@ function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}
     } else {
       serverApi = makeServerApi(options.server_module);
     }
-    taskChannel = yield call(makeTaskChannel);
-    taskApi = (yield take(taskChannel)).task;
-    yield takeEvery(taskChannel, function* ({type, payload}) {
+    taskChannel = yield* call(makeTaskChannel);
+    taskApi = (yield* take(taskChannel)).task;
+    yield* takeEvery(taskChannel, function* ({type, payload}) {
       const action = {type: actions[taskActions[type]], payload};
-      yield put(action);
+      yield* put(action);
     });
     platformApi = makePlatformAdapter(platform);
   } catch (ex: any) {
-    yield put({type: actions.appInitFailed, payload: {message: ex.toString()}});
+    yield* put({type: actions.appInitFailed, payload: {message: ex.toString()}});
     return;
   }
 
-  yield put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi, clientVersions}});
+  yield* put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi, clientVersions}});
   window.task = taskApi;
-  yield call(platformApi.initWithTask, taskApi);
+  yield* call(platformApi.initWithTask, taskApi);
 }
 
 function* platformValidateSaga ({payload: {mode}}) {
-  const {validate} = yield select(state => state.platformApi);
+  const {validate} = yield* select(state => state.platformApi);
   /* TODO: error handling, wrap in try/catch block */
-  yield call(validate, mode);
+  yield* call(validate, mode);
 }
 
 function* taskRestartSaga () {
-  const actions = yield select(({actions}) => actions);
-  yield put({type: actions.taskAnswerSaved, payload: {answer: null}});
-  const {clientVersions, randomSeed, taskData} = yield select();
+  const actions = yield* select(({actions}) => actions);
+  yield* put({type: actions.taskAnswerSaved, payload: {answer: null}});
+  const {clientVersions, randomSeed, taskData} = yield* select();
   const taskToken = getTaskTokenForVersion(taskData.version.version, randomSeed, clientVersions);
-  yield put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
-  yield call(taskLoadVersionSaga);
+  yield* put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
+  yield* call(taskLoadVersionSaga);
 }
 
 function* taskLoadVersionSaga () {
-  const serverApi = yield select(state => state.serverApi);
-  const taskToken = yield select(({taskToken}) => taskToken);
-  const actions = yield select(({actions}) => actions);
-  const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
+  const serverApi = yield* select(state => state.serverApi);
+  const taskToken = yield* select(({taskToken}) => taskToken);
+  const actions = yield* select(({actions}) => actions);
+  const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
 
-  const clientVersions = yield select(state => state.clientVersions);
+  const clientVersions = yield* select(state => state.clientVersions);
   if (clientVersions) {
     const clientVersion = Object.values(clientVersions).find(clientVersion => clientVersion.version === taskData.version.version);
     if (clientVersion.answer) {
-      yield put({type: actions.taskAnswerLoaded, payload: {taskData, answer: clientVersion.answer}});
-      yield put({type: actions.taskRefresh});
+      yield* put({type: actions.taskAnswerLoaded, payload: {taskData, answer: clientVersion.answer}});
+      yield* put({type: actions.taskRefresh});
     } else {
-      yield put({type: actions.taskInit, payload: {taskData}});
+      yield* put({type: actions.taskInit, payload: {taskData}});
     }
   } else {
-    yield put({type: actions.taskInit, payload: {taskData}});
+    yield* put({type: actions.taskInit, payload: {taskData}});
   }
 
-  yield put({type: actions.hintRequestFeedbackCleared});
-  yield put({type: actions.platformFeedbackCleared});
+  yield* put({type: actions.hintRequestFeedbackCleared});
+  yield* put({type: actions.platformFeedbackCleared});
 }
 
 function* taskAnswerReloadedSaga () {
-  const clientVersions = yield select(state => state.clientVersions);
+  const clientVersions = yield* select(state => state.clientVersions);
   let nextVersion = null;
 
   let currentReconciledScore = 0;
@@ -215,26 +215,26 @@ function* taskAnswerReloadedSaga () {
   }
 
   if (null !== nextVersion) {
-    yield call(taskChangeVersionSaga, {payload: {version: nextVersion}});
+    yield* call(taskChangeVersionSaga, {payload: {version: nextVersion}});
   }
 }
 
 function* taskChangeVersionSaga ({payload: {version}}) {
-  const actions = yield select(({actions}) => actions);
-  const taskApi = yield select(state => state.taskApi);
+  const actions = yield* select(({actions}) => actions);
+  const taskApi = yield* select(state => state.taskApi);
 
-  const currentAnswer = yield select(state => state.selectors.getTaskAnswer(state));
-  yield put({type: actions.taskAnswerSaved, payload: {answer: currentAnswer}});
+  const currentAnswer = yield* select(state => state.selectors.getTaskAnswer(state));
+  yield* put({type: actions.taskAnswerSaved, payload: {answer: currentAnswer}});
   yield new Promise((resolve, reject) => {
     taskApi.gradeAnswer(null, null, resolve, reject, true);
   })
 
-  const clientVersions = yield select(state => state.clientVersions);
-  const randomSeed = yield select(state => state.randomSeed);
+  const clientVersions = yield* select(state => state.clientVersions);
+  const randomSeed = yield* select(state => state.randomSeed);
   const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
-  yield put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
+  yield* put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
 
-  yield call(taskLoadVersionSaga);
+  yield* call(taskLoadVersionSaga);
 }
 
 function AppSelector (state) {

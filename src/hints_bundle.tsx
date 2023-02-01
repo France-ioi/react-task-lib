@@ -1,7 +1,7 @@
 import React from 'react';
 import {Alert} from 'react-bootstrap';
 import update from 'immutability-helper';
-import {call, put, select, takeEvery} from 'redux-saga/effects';
+import {call, put, select, takeEvery} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getTaskTokenForVersion} from "./levels";
 import {useAppSelector} from "./app_bundle";
@@ -51,38 +51,38 @@ function appInitReducer (state, _action) {
 }
 
 function* requestHintSaga ({payload: {request}}) {
-    const actions = yield select(({actions}) => actions);
+    const actions = yield* select(({actions}) => actions);
     let code = 0;
     try {
-        const {actions, taskToken: initialTaskToken, serverApi, clientVersions, taskData: originalTaskData, randomSeed} = yield select(state => state);
+        const {actions, taskToken: initialTaskToken, serverApi, clientVersions, taskData: originalTaskData, randomSeed} = yield* select(state => state);
         code = 10;
-        yield put({type: actions.hintRequestActivated, payload: {}});
-        const {askHint} = yield select(state => state.platformApi);
+        yield* put({type: actions.hintRequestActivated, payload: {}});
+        const {askHint} = yield* select(state => state.platformApi);
         code = 20;
         let newTaskToken = initialTaskToken;
         if (clientVersions) {
           newTaskToken = getTaskTokenForVersion(originalTaskData.version.version, randomSeed, clientVersions);
         }
         /* Contact serverApi to obtain a hintToken for the requested hint. */
-        const {hintToken} = yield call(serverApi, 'tasks', 'requestHint', {task: newTaskToken, request});
+        const {hintToken} = yield* call(serverApi, 'tasks', 'requestHint', {task: newTaskToken, request});
         code = 30;
         /* Contact the platform to authorize the hint request. */
-        yield call(askHint, hintToken);
+        yield* call(askHint, hintToken);
         code = 40;
         /* When askHint returns an updated taskToken is obtained from the store. */
-        const updatedTaskToken = yield select(state => state.taskToken);
+        const updatedTaskToken = yield* select(state => state.taskToken);
         code = 50;
         /* Finally, contact the serverApi to obtain the updated taskData. */
-        const taskData = yield call(serverApi, 'tasks', 'taskData', {task: updatedTaskToken});
+        const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: updatedTaskToken});
         code = 60;
-        yield put({type: actions.taskDataLoaded, payload: {taskData}});
-        yield put({type: actions.taskRefresh});
-        yield put({type: actions.hintRequestFulfilled, payload: {}});
+        yield* put({type: actions.taskDataLoaded, payload: {taskData}});
+        yield* put({type: actions.taskRefresh});
+        yield* put({type: actions.hintRequestFulfilled, payload: {}});
     } catch (ex: any) {
         const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
           : (ex.message ? ex.message : ex.toString());
         console.error(ex);
-        yield put({type: actions.hintRequestRejected, payload: {code: code, error: message}});
+        yield* put({type: actions.hintRequestRejected, payload: {code: code, error: message}});
     }
 }
 
@@ -142,7 +142,7 @@ export default {
         HintRequestFeedback,
     },
     saga: function* hintsSaga () {
-        const actions = yield select(({actions}) => actions);
-        yield takeEvery(actions.requestHint, requestHintSaga);
+        const actions = yield* select(({actions}) => actions);
+        yield* takeEvery(actions.requestHint, requestHintSaga);
     }
 };
