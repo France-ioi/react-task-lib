@@ -242,11 +242,11 @@ function App() {
 
   useEffect(() => {
     if (!clientVersions || !taskData) {
-      return null;
+      return;
     }
     const versionLevelIndex = Object.keys(clientVersions).findIndex(key => clientVersions[key].version === taskData.version.version);
     if (null === versionLevelIndex || undefined === versionLevelIndex || versionLevelIndex >= Object.keys(clientVersions).length - 1) {
-      return null;
+      return;
     }
 
     const nextLevel = Object.keys(clientVersions)[versionLevelIndex + 1];
@@ -258,8 +258,6 @@ function App() {
     } else if (!grading || grading.score !== previousScore) {
       setPreviousScore(grading.score);
     }
-
-    return null;
   }, [clientVersions, grading, taskData, previousScore]);
 
   const _validate = () => {
