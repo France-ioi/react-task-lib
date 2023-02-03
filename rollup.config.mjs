@@ -29,12 +29,12 @@ export default [
       resolve({preferBuiltins: true}),
       commonjs(),
       json(),
-      typescript({ tsconfig: "./tsconfig.json" }),
       terser(),
       scss({
         fileName: 'index.css',
         outputStyle: "compressed"
       }),
+      typescript({ tsconfig: "./tsconfig.json" }),
     ],
   },
   {

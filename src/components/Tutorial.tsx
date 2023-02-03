@@ -1,12 +1,12 @@
 import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import ReactHtmlParser from 'react-html-parser/src';
+import convertHtmlToReact from '@hedgedoc/html-to-react';
 import TutorialCarousel from './TutorialCarousel';
 
 export const TaskInstructions = (props) => {
   const html = document.getElementById('instructions').innerHTML;
 
-  return <div>{ReactHtmlParser(html, {transform: (node) => transformNode(node, props)})}</div>;
+  return <div>{convertHtmlToReact(html, {transform: (node) => transformNode(node, props)})}</div>;
 }
 
 export const Tutorial = (props) => {
@@ -17,10 +17,10 @@ export const Tutorial = (props) => {
 
   const html = document.getElementById(props.category).innerHTML;
 
-  const carouselElements = ReactHtmlParser(html, {transform: (node) => transformNode(node, props)});
+  const carouselElements = convertHtmlToReact(html, {transform: (node) => transformNode(node, props)});
 
   return <TutorialCarousel>
-    {Array.isArray(carouselElements) ? carouselElements.filter(a => null !== a) : carouselElements}
+    {Array.isArray(carouselElements) ? carouselElements.filter(a => null !== a && (typeof a !== 'string' || a.trim().length)) : carouselElements}
   </TutorialCarousel>;
 }
 
