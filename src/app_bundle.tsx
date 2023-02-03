@@ -278,7 +278,9 @@ function App() {
   const upgradeLevel = () => {
     changeLevel(nextLevel);
     setUpgradeModalShow(false);
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    setTimeout(() => {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    });
   };
 
   if (fatalError) {
