@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Modal, Button} from 'react-bootstrap';
-import {call, takeEvery, select, take, put} from 'typed-redux-saga';
+import {call, takeEvery, select, take, put, delay} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useDispatch} from "react-redux";
 import TaskBar from './components/Taskbar';
@@ -202,11 +202,11 @@ function* taskAnswerReloadedSaga () {
   }
 
   if (null !== nextVersion) {
-    yield* call(taskChangeVersionSaga, {payload: {version: nextVersion}});
+    yield* call(taskChangeVersionSaga, {payload: {version: nextVersion, scroll: false}});
   }
 }
 
-function* taskChangeVersionSaga ({payload: {version}}) {
+function* taskChangeVersionSaga ({payload: {version, scroll}}) {
   const actions = yield* select(({actions}) => actions);
   const taskApi = yield* select((state: TaskState) => state.taskApi);
 
@@ -222,6 +222,11 @@ function* taskChangeVersionSaga ({payload: {version}}) {
   yield* put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
 
   yield* call(taskLoadVersionSaga);
+
+  if (scroll) {
+    yield* delay(100);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
 }
 
 function App() {
@@ -267,20 +272,17 @@ function App() {
     dispatch({type: taskRestart});
     setRestartModalShow(false);
   };
-  const changeLevel = (level) => {
+  const changeLevel = (level, scroll: boolean = false) => {
     const {version, locked} = clientVersions[level];
     if (locked && window.location.protocol !== 'file:' && -1 === ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(window.location.hostname)) {
       setLockedModalShow(true);
       return;
     }
-    dispatch({type: taskChangeVersion, payload: {version}});
+    dispatch({type: taskChangeVersion, payload: {version, scroll}});
   };
   const upgradeLevel = () => {
-    changeLevel(nextLevel);
+    changeLevel(nextLevel, true);
     setUpgradeModalShow(false);
-    setTimeout(() => {
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    });
   };
 
   if (fatalError) {
