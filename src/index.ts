@@ -26,6 +26,7 @@ import TutorialCarousel from "./components/TutorialCarousel";
 import {Tutorial, TaskInstructions} from "./components/Tutorial";
 import reactTask from './react_task';
 import {setAutoFreeze} from "immer";
+import {TaskState} from './typings';
 
 export {
   Collapsable,
@@ -34,4 +35,5 @@ export {
   TaskInstructions,
   Tutorial,
   reactTask,
+  TaskState,
 };
