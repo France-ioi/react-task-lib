@@ -20,22 +20,10 @@ registry=https://registry.npmjs.org/
 You have to check at least `read:packages` but you are also invited to check `write:packages` if you want to contribute to this library.
 
 
-## Usage
+## Development
 
-```jsx
-import React, {Component} from 'react';
+Use `yarn` to install dependencies.
 
-import SpecificComponent from 'react-task-lib';
-import 'react-task-lib/dist/index.css';
+Use `yarn watch` during development.
 
-class Example extends Component {
-  render() {
-    return <SpecificComponent />
-  }
-}
-```
-
-## Example
-
-You can find an example usage under the `example/` folder.
-You can make the example work in your browser by doing `yarn start` into the `example` folder.
+Use `yarn build` to build the library and `yarn publish` to publish a new version.
