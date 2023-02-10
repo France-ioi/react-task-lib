@@ -44,11 +44,12 @@ export interface TaskState {
   actions: any,
   taskToken: string,
   hintRequest: HintRequest,
+  taskMetaData: any,
   grading: any,
   hints: any,
   answer: any,
   taskViews: any,
-  views: any,
+  views: { [key: string]: any },
   fatalError?: string,
   taskReady: boolean,
 }
