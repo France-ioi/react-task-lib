@@ -7,7 +7,7 @@ export default function makeServerApi (config) {
         return new Promise(function (resolve, reject) {
             const url = new URL(service, config.baseUrl);
             const devel = config.devel ? {task: config.devel} : {};
-            return fetch(url, {
+            return fetch(url.toString(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
