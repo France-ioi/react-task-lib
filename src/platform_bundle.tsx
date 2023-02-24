@@ -197,7 +197,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     yield* call(success);
     yield* fork(windowHeightMonitorSaga, platformApi);
   } catch (ex: any) {
-    yield* call(error, ex.toString());
+    yield* call(error, ex);
   }
 }
 
