@@ -42,12 +42,14 @@ export default React.memo(function Collapsable (props: CollapsableProps) {
     onClose();
   };
 
+  const hasNonEmptyTutorial = tutorial && tutorial.props && tutorial.props.category && null !== tutorial.type({...tutorial.props});
+
   const newTitle = React.cloneElement(title, {
     onClick: () => setOpen(!open),
     children: [
       title.props.children,
       " ",
-      ...(tutorial ? [
+      ...(hasNonEmptyTutorial ? [
         <a className="tutorial-link" key="icon-tutorial" onClick={(e) => toggleTutorial(e)}>
           {tutorialOpen ? 'Cacher' : 'Lire'} les explications
           <FontAwesomeIcon className="icon-tutorial" icon={tutorialOpen ? 'chevron-up' : 'chevron-down'} size="xs"/>
