@@ -220,7 +220,10 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
           continue;
         }
         const newTaskToken = getTaskTokenForVersion(clientVersions[level].version, randomSeed, clientVersions);
-        const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
+        if (!answerToken) {
+          // Use answerToken given by platform if fulfilled
+          answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
+        }
         const {score, message, scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
           task: newTaskToken,
           answer: answerToken,
@@ -249,7 +252,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       }
       yield* call(success, reconciledScore, currentMessage, currentScoreToken);
     } else {
-      if (!answerToken) {
+      if (!answerToken && window.task_token) {
         const answer = yield getTaskAnswer();
         answerToken = window.task_token.getAnswerToken(stringify(answer));
       }

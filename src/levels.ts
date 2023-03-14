@@ -1,4 +1,5 @@
 import {generateTokenUrl, TaskToken} from "./task_token";
+import queryString from 'query-string';
 
 export const levels = {
   basic: {
@@ -20,6 +21,12 @@ export const levels = {
 }
 
 export const getTaskTokenForVersion = (version, randomSeed, clientVersions) => {
+  const query = queryString.parse(location.search);
+  // Use token from query string if we are in a platform
+  if (query.sToken) {
+    return query.sToken;
+  }
+
   return getTaskTokenObject(version, randomSeed, clientVersions).get();
 }
 
