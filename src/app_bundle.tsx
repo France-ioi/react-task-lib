@@ -97,8 +97,13 @@ function* appSaga () {
     const keywords = ['Started', 'Moved', 'Changed', 'Added', 'Pressed', 'Reset'];
     const splittedType = type.split('.');
     if (-1 !== keywords.indexOf(splittedType[splittedType.length - 1])) {
-      yield* put({type: actions.hintRequestFeedbackCleared});
-      yield* put({type: actions.platformFeedbackCleared});
+      const state = yield* select();
+      if (state.hintRequest.isActive || null !== state.hintRequest.data) {
+        yield* put({type: actions.hintRequestFeedbackCleared});
+      }
+      if (Object.keys(state.grading).length) {
+        yield* put({type: actions.platformFeedbackCleared});
+      }
     }
   });
 }
