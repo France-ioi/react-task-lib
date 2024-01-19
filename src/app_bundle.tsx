@@ -22,7 +22,7 @@ function appInitReducer (state: TaskState, {payload: {options}}) {
   }
 }
 
-function appInitDoneReducer (state: TaskState, {payload: {platformApi, taskApi, serverApi, clientVersions}}) {
+function appInitDoneReducer (state: TaskState, {payload: {platformApi, serverApi, clientVersions}}) {
   let clientVersionsData = null;
   if (clientVersions) {
     clientVersionsData = {};
@@ -38,7 +38,6 @@ function appInitDoneReducer (state: TaskState, {payload: {platformApi, taskApi, 
   }
 
   state.platformApi = platformApi;
-  state.taskApi = taskApi;
   state.serverApi = serverApi;
   state.clientVersions = clientVersionsData;
 }
@@ -144,7 +143,7 @@ function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}
     return;
   }
 
-  yield* put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi, clientVersions}});
+  yield* put({type: actions.appInitDone, payload: {platformApi, serverApi, clientVersions}});
   window.task = taskApi;
   yield* call(platformApi.initWithTask, taskApi);
 }
@@ -213,7 +212,7 @@ function* taskAnswerReloadedSaga () {
 
 function* taskChangeVersionSaga ({payload: {version, scroll}}) {
   const actions = yield* select(({actions}) => actions);
-  const taskApi = yield* select((state: TaskState) => state.taskApi);
+  const taskApi = window.task;
 
   const currentAnswer = yield* select((state: TaskState) => state.selectors.getTaskAnswer(state));
   yield* put({type: actions.taskAnswerSaved, payload: {answer: currentAnswer}});

@@ -220,10 +220,9 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
           continue;
         }
         const newTaskToken = getTaskTokenForVersion(clientVersions[level].version, randomSeed, clientVersions);
-        if (!answerToken) {
-          // Use answerToken given by platform if fulfilled
-          answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
-        }
+        // Always generate answer token when there are client versions
+        // because we want the answer token to have only the current version answer.
+        const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
         const {score, message, scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
           task: newTaskToken,
           answer: answerToken,

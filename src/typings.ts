@@ -36,7 +36,6 @@ export interface TaskState {
   taskData: any,
   platformApi: TaskPlatformApi,
   serverApi: (service, action, body) => Promise<any>,
-  taskApi: any,
   options: any,
   clientVersions: {[level: string]: TaskClientVersion},
   selectors: any,
