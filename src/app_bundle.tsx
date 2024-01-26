@@ -93,7 +93,7 @@ function* appSaga () {
   yield* takeEvery(actions.taskChangeVersion, taskChangeVersionSaga);
   yield* takeEvery('*', function* clearFeedback (action) {
     const {type} = action;
-    const keywords = ['Started', 'Moved', 'Changed', 'Added', 'Pressed', 'Reset'];
+    const keywords = ['Started', 'Moved', 'Changed', 'Added', 'Pressed', 'Reset', 'Reverted'];
     const splittedType = type.split('.');
     if (-1 !== keywords.indexOf(splittedType[splittedType.length - 1])) {
       const state = yield* select();
