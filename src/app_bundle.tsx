@@ -15,6 +15,7 @@ import Stars from "./components/Stars";
 import {levels, getTaskTokenForVersion} from './levels';
 import {EventChannel} from "redux-saga";
 import {reducer, TaskState, useAppSelector} from "./typings";
+import {TaskResult} from "./components/TaskResult";
 
 function appInitReducer (state: TaskState, {payload: {options}}) {
   if (options) {
@@ -234,40 +235,16 @@ function* taskChangeVersionSaga ({payload: {version, scroll}}) {
 }
 
 function App() {
-  const [upgradeModalShow, setUpgradeModalShow] = useState(false);
   const [lockedModalShow, setLockedModalShow] = useState(false);
   const [restartModalShow, setRestartModalShow] = useState(false);
-  const [previousScore, setPreviousScore] = useState(0);
-  const [nextLevel, setNextLevel] = useState(null);
 
   const taskReady = useAppSelector(state => state.taskReady);
   const fatalError = useAppSelector(state => state.fatalError);
-  const grading = useAppSelector(state => state.grading);
   const taskData = useAppSelector(state => state.taskData);
   const clientVersions = useAppSelector(state => state.clientVersions);
   const {Workspace} = useAppSelector(state => state.views);
   const {platformValidate, taskRestart, taskChangeVersion} = useAppSelector(state => state.actions);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!clientVersions || !taskData) {
-      return;
-    }
-    const versionLevelIndex = Object.keys(clientVersions).findIndex(key => clientVersions[key].version === taskData.version.version);
-    if (null === versionLevelIndex || undefined === versionLevelIndex || versionLevelIndex >= Object.keys(clientVersions).length - 1) {
-      return;
-    }
-
-    const nextLevel = Object.keys(clientVersions)[versionLevelIndex + 1];
-
-    if (grading && grading.score === 100 && previousScore !== 100) {
-      setUpgradeModalShow(true);
-      setPreviousScore(grading.score);
-      setNextLevel(nextLevel);
-    } else if (!grading || grading.score !== previousScore) {
-      setPreviousScore(grading.score);
-    }
-  }, [clientVersions, grading, taskData, previousScore]);
 
   const _validate = () => {
     dispatch({type: platformValidate, payload: {mode: 'done'}});
@@ -276,17 +253,13 @@ function App() {
     dispatch({type: taskRestart});
     setRestartModalShow(false);
   };
-  const changeLevel = (level, scroll: boolean = false) => {
+  const changeLevel = (level: string, scroll: boolean = false) => {
     const {version, locked} = clientVersions[level];
     if (locked && window.location.protocol !== 'file:' && -1 === ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(window.location.hostname)) {
       setLockedModalShow(true);
       return;
     }
     dispatch({type: taskChangeVersion, payload: {version, scroll}});
-  };
-  const upgradeLevel = () => {
-    changeLevel(nextLevel, true);
-    setUpgradeModalShow(false);
   };
 
   if (fatalError) {
@@ -303,24 +276,6 @@ function App() {
 
   return (
     <div>
-      <Modal
-        show={upgradeModalShow}
-        onHide={() => setUpgradeModalShow(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            Bravo !
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Bravo, vous avez réussi !</p>
-          <p>Nous vous proposons d'essayer la version {nextLevel ? levels[nextLevel].stars : ''} étoiles.</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={() => upgradeLevel()}>Passer à la suite</Button>
-        </Modal.Footer>
-      </Modal>
       <Modal
         show={lockedModalShow}
         onHide={() => setLockedModalShow(false)}
@@ -377,25 +332,11 @@ function App() {
         )}
       </nav>}
       <Workspace/>
-      <div className="result">
-        {!grading.error && (grading.score || grading.message) &&
-        <Alert variant={typeof grading.score === 'number' && grading.score > 0 ? 'success' : 'danger'}>
-          {!grading.error && grading.message &&
-          <p style={{fontWeight: 'bold'}}>
-            <FontAwesomeIcon icon={typeof grading.score === 'number' && grading.score > 0 ? 'check' : 'times'}/>
-            <span dangerouslySetInnerHTML={{__html: grading.message}}/>
-          </p>}
-          {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
-          <p><br/>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
-        </Alert>
-        }
-        {grading.error &&
-        <Alert variant='danger'>
-          <FontAwesomeIcon icon="times"/>
-          {grading.error}
-        </Alert>
-        }
-      </div>
+
+      <TaskResult
+        changeLevel={changeLevel}
+      />
+
       <TaskBar onValidate={_validate} onRestart={() => setRestartModalShow(true)}/>
     </div>
   );
