@@ -78,7 +78,7 @@ function taskScoreSavedReducer (state: TaskState, {payload: {score, answer, vers
       if (levelNumber + 1 <= Object.keys(clientVersions).length - 1) {
         const nextLevel = Object.keys(clientVersions)[levelNumber + 1];
         if (clientVersions[nextLevel].locked) {
-          state.clientVersions[versionLevel].locked = false;
+          state.clientVersions[nextLevel].locked = false;
         }
       }
     }
