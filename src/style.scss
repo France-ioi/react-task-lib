@@ -445,3 +445,54 @@ h2 {
     }
   }
 }
+
+// Hints
+
+.new-hints {
+  display: flex;
+}
+
+.old-hints {
+  border-top: solid 1px rgba(0, 0, 0, 0.2);
+  padding: 20px 20px 10px;
+
+  p {
+    text-align: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 20px;
+    tr {
+      border-bottom: 1px solid #ddd;
+      background-color: #fff;
+      th {
+        background-color: $green;
+        color: $dark-green;
+      }
+    }
+    thead th {
+      background-color: #e7f1e7;
+      color: $dark-green;
+      font-weight: bold;
+      vertical-align: middle;
+      text-align: center;
+    }
+    td, th {
+      border: 1px solid $green;
+      height: 36px;
+      padding: 4px 15px;
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
+
+  .see-hint {
+    color: $dark-green;
+    cursor: pointer;
+    font-weight: bold;
+  }
+}
