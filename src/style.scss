@@ -397,6 +397,7 @@ h2 {
     -moz-appearance: textfield;
     overflow: hidden;
     background: transparent;
+    min-width: 0;
   }
 
   .quantity-field::-webkit-outer-spin-button,
