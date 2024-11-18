@@ -6,7 +6,6 @@ import {createRequire} from 'module';
 import terser from "@rollup/plugin-terser";
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import json from '@rollup/plugin-json';
-import nodePolyfills from 'rollup-plugin-node-polyfills';
 import scss from 'rollup-plugin-scss';
 
 const require = createRequire(import.meta.url);
@@ -24,7 +23,6 @@ export default [
       },
     ],
     plugins: [
-      // nodePolyfills(),
       peerDepsExternal(),
       resolve({preferBuiltins: true}),
       commonjs(),

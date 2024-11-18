@@ -176,13 +176,13 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     if (options && options.version) {
       version = options.version;
     } else {
-      if (!query.version) {
-        query.taskID = window.options.defaults.taskID;
-        query.version = window.options.defaults.version;
+      if (!query['version']) {
+        query['taskID'] = window.options.defaults.taskID;
+        query['version'] = window.options.defaults.version;
         window.location.href = generateTokenUrl(query);
         return;
       } else {
-        version = query.version;
+        version = query['version'];
       }
     }
   }

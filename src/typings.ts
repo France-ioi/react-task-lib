@@ -1,5 +1,5 @@
 import {TypedUseSelectorHook, useSelector} from "react-redux";
-import produce from "immer";
+import {produce} from "immer";
 
 export interface HintRequest {
   isActive: boolean,
