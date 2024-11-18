@@ -58,7 +58,7 @@ export default function (container, options, TaskBundle, serverTask = null, clie
 
     /* Start rendering. */
     const root = createRoot(container);
-    root.render(<Provider store={store}><views.App/></Provider>, container);
+    root.render(<Provider store={store}><views.App/></Provider>);
 
     return {actions, views, store, start};
 }
