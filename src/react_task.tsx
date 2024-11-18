@@ -1,7 +1,7 @@
 //import './shim'
 import 'url-search-params-polyfill';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import {Provider} from 'react-redux';
 import {createStore, applyMiddleware, compose} from 'redux';
 import {default as createSagaMiddleware} from 'redux-saga';
@@ -57,8 +57,8 @@ export default function (container, options, TaskBundle, serverTask = null, clie
     store.dispatch({type: actions.appInit, payload: {options, platform, serverTask, clientVersions}});
 
     /* Start rendering. */
-    // @ts-ignore
-    ReactDOM.render(<Provider store={store}><views.App/></Provider>, container);
+    const root = createRoot(container);
+    root.render(<Provider store={store}><views.App/></Provider>, container);
 
     return {actions, views, store, start};
 }
