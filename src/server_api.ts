@@ -1,7 +1,3 @@
-import fetchPonyfill from 'fetch-ponyfill';
-
-const {fetch} = fetchPonyfill();
-
 export default function makeServerApi (config) {
     return function (service, action, body) {
         return new Promise(function (resolve, reject) {
