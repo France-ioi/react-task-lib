@@ -367,13 +367,13 @@ h2 {
   }
 
   .button-minus {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px !important;
+    border-bottom-left-radius: 5px !important;
   }
 
   .button-plus {
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px !important;
+    border-bottom-right-radius: 5px !important;
   }
 
   .number-input-group {
