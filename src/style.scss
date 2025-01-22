@@ -159,7 +159,7 @@ h2.collapsible {
   .carousel-item {
     padding: 20px 100px 60px;
   }
-  .carousel-indicators li {
+  .carousel-indicators button {
     background-color: #88BB88;
     height: 6px;
     opacity: 0.3;
@@ -187,6 +187,9 @@ h2.collapsible {
   }
   .carousel-item ul {
     //margin-bottom: 0;
+  }
+  .carousel-item p {
+    margin-bottom: 1rem;
   }
 }
 
