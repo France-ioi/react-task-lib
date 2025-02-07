@@ -331,7 +331,7 @@ function App() {
           </a>
         )}
       </nav>}
-      <Workspace/>
+      <Workspace key={'version' + taskData.version.version}/>
 
       <TaskResult
         changeLevel={changeLevel}
