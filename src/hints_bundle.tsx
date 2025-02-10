@@ -60,7 +60,7 @@ function* requestHintSaga ({payload: {request}}) {
         /* Finally, contact the serverApi to obtain the updated taskData. */
         const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: updatedTaskToken});
         code = 60;
-        yield* put({type: actions.taskDataLoaded, payload: {taskData}});
+        yield* put({type: actions.taskDataLoaded, payload: {taskData: JSON.parse(JSON.stringify(taskData))}});
         yield* put({type: actions.taskRefresh});
         yield* put({type: actions.hintRequestFulfilled, payload: {}});
     } catch (ex: any) {
