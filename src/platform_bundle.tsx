@@ -153,10 +153,11 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   const {taskInit, taskTokenUpdated, taskRandomSeedUpdated} = yield* select(({actions}) => actions);
 
   let {randomSeed, options} = yield* call(platformApi.getTaskParams);
+  const query = queryString.parse(location.search);
   // Fix issue with too large randomSeed that overflow int capacity
   randomSeed = String(randomSeed);
   if ('0' === randomSeed) {
-    randomSeed = String(Math.floor(Math.random() * 10));
+    randomSeed = String(query['randomSeed'] ?? Math.floor(Math.random() * 10));
     if (window.task_token) {
       const token = window.task_token.get();
       const payload = jwt.decode(token);
@@ -172,7 +173,6 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   if (clientVersions) {
     version = clientVersions[Object.keys(clientVersions)[0]].version;
   } else {
-    const query = queryString.parse(location.search);
     if (options && options.version) {
       version = options.version;
     } else {
