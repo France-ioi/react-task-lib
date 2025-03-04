@@ -158,9 +158,6 @@ function* platformValidateSaga ({payload: {mode}}) {
 function* taskRestartSaga () {
   const actions = yield* select(({actions}) => actions);
   yield* put({type: actions.taskAnswerSaved, payload: {answer: null}});
-  const {clientVersions, randomSeed, taskData} = yield* select();
-  const taskToken = getTaskTokenForVersion(taskData.version.version, randomSeed, clientVersions);
-  yield* put({type: actions.taskTokenUpdated, payload: {token: taskToken}});
   yield* call(taskLoadVersionSaga);
 }
 
