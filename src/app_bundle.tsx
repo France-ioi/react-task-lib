@@ -151,8 +151,16 @@ function* appInitSaga ({payload: {options, platform, serverTask, clientVersions}
 
 function* platformValidateSaga ({payload: {mode}}) {
   const {validate} = yield* select((state: TaskState) => state.platformApi);
-  /* TODO: error handling, wrap in try/catch block */
-  yield* call(validate, mode);
+
+  const actions = yield* select(({actions}) => actions);
+  yield* put({type: actions.platformGradingLoading, payload: {loading: true}});
+  yield* delay(0);
+
+  try {
+    yield* call(validate, mode);
+  } finally {
+    yield* put({type: actions.platformGradingLoading, payload: {loading: false}});
+  }
 }
 
 function* taskRestartSaga () {

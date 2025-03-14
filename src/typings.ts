@@ -45,6 +45,7 @@ export interface TaskState {
   hintRequest: HintRequest,
   taskMetaData: any,
   grading: any,
+  gradingLoading: boolean,
   hints: any,
   answer: any,
   taskViews: any,

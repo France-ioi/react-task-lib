@@ -15,6 +15,7 @@ import {reducer, TaskState} from "./typings";
 
 function appInitReducer (state: TaskState) {
   state.grading = {};
+  state.gradingLoading = false;
 }
 
 function taskDataLoadedReducer (state: TaskState, {payload: {taskData}}) {
@@ -23,6 +24,10 @@ function taskDataLoadedReducer (state: TaskState, {payload: {taskData}}) {
 
 function taskRandomSeedUpdatedReducer (state: TaskState, {payload: {randomSeed}}) {
   state.randomSeed = randomSeed;
+}
+
+function platformGradingLoadingReducer(state: TaskState, {payload: {loading}}) {
+  state.gradingLoading = loading;
 }
 
 function taskStateLoadedReducer (state: TaskState, {payload: {hints}}) {
@@ -282,6 +287,7 @@ function taskAnswerGradedReducer (state: TaskState, {payload: {grading}}) {
 
 function platformFeedbackClearedReducer (state: TaskState) {
   state.grading = {};
+  state.gradingLoading = false;
 }
 
 function taskTokenUpdatedReducer (state: TaskState, {payload: {token}}) {
@@ -311,6 +317,7 @@ export default {
     taskAnswerGraded: 'Task.Answer.Graded',
     taskTokenUpdated: 'Task.Token.Updated',
     taskRandomSeedUpdated: 'Task.RandomSeed.Updated',
+    platformGradingLoading: 'Platform.GradingLoading',
     platformFeedbackCleared: 'Platform.FeedbackCleared',
   },
   actionReducers: {
@@ -323,6 +330,7 @@ export default {
     taskAnswerGraded: reducer(taskAnswerGradedReducer),
     taskTokenUpdated: reducer(taskTokenUpdatedReducer),
     taskRandomSeedUpdated: reducer(taskRandomSeedUpdatedReducer),
+    platformGradingLoading: reducer(platformGradingLoadingReducer),
     platformFeedbackCleared: reducer(platformFeedbackClearedReducer),
   },
   saga: function* () {
