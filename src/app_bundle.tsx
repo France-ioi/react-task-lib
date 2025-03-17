@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Modal, Button} from 'react-bootstrap';
+import React, {useState} from 'react';
+import {Modal, Button} from 'react-bootstrap';
 import {call, takeEvery, select, take, put, delay} from 'typed-redux-saga';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useDispatch} from "react-redux";
 import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
