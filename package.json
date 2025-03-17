@@ -1,6 +1,6 @@
 {
   "name": "@france-ioi/react-task-lib",
-  "version": "2.3.12",
+  "version": "3.0.0",
   "description": "Library to create France IOI tasks with React.js",
   "author": "SebastienTainon",
   "license": "MIT",
