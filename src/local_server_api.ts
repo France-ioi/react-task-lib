@@ -66,32 +66,42 @@ function decodeAnswer (token) {
   };
 }
 
-export default function makeServerApi (serverTask) {
-  return function (service, action, body) {
-    return new Promise(function (resolve, reject) {
-      if ('taskData' === action) {
-        const {task} = body;
-        const params = {
-          ...body,
-          task: decodeTask(task),
-        };
+export default function makeServerApi(serverTask) {
+  function loadTaskData(body) {
+    return new Promise((resolve, reject) => {
+      const {task} = body;
+      const params = {
+        ...body,
+        task: decodeTask(task),
+      };
 
-        serverTask.taskData(params, (error, result) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        });
-      } else if ('gradeAnswer' === action) {
-        const {task, answer} = body;
-        const params = {
-          ...body,
-          task: decodeTask(task),
-          answer: decodeAnswer(answer),
-        };
+      serverTask.taskData(params, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    })
+  }
 
-        serverTask.gradeAnswer(params, null, (error, data) => {
+  return async function (service, action, body) {
+    if ('taskData' === action) {
+      const result: any = await loadTaskData(body);
+
+      return result.publicData ?? result;
+    } else if ('gradeAnswer' === action) {
+      const taskData = await loadTaskData(body);
+
+      const {task, answer} = body;
+      const params = {
+        ...body,
+        task: decodeTask(task),
+        answer: decodeAnswer(answer),
+      };
+
+      return await new Promise((resolve, reject) => {
+        serverTask.gradeAnswer(params, taskData, (error, data) => {
           if (error) {
             reject(error);
           } else {
@@ -103,14 +113,16 @@ export default function makeServerApi (serverTask) {
             resolve(data);
           }
         });
-      } else if ('requestHint' === action) {
-        const {task, request} = body;
-        const params = {
-          ...body,
-          task: decodeTask(task),
-          request,
-        };
+      });
+    } else if ('requestHint' === action) {
+      const {task, request} = body;
+      const params = {
+        ...body,
+        task: decodeTask(task),
+        request,
+      };
 
+      return await new Promise((resolve, reject) => {
         serverTask.requestHint(params, (error, askedHint) => {
           if (error) {
             reject(error);
@@ -120,9 +132,27 @@ export default function makeServerApi (serverTask) {
             resolve({hintToken: hintToken});
           }
         });
-      } else {
-        reject('Unhandled action');
-      }
-    });
+      });
+    } else if ('taskHintData' === action) {
+      const taskData = await loadTaskData(body);
+
+      const {task} = body;
+      const params = {
+        ...body,
+        task: decodeTask(task),
+      };
+
+      return await new Promise((resolve, reject) => {
+        serverTask.taskHintData(params, taskData, (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        });
+      });
+    } else {
+      throw new Error('Unhandled action');
+    }
   };
 }

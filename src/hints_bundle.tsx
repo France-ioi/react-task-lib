@@ -57,10 +57,10 @@ function* requestHintSaga ({payload: {request}}) {
         /* When askHint returns an updated taskToken is obtained from the store. */
         const updatedTaskToken = yield* select((state: TaskState) => state.taskToken);
         code = 50;
-        /* Finally, contact the serverApi to obtain the updated taskData. */
-        const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: updatedTaskToken});
+        /* Finally, contact the serverApi to obtain the updated task hints. */
+        const taskHints = yield* call(serverApi, 'tasks', 'taskHintData', {task: updatedTaskToken});
         code = 60;
-        yield* put({type: actions.taskDataLoaded, payload: {taskData: JSON.parse(JSON.stringify(taskData))}});
+        yield* put({type: actions.taskHintsLoaded, payload: {taskHints: JSON.parse(JSON.stringify(taskHints))}});
         yield* put({type: actions.taskRefresh});
         yield* put({type: actions.hintRequestFulfilled, payload: {}});
     } catch (ex: any) {

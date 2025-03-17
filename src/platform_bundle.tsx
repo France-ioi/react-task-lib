@@ -18,8 +18,8 @@ function appInitReducer (state: TaskState) {
   state.gradingLoading = false;
 }
 
-function taskDataLoadedReducer (state: TaskState, {payload: {taskData}}) {
-  state.taskData = taskData;
+function taskHintsLoadedReducer (state: TaskState, {payload: {taskHints}}) {
+  state.taskHints = taskHints;
 }
 
 function taskRandomSeedUpdatedReducer (state: TaskState, {payload: {randomSeed}}) {
@@ -198,7 +198,8 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   try {
     const {serverApi} = yield* select((state: TaskState) => state);
     const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
-    yield* put({type: taskInit, payload: {taskData}});
+    const taskHints = yield* call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
+    yield* put({type: taskInit, payload: {taskData, taskHints}});
     yield* call(success);
     yield* fork(windowHeightMonitorSaga, platformApi);
   } catch (ex: any) {
@@ -310,7 +311,7 @@ export default {
     taskGetAnswerEvent: 'Task.Event.GetAnswer' /* {success, error} */,
     taskReloadAnswerEvent: 'Task.Event.ReloadAnswer' /* {answer, success, error} */,
     taskGradeAnswerEvent: 'Task.Event.GradeAnswer' /* {answer, answerToken, success, error} */,
-    taskDataLoaded: 'Task.Data.Loaded',
+    taskHintsLoaded: 'Task.Hints.Loaded',
     taskStateLoaded: 'Task.State.Loaded',
     taskAnswerLoaded: 'Task.Answer.Loaded',
     taskAnswerReloaded: 'Task.Answer.Reloaded',
@@ -324,7 +325,7 @@ export default {
     appInit: reducer(appInitReducer),
     taskShowViewsEvent: reducer(taskShowViewsEventReducer),
     taskUpdateTokenEvent: reducer(taskUpdateTokenEventReducer),
-    taskDataLoaded: reducer(taskDataLoadedReducer),
+    taskHintsLoaded: reducer(taskHintsLoadedReducer),
     taskStateLoaded: reducer(taskStateLoadedReducer),
     taskAnswerLoaded: reducer(taskAnswerLoadedReducer),
     taskAnswerGraded: reducer(taskAnswerGradedReducer),

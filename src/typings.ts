@@ -34,6 +34,7 @@ export interface TaskPlatformApi {
 
 export interface TaskState {
   taskData: any,
+  taskHints: any[],
   platformApi: TaskPlatformApi,
   serverApi: (service, action, body) => Promise<any>,
   options: any,
