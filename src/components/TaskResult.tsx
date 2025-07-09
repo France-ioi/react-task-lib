@@ -70,7 +70,7 @@ export function TaskResult(props: TaskResultProps) {
               <span dangerouslySetInnerHTML={{__html: grading.message}}/>
             </p>}
           {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
-            <p><br/>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
+            <p>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
         </Alert>
       }
       {grading.error &&

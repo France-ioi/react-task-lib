@@ -315,6 +315,9 @@ hr {
 }
 .result .alert {
   text-align: center;
+  p + p {
+    margin-top: 10px;
+  }
 }
 .result .alert.alert-success {
   background-color: rgba(136, 187, 136, 0.2);
