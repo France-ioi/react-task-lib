@@ -158,6 +158,8 @@ function* platformValidateSaga ({payload: {mode}}) {
 
   try {
     yield* call(validate, mode);
+  } catch (e) {
+    console.error("An error happened during platform.validate", e);
   } finally {
     yield* put({type: actions.platformGradingLoading, payload: {loading: false}});
   }
