@@ -217,9 +217,9 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
     if (clientVersions) {
       const answer = yield getTaskAnswer();
       const versionsScore = {};
-      let currentScore = null;
       let currentMessage = null;
       let currentScoreToken = null;
+      let currentGradingResult = null;
       for (let level of Object.keys(clientVersions)) {
         if (!answer[level]) {
           versionsScore[level] = 0;
@@ -229,18 +229,19 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
         // Always generate answer token when there are client versions
         // because we want the answer token to have only the current version answer.
         const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
-        const {score, message, scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
+        const gradingResult = yield* call(serverApi, 'tasks', 'gradeAnswer', {
           task: newTaskToken,
           answer: answerToken,
           min_score: minScore,
           max_score: maxScore,
           no_score: noScore,
         });
+        const {score, message, scoreToken} = gradingResult;
         versionsScore[level] = score;
         if (clientVersions[level].version === taskData.version.version) {
-          currentScore = score;
           currentMessage = message;
           currentScoreToken = scoreToken;
+          currentGradingResult = gradingResult;
         }
         yield* put({type: taskScoreSaved, payload: {score, answer, version: clientVersions[level].version}});
       }
@@ -253,7 +254,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       }
 
       if (!silent) {
-        yield* put({type: taskAnswerGraded, payload: {grading: {score: currentScore, message: currentMessage}}});
+        yield* put({type: taskAnswerGraded, payload: {grading: currentGradingResult}});
       }
       yield* call(success, reconciledScore, currentMessage, currentScoreToken);
     } else {
@@ -261,14 +262,16 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
         const answer = yield getTaskAnswer();
         answerToken = window.task_token.getAnswerToken(stringify(answer));
       }
-      const {score, message, token: scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
+      const gradingResult = yield* call(serverApi, 'tasks', 'gradeAnswer', {
         task: taskToken, /* XXX task should be named taskToken */
         answer: answerToken,  /* XXX answer should be named answerToken */
         min_score: minScore, /* XXX no real point passing min_score, max_score, no_score to server-side grader */
         max_score: maxScore,
         no_score: noScore,
       });
-      yield* put({type: taskAnswerGraded, payload: {grading: {score, message}}});
+      yield* put({type: taskAnswerGraded, payload: {grading: gradingResult}});
+
+      const {score, message, token: scoreToken} = gradingResult;
       yield* call(success, score, message, scoreToken);
     }
   } catch (ex: any) {
