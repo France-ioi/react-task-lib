@@ -173,10 +173,14 @@ function* taskRestartSaga () {
 
 function* taskLoadVersionSaga () {
   const serverApi = yield* select((state: TaskState) => state.serverApi);
+  const options = yield* select((state: TaskState) => state.options);
   const taskToken = yield* select(({taskToken}) => taskToken);
   const actions = yield* select(({actions}) => actions);
   const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
-  const taskHints = yield* call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
+  let taskHints = [];
+  if (false !== options?.defaults?.hints) {
+    taskHints = yield* call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
+  }
 
   const clientVersions = yield* select((state: TaskState) => state.clientVersions);
   if (clientVersions) {

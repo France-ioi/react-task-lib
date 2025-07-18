@@ -196,9 +196,12 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
 
   try {
-    const {serverApi} = yield* select((state: TaskState) => state);
+    const {serverApi, options} = yield* select((state: TaskState) => state);
     const taskData = yield* call(serverApi, 'tasks', 'taskData', {task: taskToken});
-    const taskHints = yield* call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
+    let taskHints = [];
+    if (false !== options?.defaults?.hints) {
+      taskHints = yield* call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
+    }
     yield* put({type: taskInit, payload: {taskData, taskHints}});
     yield* call(success);
     yield* fork(windowHeightMonitorSaga, platformApi);
