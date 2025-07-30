@@ -7,12 +7,7 @@ import {createStore, applyMiddleware, compose} from 'redux';
 import {default as createSagaMiddleware} from 'redux-saga';
 import {call} from 'typed-redux-saga';
 import link from './linker';
-
 import AppBundle from './app_bundle';
-
-// TODO :: Make jwt available for miniPlatform in a much better way
-import jwt from 'jsonwebtoken';
-window.jwt = jwt;
 
 export default function (container, options, TaskBundle, serverTask = null, clientVersions = undefined) {
     const platform = window.platform;

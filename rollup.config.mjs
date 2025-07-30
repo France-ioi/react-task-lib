@@ -7,9 +7,9 @@ import terser from "@rollup/plugin-terser";
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import json from '@rollup/plugin-json';
 import scss from 'rollup-plugin-scss';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 
-const require = createRequire(import.meta.url);
-const packageJson = require("./package.json");
+const packageJson = createRequire(import.meta.url)("./package.json");
 
 export default [
   {
@@ -24,7 +24,8 @@ export default [
     ],
     plugins: [
       peerDepsExternal(),
-      resolve({preferBuiltins: true}),
+      nodePolyfills({ include: ['buffer'] }),
+      resolve({browser: true, preferBuiltins: false}),
       commonjs(),
       json(),
       terser(),
