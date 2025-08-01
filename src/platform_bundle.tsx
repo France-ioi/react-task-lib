@@ -182,7 +182,9 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
       version = options.version;
     } else {
       if (!query['version']) {
-        query['taskID'] = window.options.defaults.taskID;
+        if (!query['taskID']) {
+          query['taskID'] = window.options.defaults.taskID;
+        }
         query['version'] = window.options.defaults.version;
         window.location.href = generateTokenUrl(query);
         return;
