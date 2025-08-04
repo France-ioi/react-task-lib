@@ -4,7 +4,7 @@ import convertHtmlToReact from '@hedgedoc/html-to-react';
 import TutorialCarousel from './TutorialCarousel';
 
 export const TaskInstructions = (props) => {
-  const html = document.getElementById('instructions').innerHTML;
+  const html = document.getElementById(props.section ?? 'instructions').innerHTML;
 
   return <div>{convertHtmlToReact(html, {transform: (node) => transformNode(node, props)})}</div>;
 }
