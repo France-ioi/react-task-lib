@@ -4,7 +4,7 @@ import {useAppSelector} from "../typings";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useDispatch} from "react-redux";
 
-function TaskBar() {
+export function TaskBar() {
   const gradingLoading = useAppSelector(state => state.gradingLoading);
   const [restartModalShow, setRestartModalShow] = useState(false);
   const {platformValidate, taskRestart} = useAppSelector(state => state.actions);

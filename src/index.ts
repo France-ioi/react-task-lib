@@ -23,6 +23,7 @@ import './style.scss';
 import Collapsable from "./components/Collapsable";
 import NumberPicker from "./components/NumberPicker";
 import TutorialCarousel from "./components/TutorialCarousel";
+import TaskBar from "./components/TaskBar";
 import {Tutorial, TaskInstructions} from "./components/Tutorial";
 import reactTask from './react_task';
 import {setAutoFreeze} from "immer";
@@ -33,6 +34,7 @@ export {
   NumberPicker,
   TutorialCarousel,
   TaskInstructions,
+  TaskBar,
   Tutorial,
   reactTask,
   TaskState,

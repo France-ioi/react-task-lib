@@ -32,12 +32,24 @@ export interface TaskPlatformApi {
   validate: () => void,
 }
 
+export interface TaskOptions {
+  disableTaskBar?: boolean,
+  defaults?: {
+    taskID: string,
+    version: string,
+    hints: boolean,
+  }
+  server_module?: {
+    baseUrl: string,
+  },
+}
+
 export interface TaskState {
   taskData: any,
   taskHints: any[],
   platformApi: TaskPlatformApi,
   serverApi: (service, action, body) => Promise<any>,
-  options: any,
+  options: TaskOptions,
   clientVersions: {[level: string]: TaskClientVersion},
   selectors: any,
   randomSeed: string,

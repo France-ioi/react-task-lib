@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Modal, Button} from 'react-bootstrap';
 import {call, takeEvery, select, take, put, delay} from 'typed-redux-saga';
 import {useDispatch} from "react-redux";
-import TaskBar from './components/Taskbar';
 import Spinner from './components/Spinner';
 import makeTaskChannel from './legacy/task';
 import makePlatformAdapter from './legacy/platform_adapter';
@@ -15,6 +14,7 @@ import {levels, getTaskTokenForVersion} from './levels';
 import {EventChannel} from "redux-saga";
 import {reducer, TaskState, useAppSelector} from "./typings";
 import {TaskResult} from "./components/TaskResult";
+import {TaskBar} from "./components/TaskBar";
 
 function appInitReducer (state: TaskState, {payload: {options}}) {
   if (options) {
@@ -248,23 +248,16 @@ function* taskChangeVersionSaga ({payload: {version, scroll}}) {
 
 function App() {
   const [lockedModalShow, setLockedModalShow] = useState(false);
-  const [restartModalShow, setRestartModalShow] = useState(false);
 
   const taskReady = useAppSelector(state => state.taskReady);
   const fatalError = useAppSelector(state => state.fatalError);
   const taskData = useAppSelector(state => state.taskData);
   const clientVersions = useAppSelector(state => state.clientVersions);
   const {Workspace} = useAppSelector(state => state.views);
-  const {platformValidate, taskRestart, taskChangeVersion} = useAppSelector(state => state.actions);
+  const {taskChangeVersion} = useAppSelector(state => state.actions);
+  const disableTaskBar = useAppSelector(state => !!state.options.disableTaskBar);
   const dispatch = useDispatch();
 
-  const _validate = () => {
-    dispatch({type: platformValidate, payload: {mode: 'done'}});
-  };
-  const _restart = () => {
-    dispatch({type: taskRestart});
-    setRestartModalShow(false);
-  };
   const changeLevel = (level: string, scroll: boolean = false) => {
     const {version, locked} = clientVersions[level];
     if (locked && window.location.protocol !== 'file:' && -1 === ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(window.location.hostname)) {
@@ -305,24 +298,7 @@ function App() {
           <Button variant="primary" onClick={() => setLockedModalShow(false)}>D'accord</Button>
         </Modal.Footer>
       </Modal>
-      <Modal
-        show={restartModalShow}
-        onHide={() => setRestartModalShow(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            Confirmation
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Êtes-vous certain de vouloir recommencer cette version à partir de zéro ?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setRestartModalShow(false)}>Annuler</Button>
-          <Button variant="primary" onClick={() => _restart()}>Recommencer</Button>
-        </Modal.Footer>
-      </Modal>
+
       {clientVersions && <nav className="nav nav-tabs version-tabs">
         {Object.entries(levels).map(([level, {stars}]) =>
           level in clientVersions && <a
@@ -349,7 +325,7 @@ function App() {
         changeLevel={changeLevel}
       />
 
-      <TaskBar onValidate={_validate} onRestart={() => setRestartModalShow(true)}/>
+      {!disableTaskBar && <TaskBar/>}
     </div>
   );
 }
