@@ -159,16 +159,28 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
 
   let {randomSeed, options} = yield* call(platformApi.getTaskParams);
   const query = queryString.parse(location.search);
+
+  // Task token can be provided before taskLoad through task.updateToken
+  let taskToken = yield select((state: TaskState) => state.taskToken);
+  let taskTokenGiven = true;
+  if (!taskToken) {
+    if (query['sToken']) {
+      taskToken = query['sToken'];
+    } else {
+      taskTokenGiven = false;
+      if (window.task_token) {
+        taskToken = window.task_token.get();
+      }
+    }
+  }
+
   // Fix issue with too large randomSeed that overflow int capacity
   randomSeed = String(randomSeed);
   if ('0' === randomSeed) {
     randomSeed = String(query['randomSeed'] ?? Math.floor(Math.random() * 10));
-    if (window.task_token) {
-      const token = window.task_token.get();
-      const payload = jwt.decode(token);
-      if (null !== payload.randomSeed && undefined !== payload.randomSeed) {
-        randomSeed = String(payload.randomSeed);
-      }
+    const payload = jwt.decode(taskToken);
+    if (null !== payload.randomSeed && undefined !== payload.randomSeed) {
+      randomSeed = String(payload.randomSeed);
     }
   }
   yield* put({type: taskRandomSeedUpdated, payload: {randomSeed}});
@@ -194,8 +206,10 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     }
   }
 
-  const taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
-  yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
+  if (!taskTokenGiven) {
+    taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
+    yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
+  }
 
   try {
     const {serverApi, options} = yield* select((state: TaskState) => state);
