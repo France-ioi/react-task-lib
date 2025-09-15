@@ -14,7 +14,8 @@
       "version_tab": "Version"
     },
     "error": {
-      "no_internet": "You are currently not connected to the Internet."
+      "no_internet": "You are currently not connected to the Internet.",
+      "validation": "An error has occurred:"
     },
     "hints": {
       "fulfilled": "The requested hint has been delivered.",

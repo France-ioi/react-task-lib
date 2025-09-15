@@ -14,7 +14,8 @@
       "version_tab": "Version"
     },
     "error": {
-      "no_internet": "Vous n'êtes actuellement pas connecté à Internet."
+      "no_internet": "Vous n'êtes actuellement pas connecté à Internet.",
+      "validation": "Une erreur s'est produite :"
     },
     "hints": {
       "fulfilled": "L'indice demandé a été délivré.",

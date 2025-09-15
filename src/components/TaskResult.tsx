@@ -83,6 +83,7 @@ export function TaskResult(props: TaskResultProps) {
       {grading.error &&
         <Alert variant='danger'>
           <FontAwesomeIcon icon="times"/>
+          {t('error.validation')}
           {grading.error}
         </Alert>
       }
