@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Button, Collapse, Modal} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useAppSelector} from "../typings";
+import {useTranslation} from "react-i18next";
 
 export interface CollapsableProps {
   title: any,
@@ -44,6 +45,8 @@ export default React.memo(function Collapsable (props: CollapsableProps) {
 
   const hasNonEmptyTutorial = tutorial && tutorial.props && tutorial.props.category && null !== tutorial.type({...tutorial.props});
 
+  const { t } = useTranslation();
+
   const newTitle = React.cloneElement(title, {
     onClick: () => setOpen(!open),
     children: [
@@ -51,10 +54,10 @@ export default React.memo(function Collapsable (props: CollapsableProps) {
       " ",
       ...(hasNonEmptyTutorial ? [
         <a className="tutorial-link" key="icon-tutorial" onClick={(e) => toggleTutorial(e)}>
-          {tutorialOpen ? 'Cacher' : 'Lire'} les explications
+          {tutorialOpen ? t("tutorial.hide") : t("tutorial.show")}
           <FontAwesomeIcon className="icon-tutorial" icon={tutorialOpen ? 'chevron-up' : 'chevron-down'} size="xs"/>
         </a>
-        ] : []),
+      ] : []),
       closable ? <FontAwesomeIcon key="icon-close" className="icon-close" icon="times" onClick={onClickClose}/> : null,
       <FontAwesomeIcon key="icon-collapse" className="icon-collapse" icon={open ? 'chevron-up' : 'chevron-down'} />,
     ]
@@ -69,15 +72,19 @@ export default React.memo(function Collapsable (props: CollapsableProps) {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            Confirmation
+            {t("modal.confirmation.title")}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>{closeConfirmText}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setConfirmCloseModal(false)}>Annuler</Button>
-          <Button variant="primary" onClick={() => doClose()}>Confirmer</Button>
+          <Button variant="secondary" onClick={() => setConfirmCloseModal(false)}>
+            {t("modal.confirmation.cancel")}
+          </Button>
+          <Button variant="primary" onClick={() => doClose()}>
+            {t("modal.confirmation.confirm")}
+          </Button>
         </Modal.Footer>
       </Modal>
       {newTitle}

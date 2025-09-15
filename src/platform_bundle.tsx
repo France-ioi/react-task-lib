@@ -12,6 +12,7 @@ import {windowHeightMonitorSaga} from "./window_height_monitor";
 import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
 import jwt from "jsonwebtoken";
 import {reducer, TaskState} from "./typings";
+import i18n from "i18next";
 
 function appInitReducer (state: TaskState) {
   state.grading = {};
@@ -294,7 +295,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       yield* call(success, score, message, scoreToken);
     }
   } catch (ex: any) {
-    const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
+    const message = ex.message === 'Network request failed' ? i18n.t('error.no_internet')
       : (ex.message ? ex.message : ex.toString());
     yield* put({type: taskAnswerGraded, payload: {grading: {error: message}}});
     console.error(ex);

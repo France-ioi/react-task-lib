@@ -4,6 +4,8 @@ import {call, put, select, takeEvery} from 'typed-redux-saga';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getTaskTokenForVersion} from "./levels";
 import {reducer, TaskState, useAppSelector} from "./typings";
+import i18n from "i18next";
+import {useTranslation} from "react-i18next";
 
 function hintRequestFulfilledReducer (state: TaskState, _action) {
   state.hintRequest.data = {success: true};
@@ -64,7 +66,7 @@ function* requestHintSaga ({payload: {request}}) {
         yield* put({type: actions.taskRefresh});
         yield* put({type: actions.hintRequestFulfilled, payload: {}});
     } catch (ex: any) {
-        const message = ex.message === 'Network request failed' ? "Vous n'êtes actuellement pas connecté à Internet."
+        const message = ex.message === 'Network request failed' ? i18n.t('error.no_internet')
           : (ex.message ? ex.message : ex.toString());
         console.error(ex);
         yield* put({type: actions.hintRequestRejected, payload: {code: code, error: message}});
@@ -77,6 +79,7 @@ function HintRequestFeedback() {
   let success = null;
   let code = null;
   let error = null;
+  const {t} = useTranslation();
 
   if (hintRequest.data)  {
     ({success, code, error} = hintRequest.data);
@@ -90,7 +93,7 @@ function HintRequestFeedback() {
       <Alert variant={'success'}>
         <p>
           <FontAwesomeIcon icon="check"/>
-          {"L'indice demandé a été délivré."}
+          {t('hints.fulfilled')}
         </p>
       </Alert>
     );
@@ -99,9 +102,9 @@ function HintRequestFeedback() {
       <Alert variant={'danger'}>
         <p>
           <FontAwesomeIcon icon="times"/>
-          {"L'indice demandé n'a pas pu être délivré."}
+          {t('hints.not_fulfilled')}
         </p>
-        <p>{"Code "}{code}</p>
+        <p>{t('hints.code')} {code}</p>
         {error && <p>{error}</p>}
       </Alert>
     );

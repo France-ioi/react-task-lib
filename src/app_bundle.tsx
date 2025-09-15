@@ -15,6 +15,7 @@ import {EventChannel} from "redux-saga";
 import {reducer, TaskState, useAppSelector} from "./typings";
 import {TaskResult} from "./components/TaskResult";
 import {TaskBar} from "./components/TaskBar";
+import {useTranslation} from "react-i18next";
 
 function appInitReducer (state: TaskState, {payload: {options}}) {
   if (options) {
@@ -257,6 +258,7 @@ function App() {
   const {taskChangeVersion} = useAppSelector(state => state.actions);
   const disableTaskBar = useAppSelector(state => !!state.options.disableTaskBar);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const changeLevel = (level: string, scroll: boolean = false) => {
     const {version, locked} = clientVersions[level];
@@ -270,7 +272,7 @@ function App() {
   if (fatalError) {
     return (
       <div>
-        <h1>{"A fatal error has occurred"}</h1>
+        <h1>{t("app.fatal_error.title")}</h1>
         <p>{fatalError}</p>
       </div>
     );
@@ -288,35 +290,37 @@ function App() {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            Version verrouillée
+            {t("app.locked_version.title")}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Cette version est verrouillée, et la précédente doit être résolue avant de pouvoir afficher cette version.</p>
+          <p>{t("app.locked_version.body")}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => setLockedModalShow(false)}>D'accord</Button>
+          <Button variant="primary" onClick={() => setLockedModalShow(false)}>
+            {t("app.locked_version.ok_button")}
+          </Button>
         </Modal.Footer>
       </Modal>
 
       {clientVersions && <nav className="nav nav-tabs version-tabs">
         {Object.entries(levels).map(([level, {stars}]) =>
-          level in clientVersions && <a
-            key={level}
-            role="tab"
-            tabIndex={-1}
-            className={`
+            level in clientVersions && <a
+              key={level}
+              role="tab"
+              tabIndex={-1}
+              className={`
               nav-item
               nav-link
               ${taskData && clientVersions[level].version === taskData.version.version ? 'active' : ''}
               ${clientVersions[level].locked ? 'is-locked' : ''}
             `}
-            onClick={() => changeLevel(level)}
-          >
-            Version
+              onClick={() => changeLevel(level)}
+            >
+              {t("app.version_tab")}
 
-            <Stars starsCount={stars} rating={clientVersions[level].score}/>
-          </a>
+              <Stars starsCount={stars} rating={clientVersions[level].score}/>
+            </a>
         )}
       </nav>}
       <Workspace key={'version' + taskData.version.version}/>

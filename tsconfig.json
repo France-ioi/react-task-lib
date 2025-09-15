@@ -6,6 +6,7 @@
     "module": "ESNext",
     "target": "ES6",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
 
     "strict": true, // enable all strict rules, unless they are explicitely disabled (below). there should not be any of such exceptions.
     "noImplicitAny": false, // temporirly disabled, should fix code and remove this line

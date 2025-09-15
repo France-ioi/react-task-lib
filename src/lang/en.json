@@ -1,0 +1,51 @@
+{
+  "translation": {
+    "app": {
+      "validate": "Validate",
+      "restart": "Restart",
+      "fatal_error": {
+        "title": "A fatal error has occurred"
+      },
+      "locked_version": {
+        "title": "Locked version",
+        "body": "This version is locked, and the previous one must be completed before you can access this version.",
+        "ok_button": "OK"
+      },
+      "version_tab": "Version"
+    },
+    "error": {
+      "no_internet": "You are currently not connected to the Internet."
+    },
+    "hints": {
+      "fulfilled": "The requested hint has been delivered.",
+      "not_fulfilled": "The requested hint could not be delivered.",
+      "code": "Code"
+    },
+    "modal": {
+      "confirmation": {
+        "title": "Confirmation",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "restart": {
+        "title": "Confirmation",
+        "body": "Are you sure you want to restart this version from scratch?",
+        "cancel": "Cancel",
+        "confirm": "Restart"
+      },
+      "upgrade": {
+        "title": "Congratulations!",
+        "success": "Congratulations, you succeeded!",
+        "proposal": "We suggest you try the {{stars}}-star version.",
+        "next_button": "Proceed to the next level"
+      }
+    },
+    "tutorial": {
+      "show": "Read the explanations",
+      "hide": "Hide the explanations"
+    },
+    "score": {
+      "label": "Your score:"
+    }
+  }
+}

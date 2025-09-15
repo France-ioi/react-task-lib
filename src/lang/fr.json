@@ -1,0 +1,51 @@
+{
+  "translation": {
+    "app": {
+      "validate": "Valider",
+      "restart": "Recommencer",
+      "fatal_error": {
+        "title": "Une erreur fatale est survenue"
+      },
+      "locked_version": {
+        "title": "Version verrouillée",
+        "body": "Cette version est verrouillée, et la précédente doit être résolue avant de pouvoir afficher cette version.",
+        "ok_button": "D'accord"
+      },
+      "version_tab": "Version"
+    },
+    "error": {
+      "no_internet": "Vous n'êtes actuellement pas connecté à Internet."
+    },
+    "hints": {
+      "fulfilled": "L'indice demandé a été délivré.",
+      "not_fulfilled": "L'indice demandé n'a pas pu être délivré.",
+      "code": "Code"
+    },
+    "modal": {
+      "confirmation": {
+        "title": "Confirmation",
+        "cancel": "Annuler",
+        "confirm": "Confirmer"
+      },
+      "restart": {
+        "title": "Confirmation",
+        "body": "Êtes-vous certain de vouloir recommencer cette version à partir de zéro ?",
+        "cancel": "Annuler",
+        "confirm": "Recommencer"
+      },
+      "upgrade": {
+        "title": "Bravo !",
+        "success": "Bravo, vous avez réussi !",
+        "proposal": "Nous vous proposons d'essayer la version {{stars}} étoiles.",
+        "next_button": "Passer à la suite"
+      }
+    },
+    "tutorial": {
+      "show": "Lire les explications",
+      "hide": "Cacher les explications"
+    },
+    "score": {
+      "label": "Votre score :"
+    }
+  }
+}

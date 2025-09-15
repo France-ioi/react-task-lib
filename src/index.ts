@@ -28,6 +28,7 @@ import {Tutorial, TaskInstructions} from "./components/Tutorial";
 import reactTask from './react_task';
 import {setAutoFreeze} from "immer";
 import {TaskState} from './typings';
+import './i18n.ts';
 
 export {
   Collapsable,

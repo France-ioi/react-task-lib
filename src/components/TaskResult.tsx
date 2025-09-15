@@ -3,6 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React, {useEffect, useState} from "react";
 import {useAppSelector} from "../typings";
 import {levels} from "../levels";
+import {useTranslation} from "react-i18next";
 
 export interface TaskResultProps {
   changeLevel: (level: string, scroll: boolean) => void,
@@ -15,6 +16,8 @@ export function TaskResult(props: TaskResultProps) {
   const [upgradeModalShow, setUpgradeModalShow] = useState(false);
   const [nextLevel, setNextLevel] = useState(null);
   const clientVersions = useAppSelector(state => state.clientVersions);
+
+  const {t} = useTranslation();
 
   const upgradeLevel = () => {
     props.changeLevel(nextLevel, true);
@@ -50,15 +53,19 @@ export function TaskResult(props: TaskResultProps) {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            Bravo !
+            {t("modal.upgrade.title")}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Bravo, vous avez réussi !</p>
-          <p>Nous vous proposons d'essayer la version {nextLevel ? levels[nextLevel].stars : ''} étoiles.</p>
+          <p>{t("modal.upgrade.success")}</p>
+          <p>
+            {t("modal.upgrade.proposal", { stars: nextLevel ? levels[nextLevel].stars : "" })}
+          </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={upgradeLevel}>Passer à la suite</Button>
+          <Button variant="primary" onClick={upgradeLevel}>
+            {t("modal.upgrade.next_button")}
+          </Button>
         </Modal.Footer>
       </Modal>
 
@@ -70,7 +77,7 @@ export function TaskResult(props: TaskResultProps) {
               <span dangerouslySetInnerHTML={{__html: grading.message}}/>
             </p>}
           {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
-            <p>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
+            <p>{t("score.label")} <span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
         </Alert>
       }
       {grading.error &&

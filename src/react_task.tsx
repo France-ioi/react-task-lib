@@ -8,10 +8,15 @@ import { default as createSagaMiddleware } from "redux-saga";
 import { call } from "typed-redux-saga";
 import link from "./linker";
 import AppBundle from "./app_bundle";
+import i18n from "i18next";
 
-export default function(container, options, TaskBundle, serverTask = null, clientVersions = undefined) {
+export default function (container, options, TaskBundle, serverTask = null, clientVersions = undefined) {
   const platform = window.platform;
   if (process.env["NODE_ENV"] === "development") platform.debug = true;
+
+  if (options.language) {
+    i18n.changeLanguage(options.language);
+  }
 
   const { actions, views, selectors, reducer, rootSaga } = link({ includes: [AppBundle, TaskBundle] });
 
