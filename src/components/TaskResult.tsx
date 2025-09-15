@@ -76,7 +76,7 @@ export function TaskResult(props: TaskResultProps) {
               <FontAwesomeIcon icon={typeof grading.score === 'number' && grading.score > 0 ? 'check' : 'times'}/>
               <span dangerouslySetInnerHTML={{__html: grading.message}}/>
             </p>}
-          {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints &&
+          {typeof grading.score === 'number' && taskData && taskData.version && false !== taskData.version.hints && false !== taskData.version.showScore &&
             <p>{t("score.label")} <span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
         </Alert>
       }
