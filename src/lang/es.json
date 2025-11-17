@@ -1,0 +1,52 @@
+{
+  "translation": {
+    "app": {
+      "validate": "Validar",
+      "restart": "Reiniciar",
+      "fatal_error": {
+        "title": "Ha ocurrido un error fatal"
+      },
+      "locked_version": {
+        "title": "Versión bloqueada",
+        "body": "Esta versión está bloqueada y debes completar la anterior antes de poder acceder a esta.",
+        "ok_button": "OK"
+      },
+      "version_tab": "Versión"
+    },
+    "error": {
+      "no_internet": "Actualmente no estás conectado a Internet.",
+      "validation": "Ha ocurrido un error:"
+    },
+    "hints": {
+      "fulfilled": "La pista solicitada ha sido entregada.",
+      "not_fulfilled": "No se ha podido entregar la pista solicitada.",
+      "code": "Código"
+    },
+    "modal": {
+      "confirmation": {
+        "title": "Confirmación",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar"
+      },
+      "restart": {
+        "title": "Confirmación",
+        "body": "¿Estás seguro de que deseas reiniciar esta versión desde cero?",
+        "cancel": "Cancelar",
+        "confirm": "Reiniciar"
+      },
+      "upgrade": {
+        "title": "¡Felicidades!",
+        "success": "¡Felicidades, lo has logrado!",
+        "proposal": "Te sugerimos probar la versión de {{stars}} estrellas.",
+        "next_button": "Ir al siguiente nivel"
+      }
+    },
+    "tutorial": {
+      "show": "Leer las explicaciones",
+      "hide": "Ocultar las explicaciones"
+    },
+    "score": {
+      "label": "Tu puntuación:"
+    }
+  }
+}

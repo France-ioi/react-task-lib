@@ -1,0 +1,52 @@
+{
+  "translation": {
+    "app": {
+      "validate": "Validieren",
+      "restart": "Neustart",
+      "fatal_error": {
+        "title": "Ein schwerwiegender Fehler ist aufgetreten"
+      },
+      "locked_version": {
+        "title": "Gesperrte Version",
+        "body": "Diese Version ist gesperrt, und die vorherige muss abgeschlossen werden, bevor du auf diese Version zugreifen kannst.",
+        "ok_button": "OK"
+      },
+      "version_tab": "Version"
+    },
+    "error": {
+      "no_internet": "Du bist derzeit nicht mit dem Internet verbunden.",
+      "validation": "Ein Fehler ist aufgetreten:"
+    },
+    "hints": {
+      "fulfilled": "Der angeforderte Hinweis wurde bereitgestellt.",
+      "not_fulfilled": "Der angeforderte Hinweis konnte nicht bereitgestellt werden.",
+      "code": "Code"
+    },
+    "modal": {
+      "confirmation": {
+        "title": "Bestätigung",
+        "cancel": "Abbrechen",
+        "confirm": "Bestätigen"
+      },
+      "restart": {
+        "title": "Bestätigung",
+        "body": "Bist du sicher, dass du diese Version von vorne beginnen möchtest?",
+        "cancel": "Abbrechen",
+        "confirm": "Neustart"
+      },
+      "upgrade": {
+        "title": "Glückwunsch!",
+        "success": "Glückwunsch, du hast es geschafft!",
+        "proposal": "Wir schlagen vor, die {{stars}}-Sterne-Version auszuprobieren.",
+        "next_button": "Zum nächsten Level"
+      }
+    },
+    "tutorial": {
+      "show": "Erklärungen lesen",
+      "hide": "Erklärungen ausblenden"
+    },
+    "score": {
+      "label": "Deine Punktzahl:"
+    }
+  }
+}
