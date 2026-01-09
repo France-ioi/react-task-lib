@@ -219,6 +219,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       let currentScore = null;
       let currentMessage = null;
       let currentScoreToken = null;
+      let currentExtraInfo = null;
       for (let level of Object.keys(clientVersions)) {
         if (!answer[level]) {
           versionsScore[level] = 0;
@@ -228,7 +229,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
         // Always generate answer token when there are client versions
         // because we want the answer token to have only the current version answer.
         const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
-        const {score, message, scoreToken} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
+        const {score, message, scoreToken, extraInfo} = yield* call(serverApi, 'tasks', 'gradeAnswer', {
           task: newTaskToken,
           answer: answerToken,
           min_score: minScore,
@@ -240,6 +241,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
           currentScore = score;
           currentMessage = message;
           currentScoreToken = scoreToken;
+          currentExtraInfo = extraInfo;
         }
         yield* put({type: taskScoreSaved, payload: {score, answer, version: clientVersions[level].version}});
       }
@@ -252,7 +254,7 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       }
 
       if (!silent) {
-        yield* put({type: taskAnswerGraded, payload: {grading: {score: currentScore, message: currentMessage}}});
+        yield* put({type: taskAnswerGraded, payload: {grading: {score: currentScore, message: currentMessage, extraInfo: currentExtraInfo}}});
       }
       yield* call(success, reconciledScore, currentMessage, currentScoreToken);
     } else {
