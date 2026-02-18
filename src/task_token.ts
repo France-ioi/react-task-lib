@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { jwt } from './dummy_jwt';
 
 // Code extracted from miniPlatform.js
 function TaskToken(data, key) {

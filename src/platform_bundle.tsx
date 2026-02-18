@@ -10,7 +10,7 @@ import queryString from 'query-string';
 import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
 import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
-import jwt from "jsonwebtoken";
+import { jwt } from './dummy_jwt';
 import {reducer, TaskState} from "./typings";
 import i18n from "i18next";
 

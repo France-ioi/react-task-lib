@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { jwt } from './dummy_jwt';
 import qs from 'querystring';
 import URL from 'url';
 
