@@ -163,12 +163,12 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
 
   // Task token can be provided before taskLoad through task.updateToken
   let taskToken = yield select((state: TaskState) => state.taskToken);
-  let taskTokenGiven = true;
+  let taskTokenAlreadyInState = true;
   if (!taskToken) {
+    taskTokenAlreadyInState = false;
     if (query['sToken']) {
       taskToken = query['sToken'];
     } else {
-      taskTokenGiven = false;
       if (window.task_token) {
         taskToken = window.task_token.get();
       }
@@ -207,7 +207,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     }
   }
 
-  if (!taskTokenGiven) {
+  if (!taskTokenAlreadyInState) {
     taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
     yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
   }
