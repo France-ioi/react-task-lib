@@ -2,6 +2,11 @@ import {TypedUseSelectorHook, useSelector} from "react-redux";
 import {produce} from "immer";
 
 export interface HintRequest {
+  /**
+   * To clear the hint feedback after a timeout, we read the ID, wait for a few
+   * seconds, read the ID again and check it match.
+   */
+  reqID: number,
   isActive: boolean,
   data?: {
     success: boolean,

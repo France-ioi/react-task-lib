@@ -27,11 +27,14 @@ function hintRequestFeedbackClearedReducer (state: TaskState) {
 }
 
 function hintRequestActivatedReducer (state: TaskState) {
+  ++state.hintRequest.reqID;
+  state.hintRequest.data = null;
   state.hintRequest.isActive = true;
 }
 
 function appInitReducer (state: TaskState) {
   state.hintRequest = {
+    reqID: 0,
     data: null,
     isActive: false,
   };
