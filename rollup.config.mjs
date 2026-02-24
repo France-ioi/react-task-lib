@@ -28,7 +28,8 @@ export default [
       resolve({browser: true, preferBuiltins: false}),
       commonjs(),
       json(),
-      terser(),
+      // It should be the responsability of the task to minify vendor.js in prod?
+      //terser(), 
       scss({
         fileName: 'index.css',
         outputStyle: "compressed"
