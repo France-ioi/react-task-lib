@@ -207,7 +207,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     }
   }
 
-  if (!taskTokenAlreadyInState) {
+  if (!taskTokenAlreadyInState || clientVersions) {
     taskToken = getTaskTokenForVersion(version, randomSeed, clientVersions);
     yield* put({type: taskTokenUpdated, payload: {token: taskToken}});
   }
