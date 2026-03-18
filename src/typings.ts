@@ -31,6 +31,17 @@ export interface TaskParams {
   options: any,
 }
 
+export interface TaskGradeAnswerArgs {
+  /** JSON representation of the answer (probably the one returned by task.getAnswer). */
+  answer: string,
+  /** Token containing the answer (field sAnswer), as well as idUser and idItem and score. */
+  answerToken: string,
+  /** The score must be between minScore and maxScore. */
+  success: (score: number, message: string, scoreToken?: string) => void,
+  error: (message: string) => void,
+  silent: boolean,
+}
+
 export interface TaskPlatformApi {
   getTaskParams: () => Promise<TaskParams>,
   askHint: (hintToken: string) => void,

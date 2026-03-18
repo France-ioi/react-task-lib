@@ -11,7 +11,7 @@ import {generateTokenUrl} from "./task_token";
 import {windowHeightMonitorSaga} from "./window_height_monitor";
 import {getAnswerTokenForVersion, getHeight, getTaskTokenForVersion, levels} from "./levels";
 import { jwt } from './dummy_jwt';
-import {reducer, TaskState} from "./typings";
+import {reducer, TaskGradeAnswerArgs, TaskState} from "./typings";
 import i18n from "i18next";
 
 function appInitReducer (state: TaskState) {
@@ -227,15 +227,28 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   }
 }
 
-function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, error, silent}}) {
+function* taskGradeAnswerEventSaga ({payload}: {payload: TaskGradeAnswerArgs}) {
   const {taskAnswerGraded, taskScoreSaved} = yield* select(({actions}) => actions);
   try {
+    // We should not read the answer from the Redux state because
+    // task.gradeAnswer might be called without calling reloadAnswer before
+    // (see bebras-platform/teacherInterface/gradeContest.js)
+    const answer = JSON.parse(payload.answer);
     const clientVersions = yield* select((state: TaskState) => state.clientVersions);
-    const randomSeed = yield* select((state: TaskState) => state.randomSeed);
+
+    // We must obtain the random seed through platform.getTaskParams when
+    // bebras-platform is reevaluating answers in teacher's browser
+    // (see bebras-platform/teacherInterface/gradeContest.js)
     const {taskToken, taskData, platformApi: {getTaskParams}, serverApi} = yield* select((state: TaskState) => state);
-    const {minScore, maxScore, noScore} = yield* call(getTaskParams, null, null);
+    let {minScore, maxScore, noScore, randomSeed} = yield* call(getTaskParams, null, null);
+    if (randomSeed === "0") {
+      // miniPlatform always returns 0, in which case the seed is handled by react-task-lib
+      // notice that we are interested in the random seed without level suffix, because this suffix
+      // will be appended later, so reading the random seed from window.task_token would be wrong
+      randomSeed = yield* select((state: TaskState) => state.randomSeed);
+    }
+
     if (clientVersions) {
-      const answer = yield getTaskAnswer();
       const versionsScore = {};
       let currentMessage = null;
       let currentScoreToken = null;
@@ -248,10 +261,10 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
         const newTaskToken = getTaskTokenForVersion(clientVersions[level].version, randomSeed, clientVersions);
         // Always generate answer token when there are client versions
         // because we want the answer token to have only the current version answer.
-        const answerToken = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
+        const answerTokenForVersion = getAnswerTokenForVersion(stringify(answer[level]), clientVersions[level].version, randomSeed, clientVersions);
         const gradingResult = yield* call(serverApi, 'tasks', 'gradeAnswer', {
           task: newTaskToken,
-          answer: answerToken,
+          answer: answerTokenForVersion,
           min_score: minScore,
           max_score: maxScore,
           no_score: noScore,
@@ -273,13 +286,13 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
         reconciledScore = Math.max(reconciledScore, versionScore);
       }
 
-      if (!silent) {
+      if (!payload.silent) {
         yield* put({type: taskAnswerGraded, payload: {grading: currentGradingResult}});
       }
-      yield* call(success, reconciledScore, currentMessage, currentScoreToken);
+      yield* call(payload.success, reconciledScore, currentMessage, currentScoreToken);
     } else {
+      let answerToken = payload.answerToken;
       if (!answerToken && window.task_token) {
-        const answer = yield getTaskAnswer();
         answerToken = window.task_token.getAnswerToken(stringify(answer));
       }
       const gradingResult = yield* call(serverApi, 'tasks', 'gradeAnswer', {
@@ -292,15 +305,15 @@ function* taskGradeAnswerEventSaga ({payload: {_answer, answerToken, success, er
       yield* put({type: taskAnswerGraded, payload: {grading: gradingResult}});
 
       const {score, message, token: scoreToken} = gradingResult;
-      yield* call(success, score, message, scoreToken);
+      yield* call(payload.success, score, message, scoreToken);
     }
   } catch (ex: any) {
     const message = ex.message === 'Network request failed' ? i18n.t('error.no_internet')
       : (ex.message ? ex.message : ex.toString());
     yield* put({type: taskAnswerGraded, payload: {grading: {error: message}}});
     console.error(ex);
-    if (error) {
-      yield* call(error, message);
+    if (payload.error) {
+      yield* call(payload.error, message);
     }
   }
 }

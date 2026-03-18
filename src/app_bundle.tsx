@@ -16,6 +16,7 @@ import {reducer, TaskState, useAppSelector} from "./typings";
 import {TaskResult} from "./components/TaskResult";
 import {TaskBar} from "./components/TaskBar";
 import {useTranslation} from "react-i18next";
+import stringify from 'json-stable-stringify-without-jsonify';
 
 function appInitReducer (state: TaskState, {payload: {options}}) {
   if (options) {
@@ -231,7 +232,7 @@ function* taskChangeVersionSaga ({payload: {version, scroll}}) {
   const currentAnswer = yield* select((state: TaskState) => state.selectors.getTaskAnswer(state));
   yield* put({type: actions.taskAnswerSaved, payload: {answer: currentAnswer}});
   yield new Promise((resolve, reject) => {
-    taskApi.gradeAnswer(null, null, resolve, reject, true);
+    taskApi.gradeAnswer(stringify(currentAnswer), null, resolve, reject, true);
   })
 
   const clientVersions = yield* select((state: TaskState) => state.clientVersions);
