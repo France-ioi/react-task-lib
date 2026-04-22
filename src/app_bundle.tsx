@@ -258,6 +258,7 @@ function App() {
   const {Workspace} = useAppSelector(state => state.views);
   const {taskChangeVersion} = useAppSelector(state => state.actions);
   const disableTaskBar = useAppSelector(state => !!state.options.disableTaskBar);
+  const workspaceOnly = useAppSelector(state => !!state.options.workspaceOnly);
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
@@ -280,6 +281,10 @@ function App() {
   }
   if (!taskReady) {
     return <Spinner/>;
+  }
+
+  if (workspaceOnly) {
+    return <Workspace />;
   }
 
   return (

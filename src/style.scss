@@ -4,13 +4,14 @@ $grey: rgba(0, 0, 0, 0.20);
 $dark-green: #699669;
 
 body {
-  font-size: 16px;
-  background-color: #E7E7E7;
+  font-size: var(--body-font-size, 16px);
+  background-color: var(--body-color, #E7E7E7);
 }
 
 #container {
   user-select: none;
-  width: 800px;
+  width: var(--container-width, 800px);
+  height: var(--container-height, auto);
   max-width: none !important;
 }
 

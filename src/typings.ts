@@ -50,6 +50,7 @@ export interface TaskPlatformApi {
 
 export interface TaskOptions {
   disableTaskBar?: boolean,
+  workspaceOnly?: boolean,
   defaults?: {
     taskID: string,
     version: string,
