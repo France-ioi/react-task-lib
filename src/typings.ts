@@ -70,6 +70,7 @@ export interface TaskState {
   clientVersions: {[level: string]: TaskClientVersion},
   selectors: any,
   randomSeed: string,
+  readOnly?: boolean,
   actions: any,
   taskToken: string,
   hintRequest: HintRequest,

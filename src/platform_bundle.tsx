@@ -27,6 +27,10 @@ function taskRandomSeedUpdatedReducer (state: TaskState, {payload: {randomSeed}}
   state.randomSeed = randomSeed;
 }
 
+function taskReadOnlyUpdatedReducer (state: TaskState, {payload: {readOnly}}) {
+  state.readOnly = readOnly;
+}
+
 function platformGradingLoadingReducer(state: TaskState, {payload: {loading}}) {
   state.gradingLoading = loading;
 }
@@ -175,16 +179,26 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     }
   }
 
+  let payload: any = {};
+  try {
+    payload = jwt.decode(taskToken);
+  } catch (e) {
+    console.error(e);
+  }
+
   // Fix issue with too large randomSeed that overflow int capacity
   randomSeed = String(randomSeed);
-  if ('0' === randomSeed) {
-    randomSeed = String(query['randomSeed'] ?? Math.floor(Math.random() * 10));
-    const payload = jwt.decode(taskToken);
+  if ("0" === randomSeed) {
+    randomSeed = String(query["randomSeed"] ?? Math.floor(Math.random() * 10));
     if (null !== payload.randomSeed && undefined !== payload.randomSeed) {
       randomSeed = String(payload.randomSeed);
     }
   }
-  yield* put({type: taskRandomSeedUpdated, payload: {randomSeed}});
+  yield * put({type: taskRandomSeedUpdated, payload: {randomSeed}});
+
+  if (false === payload.bSubmissionPossible) {
+    yield * put({type: taskReadOnlyUpdated, payload: {readOnly: true}});
+  }
 
   const clientVersions = yield* select((state: TaskState) => state.clientVersions);
   let version;
@@ -354,6 +368,7 @@ export default {
     taskAnswerGraded: 'Task.Answer.Graded',
     taskTokenUpdated: 'Task.Token.Updated',
     taskRandomSeedUpdated: 'Task.RandomSeed.Updated',
+    taskReadOnlyUpdated: 'Task.ReadOnly.Updated',
     platformGradingLoading: 'Platform.GradingLoading',
     platformFeedbackCleared: 'Platform.FeedbackCleared',
   },
@@ -367,6 +382,7 @@ export default {
     taskAnswerGraded: reducer(taskAnswerGradedReducer),
     taskTokenUpdated: reducer(taskTokenUpdatedReducer),
     taskRandomSeedUpdated: reducer(taskRandomSeedUpdatedReducer),
+    taskReadOnlyUpdated: reducer(taskReadOnlyUpdatedReducer),
     platformGradingLoading: reducer(platformGradingLoadingReducer),
     platformFeedbackCleared: reducer(platformFeedbackClearedReducer),
   },

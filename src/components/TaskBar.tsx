@@ -7,6 +7,7 @@ import {useTranslation} from "react-i18next";
 
 export function TaskBar() {
   const gradingLoading = useAppSelector(state => state.gradingLoading);
+  const readOnly = useAppSelector((state) => state.readOnly);
   const [restartModalShow, setRestartModalShow] = useState(false);
   const {platformValidate, taskRestart} = useAppSelector(state => state.actions);
   const dispatch = useDispatch();
@@ -19,6 +20,10 @@ export function TaskBar() {
     dispatch({type: taskRestart});
     setRestartModalShow(false);
   };
+
+  if (readOnly) {
+    return null;
+  }
 
   return (
     <div className='task-bar'>
