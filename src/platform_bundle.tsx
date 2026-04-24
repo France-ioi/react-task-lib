@@ -160,7 +160,7 @@ function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
 
 function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
   const platformApi = yield* select((state: TaskState) => state.platformApi);
-  const {taskInit, taskTokenUpdated, taskRandomSeedUpdated} = yield* select(({actions}) => actions);
+  const {taskInit, taskTokenUpdated, taskRandomSeedUpdated, taskReadOnlyUpdated} = yield* select(({actions}) => actions);
 
   let {randomSeed, options} = yield* call(platformApi.getTaskParams);
   const query = queryString.parse(location.search);
