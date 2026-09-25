@@ -288,7 +288,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="react-task-app">
       <Modal
         show={lockedModalShow}
         onHide={() => setLockedModalShow(false)}
