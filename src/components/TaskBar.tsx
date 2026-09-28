@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {Button, Modal} from 'react-bootstrap';
-import {useAppSelector} from "../typings";
+import {useAppSelector, ValidateButtonStatus} from "../typings";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 
 export function TaskBar() {
   const gradingLoading = useAppSelector(state => state.gradingLoading);
+  const validateButtonStatus = useAppSelector(state => state.validateButtonStatus);
   const readOnly = useAppSelector((state) => state.readOnly);
   const [restartModalShow, setRestartModalShow] = useState(false);
   const {platformValidate, taskRestart} = useAppSelector(state => state.actions);
@@ -26,22 +27,23 @@ export function TaskBar() {
   }
 
   return (
-    <div className='task-bar'>
+    <div className="task-bar">
       <Modal
         show={restartModalShow}
         onHide={() => setRestartModalShow(false)}
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>
-            {t("modal.restart.title")}
-          </Modal.Title>
+          <Modal.Title>{t("modal.restart.title")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>{t("modal.restart.body")}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setRestartModalShow(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setRestartModalShow(false)}
+          >
             {t("modal.restart.cancel")}
           </Button>
           <Button variant="primary" onClick={() => _restart()}>
@@ -49,9 +51,18 @@ export function TaskBar() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Button onClick={_validate} disabled={gradingLoading}>
-        {gradingLoading ? <FontAwesomeIcon icon="spinner" spin/> : t("app.validate")}
-      </Button>
+      {ValidateButtonStatus.Hidden !== validateButtonStatus && (
+        <Button
+          onClick={_validate}
+          disabled={gradingLoading || ValidateButtonStatus.Disabled === validateButtonStatus}
+        >
+          {gradingLoading ? (
+            <FontAwesomeIcon icon="spinner" spin />
+          ) : (
+            t("app.validate")
+          )}
+        </Button>
+      )}
 
       <Button onClick={() => setRestartModalShow(true)} variant="dark">
         {t("app.restart")}

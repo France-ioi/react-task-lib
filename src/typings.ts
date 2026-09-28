@@ -61,28 +61,35 @@ export interface TaskOptions {
   },
 }
 
+export enum ValidateButtonStatus {
+  Enabled = 'enabled',
+  Disabled = 'disabled',
+  Hidden = 'hidden',
+}
+
 export interface TaskState {
-  taskData: any,
-  taskHints: any[],
-  platformApi: TaskPlatformApi,
-  serverApi: (service, action, body) => Promise<any>,
-  options: TaskOptions,
-  clientVersions: {[level: string]: TaskClientVersion},
-  selectors: any,
-  randomSeed: string,
-  readOnly?: boolean,
-  actions: any,
-  taskToken: string,
-  hintRequest: HintRequest,
-  taskMetaData: any,
-  grading: any,
-  gradingLoading: boolean,
-  hints: any,
-  answer: any,
-  taskViews: any,
-  views: { [key: string]: any },
-  fatalError?: string,
-  taskReady: boolean,
+  taskData: any;
+  taskHints: any[];
+  validateButtonStatus: ValidateButtonStatus;
+  platformApi: TaskPlatformApi;
+  serverApi: (service, action, body) => Promise<any>;
+  options: TaskOptions;
+  clientVersions: { [level: string]: TaskClientVersion };
+  selectors: any;
+  randomSeed: string;
+  readOnly?: boolean;
+  actions: any;
+  taskToken: string;
+  hintRequest: HintRequest;
+  taskMetaData: any;
+  grading: any;
+  gradingLoading: boolean;
+  hints: any;
+  answer: any;
+  taskViews: any;
+  views: { [key: string]: any };
+  fatalError?: string;
+  taskReady: boolean;
 }
 
 export const useAppSelector: TypedUseSelectorHook<TaskState> = useSelector;

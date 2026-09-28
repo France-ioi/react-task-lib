@@ -12,7 +12,7 @@ import HintsBundle from './hints_bundle';
 import Stars from "./components/Stars";
 import {levels, getTaskTokenForVersion} from './levels';
 import {EventChannel} from "redux-saga";
-import {reducer, TaskState, useAppSelector} from "./typings";
+import {reducer, TaskState, useAppSelector, ValidateButtonStatus} from "./typings";
 import {TaskResult} from "./components/TaskResult";
 import {TaskBar} from "./components/TaskBar";
 import {useTranslation} from "react-i18next";
@@ -51,6 +51,11 @@ function appInitFailedReducer (state: TaskState, {payload: {message}}) {
 function taskInitReducer (state: TaskState, {payload: {taskData, taskHints}}) {
   state.taskData = taskData;
   state.taskHints = taskHints;
+  state.validateButtonStatus = ValidateButtonStatus.Enabled;
+}
+
+function taskValidateButtonStatusUpdatedReducer(state: TaskState, {payload: status}) {
+  state.validateButtonStatus = status;
 }
 
 function taskAnswerSavedReducer (state: TaskState, {payload: {answer, version: answerVersion}}) {
@@ -351,12 +356,14 @@ export default {
     taskChangeVersion: 'Task.Version.Changed',
     taskAnswerSaved: 'Task.Answer.Saved',
     taskScoreSaved: 'Task.Score.Saved',
+    taskValidateButtonStatusUpdated: 'Task.ValidateButtonStatus.Updated',
   },
   actionReducers: {
     appInit: reducer(appInitReducer),
     appInitDone: reducer(appInitDoneReducer),
     appInitFailed: reducer(appInitFailedReducer),
     taskInit: reducer(taskInitReducer),
+    taskValidateButtonStatusUpdated: reducer(taskValidateButtonStatusUpdatedReducer),
     taskAnswerSaved: reducer(taskAnswerSavedReducer),
     taskScoreSaved: reducer(taskScoreSavedReducer),
   },
