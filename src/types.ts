@@ -27,19 +27,21 @@ export interface LevelState {
 
 /* --------------------------------------------------------------- task data */
 
+/**
+ * What the lib reads in taskData.version. Tasks extend it with their own fields (no index
+ * signature, so that a task's interfaces are assignable).
+ */
 export interface TaskVersion {
   version: string;
   /** false: no hints, and the score is not displayed. */
   hints?: boolean;
   /** false: the score is not displayed. */
   showScore?: boolean;
-  [key: string]: unknown;
 }
 
-/** Data returned by the grader for a task token (`taskData`), at least its version. */
+/** Data returned by the grader for a task token (`taskData`): at least its version. */
 export interface TaskData {
   version: TaskVersion;
-  [key: string]: unknown;
 }
 
 /** Answered to `task.getMetaData`. */
@@ -146,6 +148,11 @@ export interface TaskDefinition<Answer = unknown, TData extends TaskData = TaskD
   /** Hints changed after a successful hint request. */
   onHintsUpdated?(hints: Hint[], context: TaskContext<TData, Hint>): void;
   /**
+   * A grading result is displayed (validation, task.gradeAnswer, or an error): e.g. to show the
+   * case the grader reports. Changes made here don't clear the displayed result.
+   */
+  onGraded?(result: GradingResult, context: TaskContext<TData, Hint>): void;
+  /**
    * Notify the lib of state changes: when the answer changes, the grading and hint feedback are
    * cleared. Pass the task store's subscribe (e.g. `useTaskStore.subscribe`). Without it, call
    * `clearFeedback()` (useTaskActions) yourself.
@@ -219,26 +226,24 @@ export interface DecodedTask {
   payload: Record<string, unknown>;
 }
 
-type NodeCallback<T> = (error: unknown, result?: T) => void;
+/* eslint-disable @typescript-eslint/no-explicit-any -- graders declare their own parameter shapes */
+type NodeCallback = (error: unknown, result?: any) => void;
 
-/** A local grader ("server-modules"), used in client mode. */
+/**
+ * A local grader ("server-modules"), used in client mode. Deliberately loose: graders are plain
+ * JS or typed with their own shapes. The lib calls them with:
+ * - `taskData({task}, callback)`, `taskHintData({task}, taskData, callback)`,
+ * - `requestHint({task, request}, callback)` (callback result: the granted hint),
+ * - `gradeAnswer({task, answer, min_score, max_score, no_score}, taskData, callback)`,
+ * where `task` is a {@link DecodedTask} and `answer` a DecodedTask with the answer as `value`.
+ */
 export interface ServerTask {
-  taskData(params: {task: DecodedTask; [key: string]: unknown}, callback: NodeCallback<unknown>): void;
-  gradeAnswer(
-    params: {task: DecodedTask; answer: DecodedTask & {value: unknown}; [key: string]: unknown},
-    taskData: unknown,
-    callback: NodeCallback<GradingResult>,
-  ): void;
-  requestHint(
-    params: {task: DecodedTask; request: unknown; [key: string]: unknown},
-    callback: NodeCallback<unknown>,
-  ): void;
-  taskHintData(
-    params: {task: DecodedTask; [key: string]: unknown},
-    taskData: unknown,
-    callback: NodeCallback<unknown>,
-  ): void;
+  taskData(params: any, callback: NodeCallback): unknown;
+  gradeAnswer(params: any, taskData: any, callback: NodeCallback): unknown;
+  requestHint(params: any, callback: NodeCallback): unknown;
+  taskHintData(params: any, taskData: any, callback: NodeCallback): unknown;
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export interface GradeRequest {
   task: string;

@@ -14,11 +14,13 @@ import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import autoprefixer from 'autoprefixer';
 import {mergeConfig, type CSSOptions, type PluginOption, type UserConfig} from 'vite';
+import {copyFiles} from './copy-files.js';
 import {inlineCss} from './inline-css.js';
 import {legalComments} from './legal-comments.js';
+import {terserMinify} from './terser.js';
 import {BROWSERSLIST, BUILD_TARGETS} from './targets.js';
 
-export {BROWSERSLIST, BUILD_TARGETS, inlineCss, legalComments};
+export {BROWSERSLIST, BUILD_TARGETS, copyFiles, inlineCss, legalComments};
 
 /** A PostCSS plugin, typed through Vite (so that tasks don't need postcss types). */
 export type PostcssPlugin = NonNullable<Exclude<CSSOptions['postcss'], string | undefined>['plugins']>[number];
@@ -37,6 +39,13 @@ export interface TaskConfigOptions {
   outDir?: string;
   /** Output file name. Default: 'index.js'. */
   fileName?: string;
+  /**
+   * HTML page of the task, copied as `<outDir>/index.html` (e.g. 'index.prod.html'). It loads
+   * the bundle with a classic `<script src="index.js">`.
+   */
+  page?: string;
+  /** Static files or folders copied into outDir (e.g. ['bebras-modules', 'assets']). */
+  copy?: string[];
   /** PostCSS plugins run before autoprefixer (e.g. tailwindcss). */
   postcssPlugins?: PostcssPlugin[];
   /** Extra Vite plugins. */
@@ -58,9 +67,30 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
       throw new Error(`defineTaskConfig: invalid task mode "${String(taskMode)}" (expected "server" or "client")`);
     }
 
+    const outDir = options.outDir ?? 'build';
     const config: UserConfig = {
       root,
-      plugins: [react(), legalComments(), inlineCss(), ...(options.plugins ?? [])],
+      plugins: [
+        react(),
+        legalComments(),
+        inlineCss(),
+        copyFiles({root, outDir, page: options.page, copy: options.copy}),
+        ...(isProduction
+          ? [
+              terserMinify({
+                // Work around Safari 10/11 bugs (let in loops, await in class methods).
+                safari10: true,
+                // Keep license comments (/*! … */, @license): e.g. Font Awesome Free icons are CC BY 4.0.
+                format: {comments: 'some'},
+              }),
+            ]
+          : []),
+        ...(options.plugins ?? []),
+      ],
+      resolve: {
+        // One React (and one lib store) even when the lib is linked from a local working copy.
+        dedupe: ['react', 'react-dom', 'zustand'],
+      },
       define: {
         __TASK_MODE__: JSON.stringify(taskMode),
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
@@ -73,7 +103,7 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
       build: {
         target: BUILD_TARGETS,
         cssTarget: BUILD_TARGETS,
-        outDir: options.outDir ?? 'build',
+        outDir,
         emptyOutDir: true,
         sourcemap: isProduction ? false : 'inline',
         // In library mode every asset is inlined as a data URI.
@@ -89,15 +119,13 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
             codeSplitting: false,
             // Vite drops license comments when minifying: keep them (see legalComments()).
             comments: {legal: true},
+            // Dead-code elimination (e.g. React's development build) — minification is terserMinify().
+            ...(isProduction ? {minify: 'dce-only' as const} : {}),
           },
         },
-        minify: isProduction ? 'terser' : false,
-        terserOptions: {
-          // Work around Safari 10/11 bugs (let in loops, await in class methods).
-          safari10: true,
-          // Keep license comments (/*! … */, @license): e.g. Font Awesome Free icons are CC BY 4.0.
-          format: {comments: 'some'},
-        },
+        // Minified by terserMinify() (the lib's terser).
+        minify: false,
+        cssMinify: isProduction,
         modulePreload: false,
         copyPublicDir: false,
       },

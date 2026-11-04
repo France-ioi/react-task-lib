@@ -386,20 +386,33 @@ export class TaskRuntime {
         }
         if (!silent) {
           const solvedNow = current?.score === 100 && this.state.grading.score !== 100;
-          this.set({grading: current ?? {}, ...(solvedNow ? {upgradeProposal: this.nextLevel()} : {})});
+          this.showGrading(current ?? {}, solvedNow ? {upgradeProposal: this.nextLevel()} : {});
         }
         return [reconciledScore(scores), current?.message, current?.['scoreToken'] as string | undefined];
       }
 
       const token = answerToken || bebrasWindow().task_token?.getAnswerToken(stableStringify(answer)!) || '';
       const result = await this.server.gradeAnswer({task: taskToken!, answer: token, ...bounds});
-      this.set({grading: result});
+      this.showGrading(result);
       return [result.score ?? 0, result.message, result.token];
     } catch (e) {
       const message = isNetworkError(e) ? this.t('error.no_internet') : errorMessage(e);
-      this.set({grading: {error: message}});
+      this.showGrading({error: message});
       console.error(e);
       throw message;
+    }
+  }
+
+  /** Displays a grading result and tells the task (onGraded). */
+  private showGrading(grading: GradingResult, extra: Partial<LibState> = {}) {
+    this.set({grading, ...extra});
+    if (this.definition.onGraded && this.state.taskData) {
+      const context = this.context();
+      try {
+        this.writeTask(() => this.definition.onGraded!(grading, context));
+      } catch (e) {
+        console.error('onGraded failed', e);
+      }
     }
   }
 

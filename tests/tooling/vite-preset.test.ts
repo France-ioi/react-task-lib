@@ -15,8 +15,9 @@ describe('defineTaskConfig', () => {
     expect(build?.lib).toMatchObject({entry: '/task/src/index.ts', name: 'ReactTask', formats: ['iife']});
     expect(build?.target).toEqual(['chrome55', 'edge15', 'firefox52', 'safari10.1', 'ios10.3']);
     expect(build?.rolldownOptions?.output).toMatchObject({codeSplitting: false, comments: {legal: true}});
-    expect(build?.minify).toBe('terser');
-    expect(build?.terserOptions).toMatchObject({safari10: true, format: {comments: 'some'}});
+    expect(build?.minify).toBe(false);
+    const names = (resolve().plugins as {name?: string}[]).flat().map((p) => p?.name);
+    expect(names).toContain('fioi:terser');
     expect(build?.outDir).toBe('build');
   });
 
@@ -34,7 +35,7 @@ describe('defineTaskConfig', () => {
 
   it('development mode: unminified, inline source maps, NODE_ENV=development', () => {
     const config = resolve({}, 'development');
-    expect(config.build?.minify).toBe(false);
+    expect((config.plugins as {name?: string}[]).flat().map((p) => p?.name)).not.toContain('fioi:terser');
     expect(config.build?.sourcemap).toBe('inline');
     expect(config.define?.['process.env.NODE_ENV']).toBe('"development"');
     expect(resolve().define?.['process.env.NODE_ENV']).toBe('"production"');
@@ -45,6 +46,13 @@ describe('defineTaskConfig', () => {
     const postcss = resolve({postcssPlugins: [tailwindLike]}).css?.postcss;
     const plugins = typeof postcss === 'object' ? (postcss.plugins as {postcssPlugin?: string}[]) : [];
     expect(plugins.map((p) => p.postcssPlugin)).toEqual(['tailwind-like', 'autoprefixer']);
+  });
+
+  it('dedupes React (linked lib) and registers the page/copy plugin', () => {
+    const config = resolve({page: 'index.prod.html', copy: ['assets']});
+    expect(config.resolve?.dedupe).toEqual(['react', 'react-dom', 'zustand']);
+    const names = (config.plugins as {name?: string}[]).flat().map((p) => p?.name);
+    expect(names).toContain('fioi:copy-files');
   });
 
   it('merges overrides last', () => {

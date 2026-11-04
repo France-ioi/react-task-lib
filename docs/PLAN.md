@@ -291,12 +291,39 @@ Found while testing: scripted `element.click()` calls in the same task see stale
 (updates of discrete events are applied in a microtask) — real clicks are unaffected; the
 old-browser scenario waits a tick between clicks.
 
-### Phase 4 — Port `alkindi-task-circuit` (validation only, not published)
-- webpack → shared Vite preset (client/server modes); drop legacy polyfill deps.
-- Tailwind v4 → 3.4 (`@theme`/`@utility` → `tailwind.config.js`, compat config, remove flex `gap`).
-- Bundles/sagas → `defineTask` + Zustand store; react-bootstrap usages → lib `Modal`/own markup.
-- Check: `file://` open, server mode, client mode, Playwright scenarios (play, validate, levels,
-  hints, restart, reload answer), before/after screenshots, Firefox 52 / Chromium 55 smoke test.
+### Phase 4 — Port `alkindi-task-circuit` ✅ (branch `react-task-lib-v4` in that repo, not published)
+- webpack/babel/ifdef-loader/yarn → pnpm + `defineTaskConfig` (`vite build`, `TASK_MODE=client vite build`):
+  `build/` = index.html + index.js + bebras-modules + assets, opens from `file://`.
+  Dependencies: ~80 → 9 runtime packages.
+- Redux bundles + sagas → one Zustand + immer store (`src/store.ts`) + plain action functions;
+  `getStateFromAnswer` / `applyHints` and the reducer bodies kept as is. The store keeps copies
+  of taskData / hints (refreshed by `loadAnswer` / `onHintsUpdated`).
+- react-bootstrap → lib `Modal` / `Button`; FontAwesome runtime → `Icon` + definitions;
+  `Collapsable`/`.main-block` → `Block`; Tailwind v4 → 3.4 (opacity plugins off); grid and flex
+  `gap` replaced by flexbox + margins; hint feedback timeouts (saga) → effect on `useHintRequest`.
+- Grader (`server-modules/index.ts`): `require`/`module.exports` → ES `import`/`export` (still
+  compiled to CommonJS by `build:server`; `server-modules/package.json` keeps it CommonJS).
+- Checked: type-check; server and client builds; compat gate; real bebras miniPlatform from
+  `file://` in Chromium and Firefox (render, local grading, hint via askHint, restart,
+  getAnswer/reloadAnswer round trip); **Firefox 52 ESR** (render, grading, hint); V8 5.5 parse;
+  grader loads in Node and answers `taskData`.
+
+Lib changes found by the port:
+- `TaskDefinition.onGraded(result, ctx)` (circuit jumps to the failing input reported by the
+  grader); runs as a lib write, so it doesn't clear the displayed result.
+- `TaskData` / `TaskVersion` without index signatures (task interfaces weren't assignable);
+  `ServerTask` deliberately loose (graders declare their own parameter shapes).
+- Preset: `page` / `copy` options (deployable output folder); `resolve.dedupe` for React
+  (linked lib); minification by the lib's own terser in `generateBundle` (Vite's needs terser in
+  each task, and Vite's target lowering re-prints chunks after `renderChunk`); explicit
+  `cssMinify`; Rolldown `dce-only`.
+
+Known leftovers in the port (cosmetic, not blocking):
+- Tailwind 3.4 preflight uses `:where()` in a few reset rules: skipped by Safari < 14 /
+  Chrome < 88 (button / abbr normalisation only).
+- `icon.png` referenced by the page but missing from the repo (already the case in v3).
+- Pending real-circuit cuts clear the grading feedback explicitly (`clearFeedback()`), since they
+  are UI state, not answer changes.
 
 ### Phase 5 — ai-tasks-tools & release
 - Port the 7 templates; adopt the preset; Tailwind 3.4.

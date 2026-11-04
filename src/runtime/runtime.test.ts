@@ -13,7 +13,7 @@ interface SampleState {
   hintsSeen: number;
 }
 
-function setup() {
+function setup(overrides: Partial<TaskDefinition<{value: number}>> = {}) {
   const taskStore = createStore<SampleState>(() => ({value: 0, selected: null, hintsSeen: 0}));
   const definition: TaskDefinition<{value: number}> = {
     metaData: {id: 'sample'},
@@ -24,6 +24,7 @@ function setup() {
     onHintsUpdated: (hints) => taskStore.setState({hintsSeen: hints.length, value: taskStore.getState().value + 100}),
     subscribe: (listener) => taskStore.subscribe(listener),
     Workspace: () => null,
+    ...overrides,
   };
   const platform = new FakePlatform({mode: 'mini'});
   const runtime = new TaskRuntime({
@@ -76,6 +77,26 @@ describe('feedback clearing (TaskDefinition.subscribe)', () => {
     taskStore.setState({value: 6});
     expect(runtime.state.grading).toEqual({});
     expect(runtime.state.hintRequest.data).toBeNull();
+  });
+});
+
+describe('onGraded', () => {
+  it('receives each displayed result; its changes do not clear that result', async () => {
+    const graded: unknown[] = [];
+    const env = setup({
+      onGraded: (result, context) => {
+        graded.push({score: result.score, version: context.version});
+        // e.g. circuit: switch to the input reported by the grader
+        env.taskStore.setState({value: 42});
+      },
+    });
+    current = env.runtime;
+    await env.platform.loaded;
+
+    await callTask(env.platform.task!, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}'));
+    expect(graded).toEqual([{score: 20, version: '1'}]);
+    expect(env.taskStore.getState().value).toBe(42);
+    expect(env.runtime.state.grading.score).toBe(20);
   });
 });
 
