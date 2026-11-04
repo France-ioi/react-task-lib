@@ -1,0 +1,88 @@
+// Tutorial carousel (v3 react-bootstrap Carousel look).
+.fioi-carousel {
+  position: relative;
+  background: var(--fioi-primary-light);
+  color: var(--fioi-text-muted);
+
+  &:focus {
+    outline: none;
+  }
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--fioi-primary-dark);
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+}
+
+.fioi-carousel__slide {
+  padding: 20px 100px 60px;
+}
+
+.fioi-carousel__control {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  width: 10%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--fioi-primary-dark);
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.8;
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
+}
+
+.fioi-carousel__control--prev {
+  left: 0;
+}
+
+.fioi-carousel__control--next {
+  right: 0;
+}
+
+.fioi-carousel__indicators {
+  display: flex;
+  position: absolute;
+  right: 0;
+  bottom: 20px;
+  left: 0;
+  justify-content: center;
+}
+
+.fioi-carousel__indicator {
+  width: 30px;
+  height: 6px;
+  margin: 0 3px;
+  padding: 0;
+  border: none;
+  background-color: var(--fioi-primary);
+  cursor: pointer;
+  opacity: 0.3;
+}
+
+.fioi-carousel__indicator--active {
+  opacity: 1;
+}

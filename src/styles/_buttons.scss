@@ -1,0 +1,55 @@
+.fioi-button {
+  display: inline-block;
+  padding: 6px 20px;
+  border: none;
+  border-radius: var(--fioi-radius);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1.5;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  transition: background-color 0.15s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  &:focus {
+    outline: 2px solid var(--fioi-primary-dark);
+    outline-offset: 2px;
+  }
+
+  & + & {
+    margin-left: 10px;
+  }
+}
+
+.fioi-button--primary {
+  background-color: var(--fioi-primary);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background-color: var(--fioi-primary-hover);
+  }
+}
+
+.fioi-button--secondary {
+  background-color: #6c757d;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background-color: #5c636a;
+  }
+}
+
+.fioi-button--dark {
+  background-color: #212529;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background-color: #424649;
+  }
+}

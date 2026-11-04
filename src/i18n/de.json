@@ -48,6 +48,19 @@
     },
     "score": {
       "label": "Deine Punktzahl:"
+    },
+    "carousel": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "slide": "{{index}} von {{count}}"
+    },
+    "block": {
+      "collapse": "Einklappen",
+      "expand": "Ausklappen"
+    },
+    "number_picker": {
+      "decrease": "Verringern",
+      "increase": "Erhöhen"
     }
   }
 }

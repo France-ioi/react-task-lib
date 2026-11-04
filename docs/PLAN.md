@@ -254,11 +254,42 @@ Kept on purpose (to confirm with the platform team):
 - With levels, `gradeAnswer` returns `result.scoreToken` as the score token (the local grader sets
   `result.token`, so it is `undefined` there); without levels it returns `result.token`.
 
-### Phase 3 — UI
-- `TaskBar`, version tabs, `Stars` (`useId`), `TaskResult`, `Modal` (portal, focus trap, Esc,
-  backdrop), `Collapsable`/`Block` (height transition), tutorial carousel, `Spinner`,
-  `NumberPicker`, `HintFeedback`, inline SVG icons; SCSS + stylelint.
-- Component tests + Playwright on the playground.
+### Phase 3 — UI ✅
+Done on branch `v4`:
+- Components: `Block` (v3 `Collapsable` + `.main-block`: collapsible header, tutorial toggle,
+  close with confirmation), `ContentBlock` (v3 `.content-block`), `Collapse` (height
+  transition, content stays mounted), `Carousel` + `Tutorial` (one slide per top-level element of
+  `#<category>`, `data-version` filtered, keyboard arrows), `HtmlContent` (trusted page HTML with
+  `<fontawesomeicon>` rendered through portals), `NumberPicker` (fixed loop arithmetic for
+  min ≠ 0), inline SVG icons (`BUILTIN_ICONS` for the 13 names v3 registered).
+- `mountTask` options: `renderIcon` (e.g. FontAwesome; falls back to built-in icons) and
+  `pageStyles` (default true: `fioi-page` on <body>, `fioi-container` on the container).
+- Modal: focus moves into the dialog (last footer button), Tab/Shift+Tab trapped, Escape and
+  backdrop close, focus restored.
+- Styles: v3 look ported to scoped BEM SCSS partials (`src/styles/_*.scss`), themable with CSS
+  custom properties (`_tokens.scss`); stylelint config hardened (`inset`/`gap` never introduced by
+  `--fix`, harmless fallbacks ignored). v3's task-specific helpers (`.custom-scrollable`,
+  `.sub-block-title`, `.is-flex`, `.old-hints` tables…) are **not** shipped: they belong to tasks.
+- Tests: 19 component tests (Testing Library); playground task uses every component; Playwright
+  E2E covers tutorial, focus, levels, hints; screenshots reviewed in Chromium and Firefox.
+- **Firefox 52 ESR** runs the task with layout assertions (tabs side by side, buttons on one row,
+  header height, picker width, icon rendered, modal centered) — all pass.
+
+v3 → v4 component mapping (for Phase 4):
+
+| v3 | v4 |
+|---|---|
+| `<div className="main-block"><Collapsable title={<div className="main-block-header">…</div>} tutorial={<Tutorial category="x" version={v}/>}>` | `<Block title="…" tutorial="x">` |
+| `<div className="content-block"><div className="content-block-header">…</div><div className="content-block-body">` | `<ContentBlock title="…" icon={…}>` |
+| `<TaskInstructions version={v}/>` | `<TaskInstructions />` |
+| `<TutorialCarousel>` | `<Carousel slides={[…]}>` |
+| `<NumberPicker minValue maxValue increment count onChange readOnly loop/>` | `<NumberPicker min max step value onChange readOnly loop/>` |
+| `views.HintRequestFeedback` | `<HintFeedback />` |
+| react-bootstrap `Modal`/`Button`/`Alert` | `Modal` / `Button` / `Alert` |
+
+Found while testing: scripted `element.click()` calls in the same task see stale React props
+(updates of discrete events are applied in a microtask) — real clicks are unaffected; the
+old-browser scenario waits a tick between clicks.
 
 ### Phase 4 — Port `alkindi-task-circuit` (validation only, not published)
 - webpack → shared Vite preset (client/server modes); drop legacy polyfill deps.

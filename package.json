@@ -74,6 +74,7 @@
     }
   },
   "dependencies": {
+    "@fortawesome/fontawesome-common-types": "^7.3.1",
     "@vitejs/plugin-react": "^6.2.1",
     "autoprefixer": "^10.6.2",
     "core-js": "^3.51.0",
@@ -88,7 +89,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@fortawesome/react-fontawesome": "^0.2.6",
     "@hedgedoc/html-to-react": "^1.4.6",
     "@playwright/test": "^1.64.1",

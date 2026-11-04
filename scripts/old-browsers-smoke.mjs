@@ -19,7 +19,7 @@ if (!command) {
   console.error('usage: node scripts/old-browsers-smoke.mjs <browser-command> [args...]');
   process.exit(2);
 }
-const PAGES = ['index.html', 'index.client.html', 'task.html'];
+const PAGES = (process.env['SMOKE_PAGES'] ?? 'index.html,index.client.html,task.html').split(',');
 const TIMEOUT_MS = 90_000;
 
 let pending = null;

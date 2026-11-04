@@ -21,6 +21,12 @@ export {
 export {useLibTranslation} from './react/context';
 
 // Components
+export {Block, ContentBlock, type BlockProps, type ContentBlockProps} from './ui/Block';
+export {Collapse} from './ui/Collapse';
+export {Carousel} from './ui/Carousel';
+export {Tutorial, tutorialSlides, useTutorialSlides} from './ui/Tutorial';
+export {HtmlContent, filteredSection, type HtmlContentProps} from './ui/HtmlContent';
+export {NumberPicker, type NumberPickerProps} from './ui/NumberPicker';
 export {TaskInstructions} from './ui/TaskInstructions';
 export {HintFeedback} from './ui/HintFeedback';
 export {TaskBar} from './ui/TaskBar';
@@ -29,6 +35,7 @@ export {Button, type ButtonProps} from './ui/Button';
 export {Alert} from './ui/Alert';
 export {Spinner} from './ui/Spinner';
 export {Stars} from './ui/Stars';
+export {BUILTIN_ICONS, Icon, iconsByName, type IconDefinition, type IconProps, type RenderIcon} from './ui/icons';
 
 // Utilities
 export {stableStringify} from './utils/stable_stringify';

@@ -3,7 +3,8 @@ import {useLibState, useLibTranslation, useRuntime} from '../react/context';
 import type {LevelName} from '../types';
 import {Alert} from './Alert';
 import {Button} from './Button';
-import {CheckIcon, TimesIcon} from './icons';
+import {faCheck, faXmark} from '@fortawesome/free-solid-svg-icons';
+import {Icon} from './icons';
 import {Modal} from './Modal';
 
 export interface TaskResultProps {
@@ -47,7 +48,7 @@ export function TaskResult({changeLevel}: TaskResultProps) {
         <Alert variant={success ? 'success' : 'danger'}>
           {grading.message ? (
             <p className="fioi-result__message">
-              {success ? <CheckIcon /> : <TimesIcon />} <span dangerouslySetInnerHTML={{__html: grading.message}} />
+              <Icon icon={success ? faCheck : faXmark} /> <span dangerouslySetInnerHTML={{__html: grading.message}} />
             </p>
           ) : null}
           {showScore ? (
@@ -59,7 +60,7 @@ export function TaskResult({changeLevel}: TaskResultProps) {
       ) : null}
       {grading.error ? (
         <Alert variant="danger">
-          <TimesIcon /> {t('error.validation')} {grading.error}
+          <Icon icon={faXmark} /> {t('error.validation')} {grading.error}
         </Alert>
       ) : null}
     </div>

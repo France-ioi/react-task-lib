@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import autoprefixer from 'autoprefixer';
-import {BROWSERSLIST, BUILD_TARGETS} from './src/vite/targets';
+import {BROWSERSLIST, BUILD_TARGETS} from './src/vite/targets.ts';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string;

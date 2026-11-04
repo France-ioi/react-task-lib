@@ -14,9 +14,9 @@ describe('defineTaskConfig', () => {
     const {build} = resolve();
     expect(build?.lib).toMatchObject({entry: '/task/src/index.ts', name: 'ReactTask', formats: ['iife']});
     expect(build?.target).toEqual(['chrome55', 'edge15', 'firefox52', 'safari10.1', 'ios10.3']);
-    expect(build?.rolldownOptions?.output).toMatchObject({codeSplitting: false});
+    expect(build?.rolldownOptions?.output).toMatchObject({codeSplitting: false, comments: {legal: true}});
     expect(build?.minify).toBe('terser');
-    expect(build?.terserOptions).toMatchObject({safari10: true});
+    expect(build?.terserOptions).toMatchObject({safari10: true, format: {comments: 'some'}});
     expect(build?.outDir).toBe('build');
   });
 

@@ -1,0 +1,38 @@
+.fioi-alert {
+  margin-bottom: 1rem;
+  padding: 12px 16px;
+  border-radius: var(--fioi-radius);
+  text-align: center;
+
+  p {
+    margin-bottom: 8px;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  .fioi-icon {
+    margin-right: 5px;
+  }
+}
+
+.fioi-alert--success {
+  background-color: rgba(136, 187, 136, 0.2);
+  color: var(--fioi-primary-dark);
+}
+
+.fioi-alert--danger {
+  background-color: rgba(242, 52, 89, 0.1);
+  color: var(--fioi-danger);
+}
+
+.fioi-result {
+  .fioi-alert--success {
+    color: var(--fioi-text);
+  }
+
+  .fioi-result__message {
+    font-weight: bold;
+  }
+}

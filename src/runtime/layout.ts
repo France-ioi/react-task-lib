@@ -21,7 +21,7 @@ export function applyBebrasLayout() {
       setTimeout(fitHeight, 1000);
     }
     document.body.style.width = '100%';
-    container.className = 'container';
+    container.classList.add('container');
   } catch {
     // Cross-origin parent: not embedded in the Bebras platform.
   }

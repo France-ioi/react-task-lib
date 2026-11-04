@@ -3,15 +3,23 @@ import '@france-ioi/react-task-lib/polyfills';
 import '@france-ioi/react-task-lib/style.css';
 
 import {
+  Block,
+  Button,
+  ContentBlock,
   defineTask,
   HintFeedback,
   mountTask,
+  NumberPicker,
+  Icon,
   TaskInstructions,
   useHints,
+  useReadOnly,
   useRequestHint,
   useTaskData,
   type TaskData,
 } from '@france-ioi/react-task-lib';
+import './task.scss';
+import {faNoteSticky} from '@fortawesome/free-solid-svg-icons';
 import {create} from 'zustand';
 import {installMiniPlatform} from './mini_platform';
 import {counterGrader} from './server';
@@ -32,27 +40,36 @@ function Workspace() {
   const {target, version} = useTaskData<CounterData>();
   const hints = useHints<string>();
   const requestHint = useRequestHint<string>();
+  const readOnly = useReadOnly();
 
   return (
     <div className="counter">
-      <TaskInstructions />
-      <p>
-        Version {version.version}: reach the target with the buttons.{' '}
-        {hints.length ? <span data-testid="hint">The target is {target}.</span> : null}
-      </p>
-      <p>
-        <button type="button" onClick={() => useCounter.setState((s) => ({value: s.value - 1}))}>
-          −
-        </button>{' '}
-        <strong data-testid="value">{value}</strong>{' '}
-        <button type="button" onClick={() => useCounter.setState((s) => ({value: s.value + 1}))}>
-          +
-        </button>
-      </p>
-      <button type="button" onClick={() => void requestHint('target')}>
-        Hint
-      </button>
-      <HintFeedback />
+      <ContentBlock title="Votre mission" icon={<Icon icon={faNoteSticky} />}>
+        <TaskInstructions />
+      </ContentBlock>
+      <Block title={`Compteur — version ${version.version}`} tutorial="tutorial-counter">
+        <p className="counter__row">
+          Reach the target with the buttons:{' '}
+          <NumberPicker
+            aria-label="value"
+            value={value}
+            min={0}
+            max={10}
+            readOnly={readOnly}
+            onChange={(v) => useCounter.setState({value: v})}
+          />{' '}
+          <strong data-testid="value">{value}</strong>
+        </p>
+      </Block>
+      <Block title="Indices">
+        <p className="counter__row">
+          {hints.length ? <span data-testid="hint">The target is {target}.</span> : 'No hint yet.'}{' '}
+          <Button variant="secondary" onClick={() => void requestHint('target')}>
+            Hint
+          </Button>
+        </p>
+        <HintFeedback />
+      </Block>
     </div>
   );
 }

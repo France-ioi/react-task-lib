@@ -15,9 +15,10 @@ import react from '@vitejs/plugin-react';
 import autoprefixer from 'autoprefixer';
 import {mergeConfig, type CSSOptions, type PluginOption, type UserConfig} from 'vite';
 import {inlineCss} from './inline-css.js';
+import {legalComments} from './legal-comments.js';
 import {BROWSERSLIST, BUILD_TARGETS} from './targets.js';
 
-export {BROWSERSLIST, BUILD_TARGETS, inlineCss};
+export {BROWSERSLIST, BUILD_TARGETS, inlineCss, legalComments};
 
 /** A PostCSS plugin, typed through Vite (so that tasks don't need postcss types). */
 export type PostcssPlugin = NonNullable<Exclude<CSSOptions['postcss'], string | undefined>['plugins']>[number];
@@ -59,7 +60,7 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
 
     const config: UserConfig = {
       root,
-      plugins: [react(), inlineCss(), ...(options.plugins ?? [])],
+      plugins: [react(), legalComments(), inlineCss(), ...(options.plugins ?? [])],
       define: {
         __TASK_MODE__: JSON.stringify(taskMode),
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
@@ -86,13 +87,16 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
           output: {
             // A single file: no chunks to load (dynamic imports are inlined).
             codeSplitting: false,
+            // Vite drops license comments when minifying: keep them (see legalComments()).
+            comments: {legal: true},
           },
         },
         minify: isProduction ? 'terser' : false,
         terserOptions: {
           // Work around Safari 10/11 bugs (let in loops, await in class methods).
           safari10: true,
-          format: {comments: false},
+          // Keep license comments (/*! … */, @license): e.g. Font Awesome Free icons are CC BY 4.0.
+          format: {comments: 'some'},
         },
         modulePreload: false,
         copyPublicDir: false,

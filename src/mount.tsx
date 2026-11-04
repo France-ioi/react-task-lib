@@ -18,6 +18,7 @@ import type {
   TaskServer,
 } from './types';
 import {App, FatalError} from './ui/App';
+import type {IconDefinition, RenderIcon} from './ui/icons';
 import {createTranslator} from './i18n';
 import {errorMessage} from './utils/errors';
 
@@ -30,6 +31,20 @@ export interface MountOptions {
   platform?: PlatformApi;
   /** Wrap the app in React.StrictMode (default: true in development). */
   strictMode?: boolean;
+  /**
+   * FontAwesome icon definitions usable by name in task HTML (`<fontawesomeicon icon="eye">`),
+   * in addition to the built-in ones (check, xmark/times, spinner, plus, chevron-*, lock,
+   * lock-open, note-sticky/sticky-note, thumbtack, circle-question/question-circle).
+   * E.g. `icons: [faEye, faEyeSlash]` with `import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'`.
+   */
+  icons?: IconDefinition[];
+  /** Custom renderer for task HTML icons, tried first (return null to fall back to `icons`). */
+  renderIcon?: RenderIcon;
+  /**
+   * Page styles (default true): adds `fioi-page` to <body> and `fioi-container` to the container
+   * (background, container width — themable with --fioi-body-color, --fioi-container-width…).
+   */
+  pageStyles?: boolean;
 }
 
 export interface MountedTask {
@@ -79,6 +94,8 @@ export function mountTask<Answer, TData extends TaskData, Hint, Dump>(
       platform: createPlatformAdapter(platformApi),
       server,
       levels: mountOptions.levels,
+      icons: mountOptions.icons,
+      renderIcon: mountOptions.renderIcon,
     });
     runtime.start();
   } catch (e) {
@@ -92,6 +109,11 @@ export function mountTask<Answer, TData extends TaskData, Hint, Dump>(
       </div>,
     );
     return {taskApi: null, unmount: () => root.unmount()};
+  }
+
+  if (mountOptions.pageStyles !== false) {
+    document.body.classList.add('fioi-page');
+    container.classList.add('fioi-container');
   }
 
   try {

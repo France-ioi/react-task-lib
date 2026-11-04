@@ -2,7 +2,8 @@ import {useState} from 'react';
 import {useLibState, useLibTranslation, useRuntime} from '../react/context';
 import {ValidateButtonStatus} from '../types';
 import {Button} from './Button';
-import {SpinnerIcon} from './icons';
+import {faSpinner} from '@fortawesome/free-solid-svg-icons';
+import {Icon} from './icons';
 import {Modal} from './Modal';
 
 /** Validate / restart buttons. Hidden when the task is read-only. */
@@ -48,7 +49,7 @@ export function TaskBar() {
           disabled={gradingLoading || status === ValidateButtonStatus.Disabled}
           aria-busy={gradingLoading}
         >
-          {gradingLoading ? <SpinnerIcon aria-label={t('app.validate')} /> : t('app.validate')}
+          {gradingLoading ? <Icon icon={faSpinner} spin aria-label={t('app.validate')} /> : t('app.validate')}
         </Button>
       )}
       <Button variant="dark" onClick={() => setRestartModalOpen(true)}>

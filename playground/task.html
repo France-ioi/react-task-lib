@@ -8,9 +8,28 @@
   </head>
   <body>
     <div id="container"></div>
-    <div id="instructions" style="display: none">
-      <p>Reach the target value, then validate.</p>
-      <p data-version="2">Level 2: the target is higher.</p>
+    <div style="display: none">
+      <div id="instructions">
+        <p>
+          Reach the target value, then validate
+          <fontawesomeicon icon="check" style="color: #699669"></fontawesomeicon>.
+        </p>
+        <p data-version="2">Level 2: the target is higher.</p>
+      </div>
+      <div id="tutorial-counter">
+        <div>
+          <h3>The counter</h3>
+          <p>Use − and + to change the value.</p>
+        </div>
+        <div>
+          <h3>Validate</h3>
+          <p>Press <b>Valider</b> to get your score <fontawesomeicon icon="lock-open"></fontawesomeicon>.</p>
+        </div>
+        <div data-version="2">
+          <h3>Level 2</h3>
+          <p>Ask for a hint if you are stuck.</p>
+        </div>
+      </div>
     </div>
     <script>
       var options = {defaults: {taskID: 'counter', version: 1}};

@@ -2,6 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["node", "vite/client", "./task-env.d.ts"]
   },
   "include": ["src", "playground/src", "playground/*.ts", "scripts", "*.ts", "*.mts", "e2e", "tests/tooling"],

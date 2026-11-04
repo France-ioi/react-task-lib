@@ -8,6 +8,7 @@
     "build:dev": "vite build --mode development"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@france-ioi/react-task-lib": "workspace:*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

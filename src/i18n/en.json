@@ -48,6 +48,19 @@
     },
     "score": {
       "label": "Your score:"
+    },
+    "carousel": {
+      "previous": "Previous",
+      "next": "Next",
+      "slide": "{{index}} of {{count}}"
+    },
+    "block": {
+      "collapse": "Collapse",
+      "expand": "Expand"
+    },
+    "number_picker": {
+      "decrease": "Decrease",
+      "increase": "Increase"
     }
   }
 }

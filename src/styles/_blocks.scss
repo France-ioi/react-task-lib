@@ -1,0 +1,118 @@
+// Block: white section with a collapsible green title (v3 .main-block + Collapsable).
+.fioi-block {
+  margin-bottom: 20px;
+  border-radius: var(--fioi-radius);
+  background: var(--fioi-block-background);
+}
+
+.fioi-block__header {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 80px;
+  border-bottom: 1px solid var(--fioi-primary);
+  color: var(--fioi-primary-dark);
+}
+
+.fioi-block__header--collapsible {
+  cursor: pointer;
+}
+
+.fioi-block__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.fioi-block__icon-button {
+  position: absolute;
+  top: 8px;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: var(--fioi-primary-dark);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fioi-block__toggle {
+  right: 10px;
+}
+
+.fioi-block__close {
+  right: 10px;
+  z-index: 3;
+}
+
+.fioi-block__close + .fioi-block__toggle {
+  right: 34px;
+}
+
+.fioi-block__tutorial-toggle {
+  display: inline-flex;
+  position: absolute;
+  z-index: 3;
+  top: 28px;
+  right: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: none;
+  border-radius: 20px;
+  background: var(--fioi-primary-light);
+  box-shadow: inset 0 2px 0 0 var(--fioi-primary-dark);
+  color: var(--fioi-primary-dark);
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+
+  .fioi-icon {
+    margin-left: 10px;
+    font-size: 0.75em;
+  }
+}
+
+.fioi-block__tutorial {
+  position: relative;
+}
+
+// ContentBlock: grey section with a green header bar (v3 .content-block).
+.fioi-content-block {
+  margin-bottom: 20px;
+  border-radius: var(--fioi-radius);
+  background: var(--fioi-content-block-background);
+}
+
+.fioi-content-block__header {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-top-left-radius: var(--fioi-radius);
+  border-top-right-radius: var(--fioi-radius);
+  background-color: var(--fioi-primary);
+  color: #fff;
+}
+
+.fioi-content-block__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.fioi-content-block__icon {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+}
+
+.fioi-content-block__body {
+  padding: 20px;
+  color: var(--fioi-text);
+}

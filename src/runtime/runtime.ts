@@ -1,4 +1,5 @@
 import {createTranslator, type Translate} from '../i18n';
+import {createIconRenderer, type IconDefinition, type RenderIcon} from '../ui/icons';
 import {
   findLevelByVersion,
   firstImprovableVersion,
@@ -52,6 +53,10 @@ export type AnyTaskDefinition = TaskDefinition<any, any, any, any>;
 
 export interface RuntimeConfig {
   definition: AnyTaskDefinition;
+  /** Extra icons available by name in task HTML (`<fontawesomeicon icon="…">`). */
+  icons?: IconDefinition[];
+  /** Custom renderer for task HTML icons, tried first (null: fall back to the known icons). */
+  renderIcon?: RenderIcon;
   options: TaskOptions;
   platform: PlatformAdapter;
   server: TaskServer;
@@ -68,6 +73,7 @@ export class TaskRuntime {
   readonly store: LibStore;
   readonly taskApi: TaskApi;
   readonly t: Translate;
+  readonly renderIcon: RenderIcon;
   private readonly definition: AnyTaskDefinition;
   private readonly platform: PlatformAdapter;
   private readonly server: TaskServer;
@@ -79,8 +85,10 @@ export class TaskRuntime {
   private writingTask = false;
   private unsubscribeTask: (() => void) | null = null;
 
-  constructor({definition, options, platform, server, levels}: RuntimeConfig) {
+  constructor({definition, options, platform, server, levels, icons, renderIcon}: RuntimeConfig) {
     this.definition = definition;
+    const knownIcons = createIconRenderer(icons);
+    this.renderIcon = renderIcon ? (name, style) => renderIcon(name, style) ?? knownIcons(name, style) : knownIcons;
     this.platform = platform;
     this.server = server;
     const language = options.language ?? 'fr';

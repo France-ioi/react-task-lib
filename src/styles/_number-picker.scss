@@ -1,0 +1,57 @@
+.fioi-number-picker {
+  display: inline-flex;
+  width: 100px;
+  height: 30px;
+  border-radius: var(--fioi-radius);
+  background: #fff;
+  box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.2);
+  vertical-align: middle;
+}
+
+.fioi-number-picker__button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  background-color: var(--fioi-dark);
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 20px;
+  cursor: pointer;
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+}
+
+.fioi-number-picker__button--minus {
+  border-top-left-radius: var(--fioi-radius);
+  border-bottom-left-radius: var(--fioi-radius);
+}
+
+.fioi-number-picker__button--plus {
+  border-top-right-radius: var(--fioi-radius);
+  border-bottom-right-radius: var(--fioi-radius);
+}
+
+.fioi-number-picker__input {
+  flex: 1 0 0;
+  min-width: 0;
+  height: 30px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+  }
+}

@@ -1,0 +1,68 @@
+.fioi-modal {
+  display: flex;
+  position: fixed;
+  z-index: 1050;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.fioi-modal__dialog {
+  width: 460px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border-radius: 6px;
+  background: var(--fioi-modal-background);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.fioi-modal__header {
+  display: flex;
+  position: relative;
+  align-items: center;
+  height: 40px;
+  padding: 0 40px 0 20px;
+  border-bottom: 1px solid var(--fioi-border);
+}
+
+.fioi-modal__title {
+  margin: 0;
+  color: var(--fioi-text-muted);
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.fioi-modal__close {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  color: var(--fioi-primary);
+  font-size: 24px;
+  line-height: 32px;
+  cursor: pointer;
+}
+
+.fioi-modal__body {
+  padding: 16px 20px;
+}
+
+.fioi-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid var(--fioi-border);
+}

@@ -1,6 +1,7 @@
 import {useLibState, useLibTranslation} from '../react/context';
 import {Alert} from './Alert';
-import {CheckIcon, TimesIcon} from './icons';
+import {faCheck, faXmark} from '@fortawesome/free-solid-svg-icons';
+import {Icon} from './icons';
 
 /** Result of the last hint request (cleared on the next user change). */
 export function HintFeedback() {
@@ -12,7 +13,7 @@ export function HintFeedback() {
     return (
       <Alert variant="success">
         <p>
-          <CheckIcon /> {t('hints.fulfilled')}
+          <Icon icon={faCheck} /> {t('hints.fulfilled')}
         </p>
       </Alert>
     );
@@ -20,7 +21,7 @@ export function HintFeedback() {
   return (
     <Alert variant="danger">
       <p>
-        <TimesIcon /> {t('hints.not_fulfilled')}
+        <Icon icon={faXmark} /> {t('hints.not_fulfilled')}
       </p>
       <p>
         {t('hints.code')} {data.code}

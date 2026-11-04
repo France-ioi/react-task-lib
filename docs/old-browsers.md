@@ -51,3 +51,4 @@ polyfills) on it. DOM behavior of Chrome 55 itself is not covered.
 |---|---|---|---|
 | 2026-11-04 | Phase 1 | ✓ 16/16 probes, server + client, `file://` | ✓ bundles parse, 16/16 probes |
 | 2026-11-04 | Phase 2 | ✓ probes + counter task played end to end (validate, next level, hint) | ✓ 3 bundles parse, 16/16 probes |
+| 2026-11-04 | Phase 3 | ✓ probes + task with layout assertions, tutorial, centered modal | ✓ 3 bundles parse, 16/16 probes |
