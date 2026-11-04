@@ -325,6 +325,18 @@ Known leftovers in the port (cosmetic, not blocking):
 - Pending real-circuit cuts clear the grading feedback explicitly (`clearFeedback()`), since they
   are UI state, not answer changes.
 
+### Removal of `legacy/v3` ✅
+- v3 sources and their test adapter removed (v3 stays in git: tag `v3.2.17`, and on the
+  registry as 3.x). The protocol suite now runs against v4 only; the former `itV3Bug` tests are
+  plain tests ("fixed in v4").
+- Stable stringify: v3 reference outputs frozen in `src/utils/stable_stringify.test.ts`.
+- v3-only dev dependencies removed (redux, redux-saga, typed-redux-saga, react-redux,
+  react-bootstrap, i18next, react-i18next, @hedgedoc/html-to-react, query-string, range,
+  url-search-params-polyfill, json-stable-stringify-without-jsonify, immer, FontAwesome runtime).
+- `tests/` is type-checked (strict) — clean.
+- `@fortawesome/free-solid-svg-icons` moved to dependencies: dist imports it instead of bundling
+  the icons, so tasks share one copy.
+
 ### Phase 5 — ai-tasks-tools & release
 - Port the 7 templates; adopt the preset; Tailwind 3.4.
 - README + task-author guide (API, preset, browser rules, Tailwind config) + CHANGELOG.

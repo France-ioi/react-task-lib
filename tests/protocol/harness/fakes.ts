@@ -8,7 +8,7 @@
  * - FakeTaskToken: the `window.task_token` object created by miniPlatform.
  * - FakeServerTask: a local grader ("server-modules"), used in client mode.
  *
- * Nothing in here may import from src/: these tests must run unchanged against v3 and v4.
+ * Nothing in here imports from src/: the protocol tests only use what the platform sees.
  */
 
 /* ---------------------------------------------------------------- dummy JWT */

@@ -27,14 +27,7 @@ const POLYFILLED = [
 
 export default tseslint.config(
   {
-    ignores: [
-      'dist/**',
-      'legacy/**',
-      'playground/build*/**',
-      'node_modules/**',
-      'test-results/**',
-      'playwright-report/**',
-    ],
+    ignores: ['dist/**', 'playground/build*/**', 'node_modules/**', 'test-results/**', 'playwright-report/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

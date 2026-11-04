@@ -1,5 +1,4 @@
 dist
-legacy
 playground/build*
 pnpm-lock.yaml
 src/polyfills/index.ts

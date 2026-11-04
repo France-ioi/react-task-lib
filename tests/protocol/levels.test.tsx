@@ -5,7 +5,7 @@
  */
 import {describe, expect, it} from 'vitest';
 import {fireEvent, screen, waitFor, within} from '@testing-library/react';
-import {callTask, itV3Bug, mount, ui, type LevelSpec} from './harness';
+import {callTask, mount, ui, type LevelSpec} from './harness';
 
 const LEVELS: Record<string, LevelSpec> = {
   basic: {version: '1'},
@@ -116,10 +116,8 @@ describe('levels', () => {
     expect(await callTask(task, 'getAnswer')).toEqual(['{"basic":{"value":3},"easy":{"value":1},"medium":null}']);
   });
 
-  // KNOWN v3 BUG: taskChangeVersionSaga calls task.gradeAnswer(<current level answer>, ..., silent)
-  // but gradeAnswer expects the all-levels answer, so no level is graded (no-op).
-  // Intended behavior (v4): the levels' answers are graded silently when leaving a level.
-  itV3Bug("switching level grades the levels' answers silently", async () => {
+  // Fixed in v4 (v3 graded the current level's answer as if it were the all-levels answer: no-op).
+  it("switching level grades the levels' answers silently", async () => {
     const {server} = await loaded();
     await solveBasicAndGoToEasy();
     const gradesBefore = server.callsTo('gradeAnswer').length;
@@ -157,17 +155,12 @@ describe('levels', () => {
   });
 });
 
-describe('levels — known v3 bugs', () => {
-  // KNOWN v3 BUG: when the answer has nothing for the current level, the grading stored for
-  // display is null and TaskResult crashes on `grading.error`, which unmounts the whole app.
-  itV3Bug(
-    'a non-silent gradeAnswer without an answer for the current level keeps the app alive',
-    async () => {
-      const {task} = await loaded();
-      await callTask(task, 'gradeAnswer', '{"basic":null,"easy":{"value":1},"medium":null}', null);
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(screen.getByTestId('value')).toBeTruthy();
-    },
-    {crashes: true},
-  );
+describe('levels — fixed v3 bugs', () => {
+  // v3 stored a null grading here and TaskResult crashed, unmounting the whole app.
+  it('a non-silent gradeAnswer without an answer for the current level keeps the app alive', async () => {
+    const {task} = await loaded();
+    await callTask(task, 'gradeAnswer', '{"basic":null,"easy":{"value":1},"medium":null}', null);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByTestId('value')).toBeTruthy();
+  });
 });

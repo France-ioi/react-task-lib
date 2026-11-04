@@ -1,32 +1,42 @@
 import {describe, expect, it} from 'vitest';
-// v3 dependency, kept as reference while legacy/v3 exists.
-// @ts-expect-error -- untyped package
-import referenceStringify from 'json-stable-stringify-without-jsonify';
 import {stableStringify} from './stable_stringify';
 
-const samples: unknown[] = [
-  null,
-  0,
-  -1.5,
-  'text "quoted" é\n',
-  true,
-  [],
-  {},
-  {b: 1, a: 2, c: {z: [3, {y: 1, x: 2}], a: null}},
-  [undefined, () => 1, 1],
-  {a: undefined, b: () => 1, c: 1},
-  {date: new Date(0), nested: {toJSON: () => ({k: 'v'})}},
-  {levels: {basic: {value: 3}, easy: null, medium: null}},
-  [NaN, Infinity],
+/**
+ * Reference outputs of json-stable-stringify-without-jsonify, the serializer of v3 (frozen when
+ * legacy/v3 was removed): the JSON sent to the platform (answers, states) must not change.
+ */
+const REFERENCE: [string, unknown, string][] = [
+  ['null', null, 'null'],
+  ['zero', 0, '0'],
+  ['negative float', -1.5, '-1.5'],
+  ['string with quotes, accent, newline', 'text "quoted" é\n', '"text \\"quoted\\" é\\n"'],
+  ['boolean', true, 'true'],
+  ['empty array', [], '[]'],
+  ['empty object', {}, '{}'],
+  [
+    'nested objects: keys sorted at every level',
+    {b: 1, a: 2, c: {z: [3, {y: 1, x: 2}], a: null}},
+    '{"a":2,"b":1,"c":{"a":null,"z":[3,{"x":2,"y":1}]}}',
+  ],
+  ['array: undefined and functions become null', [undefined, () => 1, 1], '[null,null,1]'],
+  ['object: undefined and functions skipped', {a: undefined, b: () => 1, c: 1}, '{"c":1}'],
+  [
+    'toJSON honored (Date, custom)',
+    {date: new Date(0), nested: {toJSON: () => ({k: 'v'})}},
+    '{"date":"1970-01-01T00:00:00.000Z","nested":{"k":"v"}}',
+  ],
+  [
+    'multi-level answer',
+    {levels: {basic: {value: 3}, easy: null, medium: null}},
+    '{"levels":{"basic":{"value":3},"easy":null,"medium":null}}',
+  ],
+  ['non-finite numbers', [NaN, Infinity], '[null,null]'],
 ];
 
 describe('stableStringify', () => {
-  it.each(samples.map((sample) => [JSON.stringify(sample) ?? String(sample), sample]))(
-    'matches json-stable-stringify-without-jsonify for %s',
-    (_label, sample) => {
-      expect(stableStringify(sample)).toBe(referenceStringify(sample));
-    },
-  );
+  it.each(REFERENCE)('same output as v3: %s', (_name, value, expected) => {
+    expect(stableStringify(value)).toBe(expected);
+  });
 
   it('sorts keys', () => {
     expect(stableStringify({b: 1, a: {d: 1, c: 2}})).toBe('{"a":{"c":2,"d":1},"b":1}');

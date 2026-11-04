@@ -6,8 +6,7 @@ export interface LevelSpec {
 }
 
 /**
- * Describes one mount of the sample task. Every implementation adapter (v3, v4) must
- * build the same sample task:
+ * Describes one mount of the sample task (see sample_task.tsx):
  *
  * - answer: `{value: number}`, initial value 0;
  * - task state dump (getState): `{value: number}`;

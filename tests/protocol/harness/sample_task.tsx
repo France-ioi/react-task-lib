@@ -1,4 +1,4 @@
-/* The sample task written against the v4 API (defineTask + a Zustand store). See MountSpec. */
+/* The sample task of the protocol tests (defineTask + a Zustand store). See MountSpec. */
 import {create} from 'zustand';
 import {
   defineTask,

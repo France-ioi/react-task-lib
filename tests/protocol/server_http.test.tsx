@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {screen} from '@testing-library/react';
-import {callTask, IMPL, itV3Bug, mount} from './harness';
+import {callTask, mount} from './harness';
 
 type Handler = (body: any) => {status?: number; json?: unknown} | Promise<never>;
 
@@ -95,22 +95,12 @@ describe('HTTP server API (options.server_module)', () => {
     await expect(platform.loaded).rejects.toMatchObject({args: ['Invalid response status: 500']});
   });
 
-  // KNOWN v3 BUG: server_api rejects with the error *message string*, so the
-  // `ex.message === 'Network request failed'` check never matches and the translated
-  // "no internet" message is never shown.
-  itV3Bug('shows the translated "no internet" message on a network failure while grading', async () => {
+  // Fixed in v4 (v3 rejected with a message string, so this message was never shown).
+  it('shows the translated "no internet" message on a network failure while grading', async () => {
     const {task} = await loaded();
     handler = () => Promise.reject(new TypeError('Network request failed'));
     await expect(
       callTask(task, 'gradeAnswer', '{"value":1}', window.task_token.getAnswerToken('{"value":1}')),
     ).rejects.toMatchObject({args: ["Vous n'êtes actuellement pas connecté à Internet."]});
-  });
-
-  it.runIf(IMPL === 'v3')('(v3 actual) reports the raw network error message while grading', async () => {
-    const {task} = await loaded();
-    handler = () => Promise.reject(new TypeError('Network request failed'));
-    await expect(
-      callTask(task, 'gradeAnswer', '{"value":1}', window.task_token.getAnswerToken('{"value":1}')),
-    ).rejects.toMatchObject({args: ['Network request failed']});
   });
 });
