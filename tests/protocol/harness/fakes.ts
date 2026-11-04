@@ -53,7 +53,7 @@ export interface TaskApi {
 
 export class TaskCallError extends Error {
   constructor(public readonly args: unknown[]) {
-    super(`task callback error: ${args.map(a => String(a)).join(', ')}`);
+    super(`task callback error: ${args.map((a) => String(a)).join(', ')}`);
   }
 }
 
@@ -105,7 +105,7 @@ export class FakeTaskToken {
       // keep raw value
     }
     const hints = JSON.parse(this.data['sHintsRequested'] as string) as unknown[];
-    if (!hints.some(h => JSON.stringify(h) === JSON.stringify(hint))) {
+    if (!hints.some((h) => JSON.stringify(h) === JSON.stringify(hint))) {
       hints.push(hint);
       this.data['sHintsRequested'] = JSON.stringify(hints);
     }
@@ -129,7 +129,13 @@ export interface FakePlatformOptions {
    */
   mode?: 'mini' | 'platform' | 'manual';
   /** Values returned by getTaskParams. */
-  taskParams?: Partial<{randomSeed: string; minScore: number; maxScore: number; noScore: number; options: Record<string, unknown>}>;
+  taskParams?: Partial<{
+    randomSeed: string;
+    minScore: number;
+    maxScore: number;
+    noScore: number;
+    options: Record<string, unknown>;
+  }>;
   /** Initial token payload in 'platform' mode. */
   tokenPayload?: Record<string, unknown>;
   /** Initial random seed of window.task_token in 'mini' mode. */
@@ -165,7 +171,7 @@ export class FakePlatform {
   }
 
   callsTo(method: string): unknown[][] {
-    return this.calls.filter(c => c.method === method).map(c => c.args);
+    return this.calls.filter((c) => c.method === method).map((c) => c.args);
   }
 
   private record(method: string, args: unknown[]) {
@@ -186,13 +192,21 @@ export class FakePlatform {
     let token: string;
     if (this.options.mode === 'mini') {
       window.task_token.update({id: (metaData as any)?.id});
-      token = await new Promise<string>(resolve => window.task_token.get(resolve));
+      token = await new Promise<string>((resolve) => window.task_token.get(resolve));
     } else {
       token = fakeJwt.sign(this.options.tokenPayload ?? {});
     }
     this.currentToken = token;
     await callTask(task, 'updateToken', token);
-    const views = this.options.views ?? {task: true, solution: true, hints: true, editor: true, grader: true, metadata: true, submission: true};
+    const views = this.options.views ?? {
+      task: true,
+      solution: true,
+      hints: true,
+      editor: true,
+      grader: true,
+      metadata: true,
+      submission: true,
+    };
     await callTask(task, 'load', views);
     await callTask(task, 'getViews');
     await callTask(task, 'showViews', {task: true});
@@ -200,7 +214,16 @@ export class FakePlatform {
 
   getTaskParams(key: string | null, defaultValue: unknown, success: (res: unknown) => void, _error?: Function) {
     this.record('getTaskParams', [key, defaultValue]);
-    let res: any = {minScore: 0, maxScore: 40, noScore: 0, readOnly: false, randomSeed: '0', options: {}, supportsTabs: true, ...this.options.taskParams};
+    let res: any = {
+      minScore: 0,
+      maxScore: 40,
+      noScore: 0,
+      readOnly: false,
+      randomSeed: '0',
+      options: {},
+      supportsTabs: true,
+      ...this.options.taskParams,
+    };
     if (key) {
       if (key !== 'options' && key in res) res = res[key];
       else if (res.options && key in res.options) res = res.options[key];
@@ -214,7 +237,11 @@ export class FakePlatform {
     const task = this.task!;
     if (this.options.mode === 'mini') {
       window.task_token.addHintRequest(hintToken, (token: string) => {
-        task.updateToken(token, () => {}, () => {});
+        task.updateToken(
+          token,
+          () => {},
+          () => {},
+        );
         success(token);
       });
     } else {
@@ -230,18 +257,27 @@ export class FakePlatform {
   validate(mode: string, success?: Function, error?: Function) {
     this.record('validate', [mode]);
     const task = this.task!;
-    task.getAnswer((answer: string) => {
-      const answerToken = this.options.mode === 'mini'
-        ? window.task_token.getAnswerToken(answer)
-        : fakeJwt.sign({...(this.currentToken ? fakeJwt.decode(this.currentToken) : {}), sAnswer: answer});
-      task.gradeAnswer(answer, answerToken, (score: number, message: string, scoreToken?: string) => {
-        this.record('graded', [score, message, scoreToken]);
-        success?.();
-      }, (message: string) => {
-        this.record('gradeError', [message]);
-        error?.(message);
-      });
-    }, () => {});
+    task.getAnswer(
+      (answer: string) => {
+        const answerToken =
+          this.options.mode === 'mini'
+            ? window.task_token.getAnswerToken(answer)
+            : fakeJwt.sign({...(this.currentToken ? fakeJwt.decode(this.currentToken) : {}), sAnswer: answer});
+        task.gradeAnswer(
+          answer,
+          answerToken,
+          (score: number, message: string, scoreToken?: string) => {
+            this.record('graded', [score, message, scoreToken]);
+            success?.();
+          },
+          (message: string) => {
+            this.record('gradeError', [message]);
+            error?.(message);
+          },
+        );
+      },
+      () => {},
+    );
   }
 
   updateDisplay(data: unknown, success?: Function) {
@@ -278,7 +314,7 @@ export class FakeServerTask {
   constructor(private readonly options: FakeServerTaskOptions = {}) {}
 
   callsTo(action: string): any[] {
-    return this.calls.filter(c => c.action === action).map(c => c.params);
+    return this.calls.filter((c) => c.action === action).map((c) => c.params);
   }
 
   taskData(params: any, callback: (error: unknown, result?: unknown) => void) {

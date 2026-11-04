@@ -169,11 +169,38 @@ Repo switched to pnpm; `json-stable-stringify-without-jsonify` declared; unused 
   suite runs against v4 through a thin adapter.
 - Fix nothing yet; record known bugs as `it.fails` (e.g. `TaskResult` with null grading).
 
-### Phase 1 — Skeleton & toolchain
-- New `src/`, Vite lib config, TS strict, ESLint/Prettier/stylelint, Vitest, Playwright.
-- `browserslist`, `vite` preset, `polyfills` entry, CI checks (`es-check`, compat lint).
-- `playground/`: minimal sample task (with levels + hints + local grader) using bebras
-  `miniPlatform.js`, built with the preset and **opened from `file://`**.
+### Phase 1 — Skeleton & toolchain ✅
+Done on branch `v4`:
+- v3 sources moved to `legacy/v3/` (only used by the protocol tests); rollup/babel/old eslint
+  configs removed. v3 protocol suite passes unchanged on **React 19 + Vite 8**.
+- New `src/`: `vite/` (preset `defineTaskConfig`, `inlineCss` plugin, `targets.ts` = single source
+  of truth for browsers), `polyfills/` (generated, `pnpm gen:polyfills`), `styles/`.
+- Lib build: Vite lib mode (ESM `dist/index.js`, `dist/polyfills.js`, `dist/style.css`) + `tsc`
+  for the preset (`dist/vite/`) and types (`dist/types/`).
+- Tooling: TypeScript 6.0 strict, ESLint 10 flat config (typescript-eslint, react-hooks,
+  `eslint-plugin-compat` with `es:all` + core-js Web APIs as polyfills), Prettier, stylelint 17
+  (standard-scss + unsupported-browser-features; legacy color/media notations enforced),
+  Vitest, Playwright, GitHub Actions (`pnpm ci`).
+- `playground/` (pnpm workspace): probe page (syntax lowering + polyfills + CSS/SVG inlining +
+  client/server mode), built with the preset, **opened from `file://`** in Playwright.
+- Old engines: **Firefox 52.9 ESR** (real browser) and **V8 5.5** (Chrome 55's engine, via Node
+  7.10) pass all probes — see [old-browsers.md](old-browsers.md).
+
+Decisions taken during Phase 1:
+- **TypeScript 6.0, not 7.0** (native Go port): typescript-eslint requires `<6.1`.
+- **Vite 8** (Rolldown + Oxc): single file via `output.codeSplitting: false`; CSS-only lib entries
+  are not supported → the stylesheet is imported from `src/index.ts` and extracted.
+- **es-check dropped**: its `checkBrowser` mode maps these targets to ES5 and flags guarded
+  `BigInt` checks; plain `es2017` misses trailing commas in calls (rejected by Chrome 55).
+  Replaced by `scripts/check-compat.mjs` (acorn ES2017 parse — also rejects ES2018 regex — + a
+  token scan for `,)`).
+- **Chromium 55 binaries segfault** on current Ubuntu (even with `libgconf` extracted locally):
+  Chrome 55 is covered by V8 5.5 + the static gates; Safari 10.1 / Edge 15 by the gates only.
+- `.fioi-root` styles don't need custom-property fallbacks: all targets support them.
+- Known limitation: `eslint-plugin-compat` can't see APIs reached through element instances
+  (e.g. `dialog.showModal()`), so the authoring guide must list them.
+- Tests are excluded from `tsc` until `legacy/v3` is removed (the v3 harness pulls the
+  non-strict v3 sources into the program).
 
 ### Phase 2 — Core (no UI)
 - `platform/` (task object, platform adapter), `server/` (HTTP + local), `token/`, `levels/`,

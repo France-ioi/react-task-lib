@@ -30,7 +30,10 @@ describe('hints', () => {
 
   it('works the same with a real platform owning the token', async () => {
     const {server} = await loaded({
-      platform: {mode: 'platform', tokenPayload: {itemUrl: 'http://example.org/?taskID=sample&version=1', randomSeed: 3, sHintsRequested: '[]'}},
+      platform: {
+        mode: 'platform',
+        tokenPayload: {itemUrl: 'http://example.org/?taskID=sample&version=1', randomSeed: 3, sHintsRequested: '[]'},
+      },
     });
     fireEvent.click(screen.getByText('hint A'));
     await waitFor(() => expect(screen.getByTestId('hints').textContent).toBe('[{"hint":"A"}]'));

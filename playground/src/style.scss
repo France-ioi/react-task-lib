@@ -1,0 +1,30 @@
+// Flexbox + margins only (no flex gap, no grid): see docs/PLAN.md, browser support.
+.playground {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+  user-select: none;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+
+    img {
+      margin-right: 8px;
+    }
+  }
+
+  &__probe {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+    &--fail {
+      background: #f8d7da;
+    }
+  }
+}

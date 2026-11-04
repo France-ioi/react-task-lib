@@ -53,9 +53,12 @@ describe('gradeAnswer — no levels', () => {
 
   it('calls error and displays the error when grading fails', async () => {
     const {task, container} = await loaded({server: {failGrade: 'grader exploded'}});
-    await expect(callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}')))
-      .rejects.toMatchObject({args: ['grader exploded']});
-    await waitFor(() => expect(container.querySelector('.result')!.textContent).toContain('Une erreur s\'est produite :grader exploded'));
+    await expect(
+      callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}')),
+    ).rejects.toMatchObject({args: ['grader exploded']});
+    await waitFor(() =>
+      expect(container.querySelector('.result')!.textContent).toContain("Une erreur s'est produite :grader exploded"),
+    );
   });
 
   it('hides the score when taskData.version.hints is false', async () => {

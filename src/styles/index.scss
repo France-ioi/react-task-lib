@@ -1,0 +1,24 @@
+// @france-ioi/react-task-lib styles.
+// Every rule is scoped under .fioi-root and prefixed with fioi-, so that neither Bootstrap nor
+// Tailwind's preflight interferes. Theme through the CSS custom properties below (supported by
+// all the target browsers). Browser support: see "browserslist" in package.json (checked by
+// stylelint): flexbox + margins only, no flex gap, no grid.
+
+.fioi-root {
+  --fioi-font-size: 16px;
+  --fioi-body-color: #e7e7e7;
+  --fioi-primary: #699669;
+  --fioi-primary-light: #8b8;
+  --fioi-text: #212529;
+
+  color: var(--fioi-text);
+  font-size: var(--fioi-font-size);
+  line-height: 1.5;
+  box-sizing: border-box;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+}

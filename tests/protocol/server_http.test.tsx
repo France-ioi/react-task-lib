@@ -12,15 +12,19 @@ beforeEach(() => {
   handler = (body) => {
     if (body.action === 'taskData') return {json: {success: true, data: {version: {version: '1'}}}};
     if (body.action === 'taskHintData') return {json: {success: true, data: []}};
-    if (body.action === 'gradeAnswer') return {json: {success: true, data: {score: 40, message: 'ok', token: 'score-token'}}};
+    if (body.action === 'gradeAnswer')
+      return {json: {success: true, data: {score: 40, message: 'ok', token: 'score-token'}}};
     throw new Error(`unexpected action ${body.action}`);
   };
-  vi.stubGlobal('fetch', vi.fn(async (url: string, init: RequestInit) => {
-    const body = JSON.parse(init.body as string);
-    requests.push({url, body});
-    const res = await handler(body);
-    return {status: res.status ?? 200, json: async () => res.json};
-  }));
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url: string, init: RequestInit) => {
+      const body = JSON.parse(init.body as string);
+      requests.push({url, body});
+      const res = await handler(body);
+      return {status: res.status ?? 200, json: async () => res.json};
+    }),
+  );
 });
 
 afterEach(() => {
@@ -37,7 +41,7 @@ async function loaded() {
 describe('HTTP server API (options.server_module)', () => {
   it('POSTs JSON {...body, action} to <baseUrl>/tasks', async () => {
     await loaded();
-    expect(requests.map(r => [r.url, r.body.action])).toEqual([
+    expect(requests.map((r) => [r.url, r.body.action])).toEqual([
       ['http://grader.test/tasks', 'taskData'],
       ['http://grader.test/tasks', 'taskHintData'],
     ]);
@@ -51,7 +55,7 @@ describe('HTTP server API (options.server_module)', () => {
     const {task} = await loaded();
     const answerToken = window.task_token.getAnswerToken('{"value":1}');
     expect(await callTask(task, 'gradeAnswer', '{"value":1}', answerToken)).toEqual([40, 'ok', 'score-token']);
-    const grade = requests.find(r => r.body.action === 'gradeAnswer')!;
+    const grade = requests.find((r) => r.body.action === 'gradeAnswer')!;
     expect(grade.body).toMatchObject({answer: answerToken, min_score: 0, max_score: 40, no_score: 0});
   });
 
@@ -66,12 +70,15 @@ describe('HTTP server API (options.server_module)', () => {
       return base(body);
     };
     await loaded();
-    const taskDataRequests = requests.filter(r => r.body.action === 'taskData');
-    expect(taskDataRequests.map(r => r.body.long_polling_id)).toEqual([undefined, 'poll-1', 'poll-2']);
+    const taskDataRequests = requests.filter((r) => r.body.action === 'taskData');
+    expect(taskDataRequests.map((r) => r.body.long_polling_id)).toEqual([undefined, 'poll-1', 'poll-2']);
   });
 
   it('sends options.server_module.devel as "task"', async () => {
-    const mounted = await mount({local: false, options: {server_module: {baseUrl: 'http://grader.test/', devel: {randomSeed: 1}}}});
+    const mounted = await mount({
+      local: false,
+      options: {server_module: {baseUrl: 'http://grader.test/', devel: {randomSeed: 1}}},
+    });
     await mounted.platform.loaded;
     expect(requests[0]!.body.task).toEqual({randomSeed: 1});
   });
@@ -94,14 +101,16 @@ describe('HTTP server API (options.server_module)', () => {
   itV3Bug('shows the translated "no internet" message on a network failure while grading', async () => {
     const {task} = await loaded();
     handler = () => Promise.reject(new TypeError('Network request failed'));
-    await expect(callTask(task, 'gradeAnswer', '{"value":1}', window.task_token.getAnswerToken('{"value":1}')))
-      .rejects.toMatchObject({args: ["Vous n'êtes actuellement pas connecté à Internet."]});
+    await expect(
+      callTask(task, 'gradeAnswer', '{"value":1}', window.task_token.getAnswerToken('{"value":1}')),
+    ).rejects.toMatchObject({args: ["Vous n'êtes actuellement pas connecté à Internet."]});
   });
 
   it.runIf(IMPL === 'v3')('(v3 actual) reports the raw network error message while grading', async () => {
     const {task} = await loaded();
     handler = () => Promise.reject(new TypeError('Network request failed'));
-    await expect(callTask(task, 'gradeAnswer', '{"value":1}', window.task_token.getAnswerToken('{"value":1}')))
-      .rejects.toMatchObject({args: ['Network request failed']});
+    await expect(
+      callTask(task, 'gradeAnswer', '{"value":1}', window.task_token.getAnswerToken('{"value":1}')),
+    ).rejects.toMatchObject({args: ['Network request failed']});
   });
 });

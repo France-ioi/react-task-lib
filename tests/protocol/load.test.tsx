@@ -81,8 +81,11 @@ describe('load — miniPlatform, no levels', () => {
 
     await callTask(task!, 'updateToken', window.task_token?.get?.() ?? fakeJwt.sign({randomSeed: 1}));
     let settled = false;
-    callTask(task!, 'load', {task: true}).then(() => (settled = true), () => (settled = true));
-    await new Promise(resolve => setTimeout(resolve, 100));
+    callTask(task!, 'load', {task: true}).then(
+      () => (settled = true),
+      () => (settled = true),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // window.location.href is assigned (not observable in jsdom): load never answers.
     expect(settled).toBe(false);
@@ -111,7 +114,12 @@ describe('load — real platform (token owned by the platform)', () => {
       platform: {
         mode: 'platform',
         taskParams: {randomSeed: '42'},
-        tokenPayload: {itemUrl: 'http://example.org/?taskID=sample&version=1', randomSeed: 42, idUser: 12, sHintsRequested: '[]'},
+        tokenPayload: {
+          itemUrl: 'http://example.org/?taskID=sample&version=1',
+          randomSeed: 42,
+          idUser: 12,
+          sHintsRequested: '[]',
+        },
       },
     });
     await platform.loaded;
@@ -125,7 +133,11 @@ describe('load — real platform (token owned by the platform)', () => {
     const {platform} = await mount({
       platform: {
         mode: 'platform',
-        tokenPayload: {itemUrl: 'http://example.org/?taskID=sample&version=1', randomSeed: 1, bSubmissionPossible: false},
+        tokenPayload: {
+          itemUrl: 'http://example.org/?taskID=sample&version=1',
+          randomSeed: 1,
+          bSubmissionPossible: false,
+        },
       },
     });
     await platform.loaded;

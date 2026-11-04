@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>react-task-lib playground (dev server)</title>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script type="module">
+      import {runReact} from '/src/index.tsx';
+      var options = {defaults: {taskID: 'playground', version: 1}};
+      window.app = runReact(document.getElementById('container'), options);
+    </script>
+  </body>
+</html>

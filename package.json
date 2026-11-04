@@ -1,101 +1,131 @@
 {
   "name": "@france-ioi/react-task-lib",
-  "version": "3.2.17",
+  "version": "4.0.0-alpha.0",
   "description": "Library to create France IOI tasks with React.js",
   "author": "SebastienTainon",
   "license": "MIT",
   "repository": "https://github.com/France-ioi/react-task-lib",
-  "main": "dist/index.js",
-  "source": "src/index.ts",
-  "engines": {
-    "node": ">=10"
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./polyfills": {
+      "types": "./dist/types/polyfills/index.d.ts",
+      "import": "./dist/polyfills.js"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "import": "./dist/vite/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./task-env": {
+      "types": "./task-env.d.ts"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "task-env.d.ts"
   ],
-  "types": "dist/index.d.ts",
+  "sideEffects": [
+    "./dist/polyfills.js",
+    "*.css"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "browserslist": [
+    "safari >= 10.1",
+    "ios_saf >= 10.3",
+    "chrome >= 55",
+    "firefox >= 52",
+    "edge >= 15"
+  ],
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
+    "build": "pnpm run clean && pnpm run build:lib && pnpm run build:preset && pnpm run build:types",
+    "build:lib": "vite build",
+    "build:preset": "tsc -p tsconfig.preset.json",
+    "build:types": "tsc -p tsconfig.types.json && node -e \"require('fs').writeFileSync('dist/types/polyfills/index.d.ts', '/** Side-effect module: polyfills for the supported browsers. */\\\\nexport {};\\\\n')\"",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint . && stylelint \"src/**/*.scss\" \"playground/src/**/*.scss\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "gen:polyfills": "node scripts/generate-polyfills.mjs",
+    "check:compat": "node scripts/check-compat.mjs",
+    "playground:build": "pnpm --filter playground build",
+    "playground:dev": "pnpm --filter playground dev",
+    "ci": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run build && pnpm run playground:build && pnpm run check:compat && pnpm run test:e2e",
+    "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.6.0",
-    "@fortawesome/free-solid-svg-icons": "^6.6.0",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "bootstrap": "^5.3.3",
-    "react": "^18.3.1",
-    "react-bootstrap": "^2.10.5",
-    "react-dom": "^18.3.1",
-    "react-redux": "^9.1.2",
-    "redux": "^5.0.1",
-    "redux-saga": "^1.3.0"
+    "react": "^18.3.0 || ^19.0.0",
+    "react-dom": "^18.3.0 || ^19.0.0",
+    "vite": "^8.0.0"
   },
-  "devDependencies": {
-    "@babel/plugin-transform-runtime": "^7.25.9",
-    "@babel/runtime": "^7.26.0",
-    "@fortawesome/fontawesome-svg-core": "^6.6.0",
-    "@fortawesome/free-solid-svg-icons": "^6.6.0",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "@rollup/plugin-commonjs": "^28.0.1",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.1",
-    "@testing-library/dom": "^10.4.2",
-    "@testing-library/react": "^16.3.3",
-    "@types/react": "^18.3.12",
-    "@types/react-redux": "^7.1.34",
-    "babel-eslint": "^10.0.3",
-    "bootstrap": "^5.3.3",
-    "cross-env": "^7.0.2",
-    "crypto": "^1.0.1",
-    "eslint": "^9.15.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-config-standard-react": "^13.0.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^7.1.0",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-standard": "^5.0.0",
-    "fetch-ponyfill": "^7.1.0",
-    "immer": "^10.1.1",
-    "jsdom": "^30.1.3",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.3.3",
-    "query-string": "^9.1.1",
-    "range": "0.0.3",
-    "react": "^18.3.1",
-    "react-bootstrap": "^2.10.5",
-    "react-dom": "^18.3.1",
-    "react-redux": "^9.1.2",
-    "redux": "^5.0.1",
-    "redux-saga": "^1.3.0",
-    "rollup": "^4.27.2",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-node-polyfills": "^0.2.1",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-polyfill-node": "^0.13.0",
-    "rollup-plugin-scss": "^4.0.0",
-    "sass": "^1.81.0",
-    "stream": "^0.0.3",
-    "tslib": "^2.8.1",
-    "typed-redux-saga": "^1.5.0",
-    "typescript": "^5.6.3",
-    "url-search-params-polyfill": "^8.2.5",
-    "vitest": "^5.1.0"
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.2.1",
+    "autoprefixer": "^10.6.2",
+    "core-js": "^3.51.0",
+    "terser": "^5.51.2"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
-  "dependencies": {
+  "packageManager": "pnpm@10.10.0",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.6",
     "@hedgedoc/html-to-react": "^1.4.6",
-    "i18next": "^25.5.2",
+    "@playwright/test": "^1.64.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "acorn": "^8.19.0",
+    "core-js-compat": "^3.51.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-compat": "^7.0.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "i18next": "^25.10.10",
+    "immer": "^10.2.0",
+    "jsdom": "^30.1.3",
     "json-stable-stringify-without-jsonify": "^1.0.1",
-    "react-i18next": "^15.7.3"
-  },
-  "packageManager": "pnpm@10.10.0"
+    "postcss": "^8.5.32",
+    "prettier": "^3.9.10",
+    "query-string": "^9.5.1",
+    "range": "0.0.3",
+    "react": "^19.3.1",
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "^19.3.1",
+    "react-i18next": "^15.7.4",
+    "react-redux": "^9.3.1",
+    "redux": "^5.0.1",
+    "redux-saga": "^1.5.1",
+    "sass": "^1.107.1",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-no-unsupported-browser-features": "^8.1.2",
+    "typed-redux-saga": "^1.5.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "url-search-params-polyfill": "^8.2.5",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
+  }
 }

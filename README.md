@@ -1,14 +1,10 @@
 # react-task-lib
 
-> Library to create France IOI tasks with React.js
+> Library to create France-IOI tasks with React.
 
 ## Install
 
-```bash
-yarn add @france-ioi/react-task-lib
-```
-
-To be able to download the library (because it is hosted on Github and not NPM), you have to setup your `~/.npmrc` file:
+The package is hosted on GitHub Packages. Set up `~/.npmrc`:
 
 ```
 registry=https://registry.npmjs.org/
@@ -16,14 +12,27 @@ registry=https://registry.npmjs.org/
 //npm.pkg.github.com/:_authToken=your_token
 ```
 
-`your_token` has to be replaced by a Github token you have to generate here: https://github.com/settings/tokens/new
-You have to check at least `read:packages` but you are also invited to check `write:packages` if you want to contribute to this library.
+`your_token` is a GitHub token (https://github.com/settings/tokens/new) with at least
+`read:packages` (`write:packages` to publish).
 
+(`browserslist` in package.json). See [docs/old-browsers.md](docs/old-browsers.md).
 
 ## Development
 
-Use `yarn` to install dependencies.
+Requires Node ≥ 20.19 and pnpm (`corepack enable`).
 
-Use `yarn watch` during development.
+```sh
+pnpm install
+pnpm test               # unit + protocol tests (Vitest)
+pnpm lint               # ESLint (incl. browser API compat) + stylelint (CSS compat)
+pnpm typecheck
+pnpm build              # dist/
+pnpm playground:build   # playground/build*/ — open playground/index.html from the file system
+pnpm playground:dev     # Vite dev server
+pnpm check:compat       # ES2017 / Chrome 55 syntax gate on the built bundles
+pnpm test:e2e           # Playwright, file:// (Chromium, Firefox, WebKit)
+pnpm ci                 # everything, as in GitHub Actions
+```
 
-Use `yarn build` to build the library and `yarn publish` to publish a new version.
+Local tasks can use the working copy with
+`"@france-ioi/react-task-lib": "link:../react-task-lib"`.

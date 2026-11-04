@@ -30,9 +30,9 @@ describe('levels', () => {
   it('renders one tab per level, starts on the first level, others locked', async () => {
     await loaded();
     expect(tabs()).toHaveLength(3);
-    expect(tabs().map(t => t.className.includes('active'))).toEqual([true, false, false]);
-    expect(tabs().map(t => t.className.includes('is-locked'))).toEqual([false, true, true]);
-    expect(tabs().map(t => t.querySelectorAll('svg').length)).toEqual([1, 2, 3]);
+    expect(tabs().map((t) => t.className.includes('active'))).toEqual([true, false, false]);
+    expect(tabs().map((t) => t.className.includes('is-locked'))).toEqual([false, true, true]);
+    expect(tabs().map((t) => t.querySelectorAll('svg').length)).toEqual([1, 2, 3]);
     expect(screen.getByTestId('version').textContent).toBe('1');
   });
 
@@ -70,7 +70,7 @@ describe('levels', () => {
     expect(message).toBe('<b>value=3</b> v1');
     expect(scoreToken).toBeUndefined();
     const grades = server.callsTo('gradeAnswer');
-    expect(grades.map(g => [g.task.params.version, g.task.random_seed, g.answer.value])).toEqual([
+    expect(grades.map((g) => [g.task.params.version, g.task.random_seed, g.answer.value])).toEqual([
       ['1', '71', '{"value":3}'],
       ['2', '72', '{"value":2}'],
     ]);
@@ -83,7 +83,7 @@ describe('levels', () => {
 
     const dialog = await screen.findByRole('dialog');
     expect(dialog.textContent).toContain('Bravo, vous avez réussi !');
-    expect(dialog.textContent).toContain('Nous vous proposons d\'essayer la version 2 étoiles.');
+    expect(dialog.textContent).toContain("Nous vous proposons d'essayer la version 2 étoiles.");
     expect(platform.callsTo('graded')[0]!.slice(0, 2)).toEqual([25, '<b>value=3</b> v1']);
     await waitFor(() => expect(tabs()[1]!.className).not.toContain('is-locked'));
     expect(tabs()[2]!.className).toContain('is-locked');
@@ -119,7 +119,7 @@ describe('levels', () => {
   // KNOWN v3 BUG: taskChangeVersionSaga calls task.gradeAnswer(<current level answer>, ..., silent)
   // but gradeAnswer expects the all-levels answer, so no level is graded (no-op).
   // Intended behavior (v4): the levels' answers are graded silently when leaving a level.
-  itV3Bug('switching level grades the levels\' answers silently', async () => {
+  itV3Bug("switching level grades the levels' answers silently", async () => {
     const {server} = await loaded();
     await solveBasicAndGoToEasy();
     const gradesBefore = server.callsTo('gradeAnswer').length;
@@ -160,10 +160,14 @@ describe('levels', () => {
 describe('levels — known v3 bugs', () => {
   // KNOWN v3 BUG: when the answer has nothing for the current level, the grading stored for
   // display is null and TaskResult crashes on `grading.error`, which unmounts the whole app.
-  itV3Bug('a non-silent gradeAnswer without an answer for the current level keeps the app alive', async () => {
-    const {task} = await loaded();
-    await callTask(task, 'gradeAnswer', '{"basic":null,"easy":{"value":1},"medium":null}', null);
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(screen.getByTestId('value')).toBeTruthy();
-  }, {crashes: true});
+  itV3Bug(
+    'a non-silent gradeAnswer without an answer for the current level keeps the app alive',
+    async () => {
+      const {task} = await loaded();
+      await callTask(task, 'gradeAnswer', '{"basic":null,"easy":{"value":1},"medium":null}', null);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(screen.getByTestId('value')).toBeTruthy();
+    },
+    {crashes: true},
+  );
 });

@@ -2,7 +2,7 @@
 import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {produce} from 'immer';
-import {TaskInstructions} from '../../../src/index';
+import {TaskInstructions} from '../../../legacy/v3/src/index';
 import {SAMPLE_META_DATA} from './types';
 
 const reducer = (reduce: (state: any, action: any) => void) => (state: any, action: any) =>
@@ -19,19 +19,19 @@ function Workspace() {
 
   return (
     <div>
-      <TaskInstructions version={version}/>
+      <TaskInstructions version={version} />
       <span data-testid="value">{String(value)}</span>
       <span data-testid="version">{version.version}</span>
       <span data-testid="hints">{JSON.stringify(hints)}</span>
       <span data-testid="readonly">{readOnly ? 'yes' : 'no'}</span>
       <button onClick={() => dispatch({type: actions.sampleValueChanged})}>increment</button>
       <button onClick={() => dispatch({type: actions.requestHint, payload: {request: {hint: 'A'}}})}>hint A</button>
-      {['enabled', 'disabled', 'hidden'].map(status =>
+      {['enabled', 'disabled', 'hidden'].map((status) => (
         <button key={status} onClick={() => dispatch({type: actions.taskValidateButtonStatusUpdated, payload: status})}>
           validate {status}
         </button>
-      )}
-      <HintRequestFeedback/>
+      ))}
+      <HintRequestFeedback />
     </div>
   );
 }
@@ -41,17 +41,17 @@ export const SampleBundle = {
     sampleValueChanged: 'Sample.Value.Changed',
   },
   actionReducers: {
-    appInit: reducer(state => {
+    appInit: reducer((state) => {
       state.taskMetaData = SAMPLE_META_DATA;
     }),
-    taskInit: reducer(state => {
+    taskInit: reducer((state) => {
       state.answer = {value: 0};
       state.taskReady = true;
     }),
     taskStateLoaded: reducer((state, {payload: {dump}}) => {
       state.answer = {value: dump.value};
     }),
-    sampleValueChanged: reducer(state => {
+    sampleValueChanged: reducer((state) => {
       state.answer = {value: (state.answer?.value ?? 0) + 1};
     }),
   },
