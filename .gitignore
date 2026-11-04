@@ -16,3 +16,4 @@ playwright-report
 .env
 .env.local
 npm-debug.log*
+playground/build-task

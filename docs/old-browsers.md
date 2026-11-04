@@ -27,8 +27,9 @@ cd -  # back to react-task-lib
 MOZ_ENABLE_WAYLAND=0 node scripts/old-browsers-smoke.mjs ~/old-browsers/firefox/firefox -no-remote -profile ~/old-browsers/ff52-profile
 ```
 
-It opens `playground/index.html` and `index.client.html` from `file://` (a window appears
-briefly) and prints the probe results reported by the page.
+It opens `playground/index.html`, `index.client.html` and `task.html` from `file://` (a window
+appears briefly) and prints the results reported by each page; `task.html` plays the counter task
+by script (solve level 1, open level 2, ask a hint).
 
 ## Chrome 55 (V8 5.5)
 
@@ -49,3 +50,4 @@ polyfills) on it. DOM behavior of Chrome 55 itself is not covered.
 | Date | Commit | Firefox 52.9 ESR | V8 5.5 (Chrome 55) |
 |---|---|---|---|
 | 2026-11-04 | Phase 1 | ✓ 16/16 probes, server + client, `file://` | ✓ bundles parse, 16/16 probes |
+| 2026-11-04 | Phase 2 | ✓ probes + counter task played end to end (validate, next level, hint) | ✓ 3 bundles parse, 16/16 probes |

@@ -20,6 +20,9 @@ const POLYFILLED = [
   'DOMException',
   'atob',
   'btoa',
+  // Not a polyfill: false positive (MDN records `body` on Document from Firefox 60; it was on
+  // HTMLDocument before, in every browser).
+  'document.body',
 ];
 
 export default tseslint.config(

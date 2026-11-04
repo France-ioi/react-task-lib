@@ -4,6 +4,8 @@
  */
 import {it} from 'vitest';
 import {mountV3} from './v3';
+import {mountV4} from './v4';
+import {uiV3, uiV4, type UiAccessors} from './ui';
 import type {MountFn} from './types';
 
 export const IMPL = process.env['TASK_LIB_IMPL'] ?? 'v3';
@@ -20,7 +22,11 @@ export function itV3Bug(name: string, fn: () => Promise<void>, options: {crashes
 
 const implementations: Record<string, MountFn> = {
   v3: mountV3,
+  v4: mountV4,
 };
+
+/** Access to the lib's own UI for the implementation under test. */
+export const ui: UiAccessors = IMPL === 'v4' ? uiV4 : uiV3;
 
 export const mount: MountFn = (spec) => {
   const fn = implementations[impl];

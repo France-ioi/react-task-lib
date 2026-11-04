@@ -202,10 +202,57 @@ Decisions taken during Phase 1:
 - Tests are excluded from `tsc` until `legacy/v3` is removed (the v3 harness pulls the
   non-strict v3 sources into the program).
 
-### Phase 2 — Core (no UI)
-- `platform/` (task object, platform adapter), `server/` (HTTP + local), `token/`, `levels/`,
-  `hints/`, `store/`, `defineTask`, `mountTask`. Plain typed modules, unit-tested.
-- Phase 0 suite green against v4.
+### Phase 2 — Core ✅
+Done on branch `v4`. **Scope change:** the Phase 0 suite drives the app through its shell UI, so
+Phase 2 also delivers working (minimally styled) versions of the shell components; Phase 3 keeps
+styling, Collapsable/Tutorial/Carousel, NumberPicker, icons in HTML content, a11y polish.
+
+- `src/platform/` — `createTaskApi` (callback-style `task` object over async handlers),
+  promise-based platform adapter.
+- `src/server/` — HTTP client (long polling; rejects with `Error`s, `NetworkError` for fetch
+  failures) and local grader adapter; both implement `TaskServer`.
+- `src/token/` — dummy JWT, URL helpers, `TaskToken` (miniPlatform semantics), per-version tokens.
+- `src/levels.ts` — level table, scores, unlocking, next level (pure functions).
+- `src/runtime/` — `TaskRuntime` (all protocol handlers, levels, grading, hints, validation, height
+  monitor), Zustand vanilla store (`LibState`), Bebras layout tweaks.
+- `src/react/` + `src/ui/` — context, hooks (`useTaskData`, `useHints`, `useRequestHint`,
+  `useValidateButton`, `useLevels`, `useTaskActions`…), `App`, `TaskBar`, `TaskResult`,
+  `VersionTabs`, `Stars`, `Modal`, `HintFeedback`, `TaskInstructions`, `Spinner`, `Button`, `Alert`.
+- `src/i18n/` — the lib's own tiny translator (fr/en/de/es, fr fallback).
+- `defineTask` / `mountTask` (`src/mount.tsx`), public exports in `src/index.ts`.
+- Tests: the protocol suite runs against **both v3 and v4** (Vitest projects `protocol-v3`,
+  `protocol-v4`; v4: 56/56 incl. the 3 v3 bugs, fixed); unit tests for stable stringify (checked
+  against the v3 dependency), tokens, levels, i18n, runtime feedback clearing.
+- Playground: `task.html` — a real counter task (levels, hints, local grader) on a compact
+  miniPlatform stand-in; Playwright E2E from `file://`; **Firefox 52 ESR plays it end to end**
+  (scripted via `?report=`), V8 5.5 parses it.
+
+Decisions taken during Phase 2:
+- **No i18next**: the lib has ~30 strings; a private translator avoids clashing with the task's
+  i18next instance (and two dependencies). Tasks keep whatever i18n they use.
+- **No html-to-react**: `TaskInstructions` clones the section, removes the `data-version`
+  elements not matching, and renders the HTML. `<fontawesomeicon>` support moves to Phase 3.
+- **Feedback clearing** = "the answer changed": the task passes its store's `subscribe`; the lib
+  compares the stable JSON of `getAnswer()` with a baseline taken after its own writes
+  (`loadAnswer`, `loadState`, `onHintsUpdated`), so lib-initiated changes don't clear feedback.
+  Without `subscribe`, tasks call `useTaskActions().clearFeedback()`.
+- **Next-level proposal** decided by the runtime (`upgradeProposal` in the store) instead of a
+  `setState`-in-effect in `TaskResult`.
+- The protocol tests access the lib UI through per-implementation accessors
+  (`tests/protocol/harness/ui.ts`) since class names changed (`fioi-…`, ARIA roles/states).
+
+Behavior changes vs v3 (all intentional):
+- Level switch grades all the levels' answers silently (v3: no-op, bug).
+- Non-silent level grading without an answer for the current level: empty result (v3: crash).
+- "No internet" message on network failures (v3: never shown).
+- Loading a saved level answer also loads that version's hints (v3 kept the previous version's).
+- `bestAnswer` stores the level's answer (v3: the whole multi-level answer; unused).
+- `reloadAnswer` with levels and no answer for the current level loads the default answer.
+- HTTP long polling gives up with an error after 30 tries (v3: the promise never settled).
+
+Kept on purpose (to confirm with the platform team):
+- With levels, `gradeAnswer` returns `result.scoreToken` as the score token (the local grader sets
+  `result.token`, so it is `undefined` there); without levels it returns `result.token`.
 
 ### Phase 3 — UI
 - `TaskBar`, version tabs, `Stars` (`useId`), `TaskResult`, `Modal` (portal, focus trap, Esc,

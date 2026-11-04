@@ -21,6 +21,7 @@ const DEFAULT_TARGETS = [
   {file: 'dist/polyfills.js', module: true},
   {file: 'playground/build/index.js', module: false},
   {file: 'playground/build-client/index.js', module: false},
+  {file: 'playground/build-task/index.js', module: false},
 ];
 
 export function checkSource(code, {module = false} = {}) {

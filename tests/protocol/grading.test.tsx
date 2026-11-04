@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {fireEvent, screen, waitFor, within} from '@testing-library/react';
-import {callTask, fakeJwt, mount} from './harness';
+import {callTask, fakeJwt, mount, ui} from './harness';
 
 async function loaded(spec?: Parameters<typeof mount>[0]) {
   const mounted = await mount(spec);
@@ -43,51 +43,49 @@ describe('gradeAnswer — no levels', () => {
   });
 
   it('displays the grading result (HTML message and score)', async () => {
-    const {task, container} = await loaded();
+    const {task} = await loaded();
     await callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}'));
 
-    const result = container.querySelector('.result')!;
+    const result = ui.result();
     await waitFor(() => expect(within(result as HTMLElement).getByText('value=2').tagName).toBe('B'));
     expect(result.textContent).toContain('Votre score : 20');
   });
 
   it('calls error and displays the error when grading fails', async () => {
-    const {task, container} = await loaded({server: {failGrade: 'grader exploded'}});
+    const {task} = await loaded({server: {failGrade: 'grader exploded'}});
     await expect(
       callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}')),
     ).rejects.toMatchObject({args: ['grader exploded']});
-    await waitFor(() =>
-      expect(container.querySelector('.result')!.textContent).toContain("Une erreur s'est produite :grader exploded"),
-    );
+    await waitFor(() => expect(ui.result().textContent).toMatch(/Une erreur s'est produite :\s*grader exploded/));
   });
 
   it('hides the score when taskData.version.hints is false', async () => {
-    const {task, container} = await loaded({server: {versionExtra: {hints: false}}});
+    const {task} = await loaded({server: {versionExtra: {hints: false}}});
     await callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}'));
-    await waitFor(() => expect(container.querySelector('.result')!.textContent).toContain('value=2'));
-    expect(container.querySelector('.result')!.textContent).not.toContain('Votre score');
+    await waitFor(() => expect(ui.result().textContent).toContain('value=2'));
+    expect(ui.result().textContent).not.toContain('Votre score');
   });
 
   it('hides the score when taskData.version.showScore is false', async () => {
-    const {task, container} = await loaded({server: {versionExtra: {showScore: false}}});
+    const {task} = await loaded({server: {versionExtra: {showScore: false}}});
     await callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}'));
-    await waitFor(() => expect(container.querySelector('.result')!.textContent).toContain('value=2'));
-    expect(container.querySelector('.result')!.textContent).not.toContain('Votre score');
+    await waitFor(() => expect(ui.result().textContent).toContain('value=2'));
+    expect(ui.result().textContent).not.toContain('Votre score');
   });
 
   it('clears the grading feedback on a user action', async () => {
-    const {task, container} = await loaded();
+    const {task} = await loaded();
     await callTask(task, 'gradeAnswer', '{"value":2}', window.task_token.getAnswerToken('{"value":2}'));
-    await waitFor(() => expect(container.querySelector('.result')!.textContent).toContain('value=2'));
+    await waitFor(() => expect(ui.result().textContent).toContain('value=2'));
 
     increment(1);
-    await waitFor(() => expect(container.querySelector('.result')!.textContent).toBe(''));
+    await waitFor(() => expect(ui.result().textContent).toBe(''));
   });
 });
 
 describe('task bar', () => {
   it('Valider calls platform.validate("done"), which grades the current answer', async () => {
-    const {platform, container} = await loaded();
+    const {platform} = await loaded();
     increment(2);
 
     fireEvent.click(screen.getByText('Valider'));
@@ -95,7 +93,7 @@ describe('task bar', () => {
     await waitFor(() => expect(platform.callsTo('graded')).toHaveLength(1));
     expect(platform.callsTo('validate')).toEqual([['done']]);
     expect(platform.callsTo('graded')[0]!.slice(0, 2)).toEqual([20, '<b>value=2</b> v1']);
-    await waitFor(() => expect(container.querySelector('.result')!.textContent).toContain('Votre score : 20'));
+    await waitFor(() => expect(ui.result().textContent).toContain('Votre score : 20'));
   });
 
   it('the validate button can be disabled, hidden and enabled again by the task', async () => {

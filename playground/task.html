@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>react-task-lib playground — counter task</title>
+    <!-- Classic script: this page must work when opened from file:// -->
+    <script src="build-task/index.js"></script>
+  </head>
+  <body>
+    <div id="container"></div>
+    <div id="instructions" style="display: none">
+      <p>Reach the target value, then validate.</p>
+      <p data-version="2">Level 2: the target is higher.</p>
+    </div>
+    <script>
+      var options = {defaults: {taskID: 'counter', version: 1}};
+      window.app = ReactTask.runReact(document.getElementById('container'), options);
+    </script>
+  </body>
+</html>

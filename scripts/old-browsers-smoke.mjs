@@ -5,7 +5,7 @@
  *   node scripts/old-browsers-smoke.mjs <browser-command> [args...]
  *   e.g. node scripts/old-browsers-smoke.mjs ~/old/firefox-52/firefox -no-remote -profile /tmp/ff52
  *
- * Opens playground/index.html then index.client.html from file:// with ?report=…, waits for the
+ * Opens playground/index.html, index.client.html and task.html (scripted play) from file:// with ?report=…, waits for the
  * probe results sent back by each page, prints them and exits (non-zero on failure / timeout).
  * Build first: `pnpm build && pnpm playground:build`.
  */
@@ -19,7 +19,7 @@ if (!command) {
   console.error('usage: node scripts/old-browsers-smoke.mjs <browser-command> [args...]');
   process.exit(2);
 }
-const PAGES = ['index.html', 'index.client.html'];
+const PAGES = ['index.html', 'index.client.html', 'task.html'];
 const TIMEOUT_MS = 90_000;
 
 let pending = null;

@@ -25,7 +25,11 @@ const root = path.resolve(import.meta.dirname, '..');
 const v8 = execFileSync(oldNode, ['-p', 'process.versions.v8'], {encoding: 'utf8'}).trim();
 console.log(`V8 ${v8}`);
 
-for (const bundle of ['playground/build/index.js', 'playground/build-client/index.js']) {
+for (const bundle of [
+  'playground/build/index.js',
+  'playground/build-client/index.js',
+  'playground/build-task/index.js',
+]) {
   execFileSync(oldNode, ['--check', path.join(root, bundle)], {stdio: 'inherit'});
   console.log(`✓ parses ${bundle}`);
 }

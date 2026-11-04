@@ -5,7 +5,7 @@
  */
 import {describe, expect, it} from 'vitest';
 import {fireEvent, screen, waitFor, within} from '@testing-library/react';
-import {callTask, itV3Bug, mount, type LevelSpec} from './harness';
+import {callTask, itV3Bug, mount, ui, type LevelSpec} from './harness';
 
 const LEVELS: Record<string, LevelSpec> = {
   basic: {version: '1'},
@@ -24,15 +24,15 @@ function increment(times: number) {
   for (let i = 0; i < times; i++) fireEvent.click(screen.getByText('increment'));
 }
 
-const tabs = () => Array.from(document.querySelectorAll<HTMLElement>('.version-tabs [role=tab]'));
+const tabs = () => ui.tabs();
 
 describe('levels', () => {
   it('renders one tab per level, starts on the first level, others locked', async () => {
     await loaded();
     expect(tabs()).toHaveLength(3);
-    expect(tabs().map((t) => t.className.includes('active'))).toEqual([true, false, false]);
-    expect(tabs().map((t) => t.className.includes('is-locked'))).toEqual([false, true, true]);
-    expect(tabs().map((t) => t.querySelectorAll('svg').length)).toEqual([1, 2, 3]);
+    expect(tabs().map(ui.isActive)).toEqual([true, false, false]);
+    expect(tabs().map(ui.isLocked)).toEqual([false, true, true]);
+    expect(tabs().map(ui.stars)).toEqual([1, 2, 3]);
     expect(screen.getByTestId('version').textContent).toBe('1');
   });
 
@@ -85,8 +85,8 @@ describe('levels', () => {
     expect(dialog.textContent).toContain('Bravo, vous avez réussi !');
     expect(dialog.textContent).toContain("Nous vous proposons d'essayer la version 2 étoiles.");
     expect(platform.callsTo('graded')[0]!.slice(0, 2)).toEqual([25, '<b>value=3</b> v1']);
-    await waitFor(() => expect(tabs()[1]!.className).not.toContain('is-locked'));
-    expect(tabs()[2]!.className).toContain('is-locked');
+    await waitFor(() => expect(ui.isLocked(tabs()[1]!)).toBe(false));
+    expect(ui.isLocked(tabs()[2]!)).toBe(true);
 
     fireEvent.click(within(dialog).getByText('Passer à la suite'));
     await waitFor(() => expect(screen.getByTestId('version').textContent).toBe('2'));
@@ -108,7 +108,7 @@ describe('levels', () => {
     fireEvent.click(tabs()[0]!);
     await waitFor(() => expect(screen.getByTestId('version').textContent).toBe('1'));
     expect(screen.getByTestId('value').textContent).toBe('3');
-    expect(document.querySelector('.result')!.textContent).toBe('');
+    expect(ui.result().textContent).toBe('');
 
     fireEvent.click(tabs()[1]!);
     await waitFor(() => expect(screen.getByTestId('version').textContent).toBe('2'));
@@ -139,8 +139,8 @@ describe('levels', () => {
     // basic solved (25 weighted) → easy (max 50) is the first level that can improve the score
     await waitFor(() => expect(screen.getByTestId('version').textContent).toBe('2'));
     expect(screen.getByTestId('value').textContent).toBe('1');
-    expect(tabs()[1]!.className).not.toContain('is-locked');
-    expect(tabs()[2]!.className).toContain('is-locked');
+    expect(ui.isLocked(tabs()[1]!)).toBe(false);
+    expect(ui.isLocked(tabs()[2]!)).toBe(true);
     expect(await callTask(task, 'getAnswer')).toEqual([answer]);
   });
 
