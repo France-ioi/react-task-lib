@@ -3,7 +3,12 @@
   "compilerOptions": {
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "types": ["node", "vite/client", "./task-env.d.ts"]
+    "types": ["node", "vite/client", "./task-env.d.ts"],
+    "paths": {
+      "@france-ioi/react-task-lib": ["./src/index.ts"],
+      "@france-ioi/react-task-lib/polyfills": ["./src/polyfills/index.ts"],
+      "@france-ioi/react-task-lib/vite": ["./src/vite/index.ts"]
+    }
   },
   "include": ["src", "playground/src", "playground/*.ts", "scripts", "*.ts", "*.mts", "e2e", "tests"],
   "exclude": ["dist", "playground/build*"]
