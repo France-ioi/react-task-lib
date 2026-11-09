@@ -44,12 +44,3 @@ node scripts/v8-probes.mjs ~/old-browsers/node-v7.10.1-linux-x64/bin/node
 
 It syntax-checks the playground bundles with V8 5.5 and runs the probes (syntax lowering and
 polyfills) on it. DOM behavior of Chrome 55 itself is not covered.
-
-## Results
-
-| Date | Commit | Firefox 52.9 ESR | V8 5.5 (Chrome 55) |
-|---|---|---|---|
-| 2026-11-04 | Phase 1 | ✓ 16/16 probes, server + client, `file://` | ✓ bundles parse, 16/16 probes |
-| 2026-11-04 | Phase 2 | ✓ probes + counter task played end to end (validate, next level, hint) | ✓ 3 bundles parse, 16/16 probes |
-| 2026-11-04 | Phase 3 | ✓ probes + task with layout assertions, tutorial, centered modal | ✓ 3 bundles parse, 16/16 probes |
-| 2026-11-04 | Phase 4 | ✓ playground; alkindi-task-circuit client build: render, grading, hint (real miniPlatform) | ✓ playground + circuit bundles parse, 16/16 probes |

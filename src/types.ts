@@ -158,6 +158,11 @@ export interface TaskDefinition<Answer = unknown, TData extends TaskData = TaskD
    * `clearFeedback()` (useTaskActions) yourself.
    */
   subscribe?(listener: () => void): () => void;
+  /**
+   * false: the task displays the grading result itself (see onGraded); the lib only shows the
+   * next-level proposal. Default true.
+   */
+  showResult?: boolean;
   /** The task UI. Remounted on version change. */
   Workspace: ComponentType;
   /** Levels offered by the task (can be overridden by mountTask). */

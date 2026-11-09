@@ -5,7 +5,10 @@ body.fioi-page {
   background-color: var(--fioi-body-color);
 }
 
-.fioi-container {
+// `#container` too: v3 task pages reset its class (`container.className = "container"`) after
+// starting the task.
+.fioi-container,
+body.fioi-page > #container {
   width: var(--fioi-container-width);
   max-width: none;
   height: var(--fioi-container-height);

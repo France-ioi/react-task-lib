@@ -125,7 +125,7 @@ export function mountTask<Answer, TData extends TaskData, Hint, Dump>(
   const app = (
     <RuntimeContext.Provider value={runtime}>
       <div className="fioi-root">
-        <App Workspace={definition.Workspace} />
+        <App Workspace={definition.Workspace} showResult={definition.showResult !== false} />
       </div>
     </RuntimeContext.Provider>
   );

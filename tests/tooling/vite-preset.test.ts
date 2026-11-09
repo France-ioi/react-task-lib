@@ -55,6 +55,14 @@ describe('defineTaskConfig', () => {
     expect(names).toContain('fioi:copy-files');
   });
 
+  it('inlines the CSS by default, or emits it next to the script', () => {
+    const names = (options: Parameters<typeof defineTaskConfig>[0]) =>
+      (resolve(options).plugins as {name?: string}[]).flat().map((p) => p?.name);
+    expect(names({})).toContain('fioi:inline-css');
+    expect(names({inlineCss: false})).not.toContain('fioi:inline-css');
+    expect(resolve({fileName: 'task.js'}).build?.lib).toMatchObject({cssFileName: 'task'});
+  });
+
   it('merges overrides last', () => {
     const config = resolve({overrides: {build: {outDir: 'dist-task'}, define: {EXTRA: '1'}}});
     expect(config.build?.outDir).toBe('dist-task');

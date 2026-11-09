@@ -9,10 +9,12 @@ import {Modal} from './Modal';
 
 export interface TaskResultProps {
   changeLevel: (level: LevelName, scroll: boolean) => void;
+  /** false: only the next-level proposal (the task shows the grading itself). */
+  showGrading?: boolean;
 }
 
 /** Grading result of the current version, and the "next level" proposal when solved. */
-export function TaskResult({changeLevel}: TaskResultProps) {
+export function TaskResult({changeLevel, showGrading = true}: TaskResultProps) {
   const runtime = useRuntime();
   const t = useLibTranslation();
   const grading = useLibState((state) => state.grading);
@@ -44,7 +46,7 @@ export function TaskResult({changeLevel}: TaskResultProps) {
         <p>{t('modal.upgrade.proposal', {stars: nextLevel ? LEVELS[nextLevel].stars : ''})}</p>
       </Modal>
 
-      {!grading.error && (grading.score || grading.message) ? (
+      {showGrading && !grading.error && (grading.score || grading.message) ? (
         <Alert variant={success ? 'success' : 'danger'}>
           {grading.message ? (
             <p className="fioi-result__message">
@@ -58,7 +60,7 @@ export function TaskResult({changeLevel}: TaskResultProps) {
           ) : null}
         </Alert>
       ) : null}
-      {grading.error ? (
+      {showGrading && grading.error ? (
         <Alert variant="danger">
           <Icon icon={faXmark} /> {t('error.validation')} {grading.error}
         </Alert>

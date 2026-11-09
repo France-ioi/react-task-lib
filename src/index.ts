@@ -32,7 +32,7 @@ export {HintFeedback} from './ui/HintFeedback';
 export {TaskBar} from './ui/TaskBar';
 export {Modal, type ModalProps} from './ui/Modal';
 export {Button, type ButtonProps} from './ui/Button';
-export {Alert} from './ui/Alert';
+export {Alert, type AlertProps} from './ui/Alert';
 export {Spinner} from './ui/Spinner';
 export {Stars} from './ui/Stars';
 export {BUILTIN_ICONS, Icon, iconsByName, type IconDefinition, type IconProps, type RenderIcon} from './ui/icons';

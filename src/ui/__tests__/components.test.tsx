@@ -7,6 +7,7 @@ import {HtmlContent} from '../HtmlContent';
 import {Modal} from '../Modal';
 import {NumberPicker} from '../NumberPicker';
 import {TaskInstructions} from '../TaskInstructions';
+import {TaskResult} from '../TaskResult';
 import {Tutorial, tutorialSlides} from '../Tutorial';
 import {faEye} from '@fortawesome/free-solid-svg-icons';
 import {Icon, parseStyle} from '../icons';
@@ -266,5 +267,18 @@ describe('NumberPicker', () => {
   it('is inert when read-only', () => {
     renderInTask(<Picker readOnly />);
     expect(minus().disabled && plus().disabled && input().readOnly).toBe(true);
+  });
+});
+
+describe('TaskResult', () => {
+  it('shows the grading, unless the task displays it itself (showResult: false)', () => {
+    const shown = renderInTask(<TaskResult changeLevel={() => undefined} />);
+    act(() => shown.store.setState({grading: {score: 40, message: 'Almost'}}));
+    expect(screen.getByText('Almost')).toBeTruthy();
+    shown.unmount();
+
+    const hidden = renderInTask(<TaskResult changeLevel={() => undefined} showGrading={false} />);
+    act(() => hidden.store.setState({grading: {score: 40, message: 'Almost'}}));
+    expect(screen.queryByText('Almost')).toBeNull();
   });
 });

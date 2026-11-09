@@ -13,7 +13,8 @@
  * Runtime APIs (Promise.finally, Object.fromEntries…) are not checked here: they are provided by
  * @france-ioi/react-task-lib/polyfills and checked in sources by eslint-plugin-compat.
  */
-import {readFileSync, existsSync} from 'node:fs';
+import {readFileSync, existsSync, realpathSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {Parser, tokTypes} from 'acorn';
 
 const DEFAULT_TARGETS = [
@@ -69,6 +70,8 @@ function main(argv) {
   process.exit(failed ? 1 : 0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run as a script (also through the `fioi-check-compat` bin, a symlink), not when imported by tests.
+const invokedPath = process.argv[1] ? realpathSync(process.argv[1]) : '';
+if (invokedPath === realpathSync(fileURLToPath(import.meta.url))) {
   main(process.argv.slice(2));
 }

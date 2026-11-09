@@ -19,7 +19,7 @@ export function FatalError({message}: {message: string}) {
 }
 
 /** The task page: level tabs, Workspace, result, task bar. */
-export function App({Workspace}: {Workspace: ComponentType}) {
+export function App({Workspace, showResult = true}: {Workspace: ComponentType; showResult?: boolean}) {
   const runtime = useRuntime();
   const t = useLibTranslation();
   const fatalError = useLibState((state) => state.fatalError);
@@ -53,7 +53,7 @@ export function App({Workspace}: {Workspace: ComponentType}) {
       </Modal>
       <VersionTabs onSelect={(level) => changeLevel(level)} />
       <Workspace key={`version-${version}`} />
-      <TaskResult changeLevel={changeLevel} />
+      <TaskResult changeLevel={changeLevel} showGrading={showResult} />
       {disableTaskBar ? null : <TaskBar />}
     </div>
   );

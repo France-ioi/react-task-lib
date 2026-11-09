@@ -15,7 +15,13 @@ registry=https://registry.npmjs.org/
 `your_token` is a GitHub token (https://github.com/settings/tokens/new) with at least
 `read:packages` (`write:packages` to publish).
 
-(`browserslist` in package.json). See [docs/old-browsers.md](docs/old-browsers.md).
+## Usage
+
+See the [task author guide](docs/task-authoring.md): project setup with the shared Vite
+configuration, task definition, hooks and components, browser rules, migration from v3.
+
+Supported browsers: Safari 10.1 / iOS 10.3, Chrome 55, Firefox 52, Edge 15 (`browserslist` in
+package.json). See [docs/old-browsers.md](docs/old-browsers.md).
 
 ## Development
 

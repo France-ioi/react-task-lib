@@ -40,6 +40,11 @@ export interface TaskConfigOptions {
   /** Output file name. Default: 'index.js'. */
   fileName?: string;
   /**
+   * Inject the CSS from the script (default true: a single file). false: emit it as a stylesheet
+   * next to the script (`index.css` for `index.js`), for pages that link it themselves.
+   */
+  inlineCss?: boolean;
+  /**
    * HTML page of the task, copied as `<outDir>/index.html` (e.g. 'index.prod.html'). It loads
    * the bundle with a classic `<script src="index.js">`.
    */
@@ -68,12 +73,13 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
     }
 
     const outDir = options.outDir ?? 'build';
+    const fileName = options.fileName ?? 'index.js';
     const config: UserConfig = {
       root,
       plugins: [
         react(),
         legalComments(),
-        inlineCss(),
+        ...(options.inlineCss === false ? [] : [inlineCss()]),
         copyFiles({root, outDir, page: options.page, copy: options.copy}),
         ...(isProduction
           ? [
@@ -111,7 +117,8 @@ export function defineTaskConfig(options: TaskConfigOptions = {}) {
           entry: path.resolve(root, options.entry ?? 'src/index.ts'),
           name: options.globalName ?? 'ReactTask',
           formats: ['iife'],
-          fileName: () => options.fileName ?? 'index.js',
+          fileName: () => fileName,
+          cssFileName: fileName.replace(/\.[cm]?js$/, ''),
         },
         rolldownOptions: {
           output: {
