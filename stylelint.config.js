@@ -19,6 +19,8 @@ export default {
           'font-family-system-ui',
           'css-selection',
           'css3-cursors',
+          // Own rule: unsupported browsers drop it and keep their default focus ring.
+          'css-focus-visible',
           // False positive: `text-decoration: none` works everywhere.
           'mdn-text-decoration-shorthand',
         ],
