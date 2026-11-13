@@ -1,0 +1,78 @@
+.fioi-root {
+  color: var(--fioi-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  font-size: var(--fioi-font-size);
+  line-height: 1.5;
+  box-sizing: border-box;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  ::selection {
+    background: var(--fioi-selection);
+    color: #fff;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+.fioi-icon {
+  display: inline-block;
+  vertical-align: -0.125em;
+  overflow: visible;
+}
+
+.fioi-icon--spin {
+  animation: fioi-spin 1s linear infinite;
+}
+
+@keyframes fioi-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fioi-spinner {
+  padding: 20px;
+  font-size: 300%;
+  text-align: center;
+}
+
+.fioi-fatal-error {
+  padding: 20px;
+}
+
+.fioi-collapse--animating {
+  transition: height 0.3s ease;
+}
+
+.fioi-instructions {
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}

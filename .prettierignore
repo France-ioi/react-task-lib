@@ -1,0 +1,7 @@
+dist
+playground/build*
+pnpm-lock.yaml
+src/polyfills/index.ts
+test-results
+playwright-report
+*.md

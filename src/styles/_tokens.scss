@@ -1,0 +1,23 @@
+// Theme: override these on .fioi-root (or :root) in the task stylesheet.
+:root,
+.fioi-root {
+  --fioi-font-size: 16px;
+  --fioi-body-color: #e7e7e7;
+  --fioi-container-width: 800px;
+  --fioi-container-height: auto;
+  --fioi-text: #30242b;
+  --fioi-text-muted: #727272;
+  --fioi-primary: #8b8;
+  --fioi-primary-hover: #71a171;
+  --fioi-primary-dark: #699669;
+  --fioi-primary-light: #edf5ed;
+  --fioi-danger: #f23459;
+  --fioi-dark: #30242b;
+  --fioi-block-background: #fff;
+  --fioi-content-block-background: #f5f5f5;
+  --fioi-modal-background: #eaeaea;
+  --fioi-border: #d8d8d8;
+  --fioi-tab-border: #8d9daa;
+  --fioi-radius: 5px;
+  --fioi-selection: #001beb;
+}

@@ -1,0 +1,18 @@
+// Page styles, enabled by mountTask (pageStyles option): body and task container.
+body.fioi-page {
+  margin: 0;
+  font-size: var(--fioi-font-size);
+  background-color: var(--fioi-body-color);
+}
+
+// `#container` too: v3 task pages reset its class (`container.className = "container"`) after
+// starting the task.
+.fioi-container,
+body.fioi-page > #container {
+  width: var(--fioi-container-width);
+  max-width: none;
+  height: var(--fioi-container-height);
+  margin-right: auto;
+  margin-left: auto;
+  user-select: none;
+}

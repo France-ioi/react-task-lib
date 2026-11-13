@@ -1,42 +1,74 @@
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
-import {faStickyNote} from '@fortawesome/free-solid-svg-icons/faStickyNote';
-import {faTimes} from '@fortawesome/free-solid-svg-icons/faTimes';
-import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
-import {faLock} from '@fortawesome/free-solid-svg-icons/faLock';
-import {faLockOpen} from '@fortawesome/free-solid-svg-icons/faLockOpen';
-import {faSpinner} from '@fortawesome/free-solid-svg-icons/faSpinner';
-import {faThumbtack} from '@fortawesome/free-solid-svg-icons/faThumbtack';
-import {faChevronUp} from '@fortawesome/free-solid-svg-icons/faChevronUp';
-import {faChevronLeft} from '@fortawesome/free-solid-svg-icons/faChevronLeft';
-import {faChevronRight} from '@fortawesome/free-solid-svg-icons/faChevronRight';
-import {faChevronDown} from '@fortawesome/free-solid-svg-icons/faChevronDown';
-import {faQuestionCircle} from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
-library.add(
-  faPlus, faStickyNote, faTimes, faCheck, faLock, faLockOpen, faSpinner, faThumbtack, faChevronUp,
-  faChevronDown, faChevronLeft, faChevronRight, faQuestionCircle,
-);
+/**
+ * @france-ioi/react-task-lib v4 — public API. See README.md.
+ */
+export {defineTask, mountTask, type MountOptions, type MountedTask} from './mount';
 
-setAutoFreeze(false);
-
-import './style.scss';
-import Collapsable from "./components/Collapsable";
-import NumberPicker from "./components/NumberPicker";
-import TutorialCarousel from "./components/TutorialCarousel";
-import TaskBar from "./components/TaskBar";
-import {Tutorial, TaskInstructions} from "./components/Tutorial";
-import reactTask from './react_task';
-import {setAutoFreeze} from "immer";
-import {TaskState} from './typings';
-import './i18n.ts';
-
+// Hooks for the task UI
 export {
-  Collapsable,
-  NumberPicker,
-  TutorialCarousel,
-  TaskInstructions,
-  TaskBar,
-  Tutorial,
-  reactTask,
-  TaskState,
-};
+  useTaskData,
+  useTaskVersion,
+  useHints,
+  useRequestHint,
+  useHintRequest,
+  useReadOnly,
+  useRandomSeed,
+  useGrading,
+  useValidateButton,
+  useLevels,
+  useTaskActions,
+  type LevelsInfo,
+} from './react/hooks';
+export {useLibTranslation} from './react/context';
+
+// Components
+export {Block, ContentBlock, type BlockProps, type ContentBlockProps} from './ui/Block';
+export {Collapse} from './ui/Collapse';
+export {Carousel} from './ui/Carousel';
+export {Tutorial, tutorialSlides, useTutorialSlides} from './ui/Tutorial';
+export {HtmlContent, filteredSection, type HtmlContentProps} from './ui/HtmlContent';
+export {NumberPicker, type NumberPickerProps} from './ui/NumberPicker';
+export {TaskInstructions} from './ui/TaskInstructions';
+export {HintFeedback} from './ui/HintFeedback';
+export {TaskBar} from './ui/TaskBar';
+export {Modal, type ModalProps} from './ui/Modal';
+export {Button, type ButtonProps} from './ui/Button';
+export {Alert, type AlertProps} from './ui/Alert';
+export {Spinner} from './ui/Spinner';
+export {Stars} from './ui/Stars';
+export {BUILTIN_ICONS, Icon, iconsByName, type IconDefinition, type IconProps, type RenderIcon} from './ui/icons';
+
+// Utilities
+export {stableStringify} from './utils/stable_stringify';
+export {jwt} from './token/jwt';
+export {LEVELS, type LevelInfo} from './levels';
+
+// Types
+export {ValidateButtonStatus} from './types';
+export type {
+  DecodedTask,
+  GradeRequest,
+  GradingResult,
+  HintRequestState,
+  HttpServerConfig,
+  LevelConfig,
+  LevelName,
+  LevelsConfig,
+  LevelState,
+  PlatformApi,
+  ServerTask,
+  TaskApi,
+  TaskContext,
+  TaskData,
+  TaskDefinition,
+  TaskMetaData,
+  TaskOptions,
+  TaskParams,
+  TaskServer,
+  TaskVersion,
+} from './types';
+
+export {VERSION} from './version';
+export {BROWSERSLIST} from './vite/targets';
+
+// Extracted to dist/style.css by the lib build; tasks import '@france-ioi/react-task-lib/style.css'.
+import './styles/index.scss';

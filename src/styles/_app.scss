@@ -1,0 +1,63 @@
+.fioi-app {
+  padding-bottom: 60px;
+}
+
+// Level tabs
+.fioi-version-tabs {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--fioi-tab-border);
+}
+
+.fioi-version-tabs__tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 170px;
+  margin: 0 20px;
+  padding: 8px;
+  border: 2px solid var(--fioi-tab-border);
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  background: var(--fioi-primary);
+  color: var(--fioi-text);
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+
+  .fioi-stars {
+    margin-left: 6px;
+  }
+}
+
+.fioi-version-tabs__tab--active {
+  margin-bottom: -2px;
+  padding-bottom: 10px;
+  background: #fff;
+}
+
+.fioi-version-tabs__tab--locked {
+  background: #999;
+
+  .fioi-stars svg path:nth-child(3) {
+    fill: #666;
+  }
+
+  .fioi-stars svg path:nth-child(4) {
+    stroke: #666;
+  }
+}
+
+.fioi-stars {
+  display: inline-flex;
+}
+
+// Task bar
+.fioi-task-bar {
+  margin-top: 20px;
+  text-align: center;
+}
