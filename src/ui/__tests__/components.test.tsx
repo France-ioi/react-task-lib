@@ -1,4 +1,4 @@
-import {act, fireEvent, screen, within} from '@testing-library/react';
+import {act, fireEvent, screen, waitFor, within} from '@testing-library/react';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {useState} from 'react';
 import {Block, ContentBlock} from '../Block';
@@ -147,7 +147,7 @@ describe('Block', () => {
     expect(toggles[0]!.getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('asks for confirmation before closing', () => {
+  it('asks for confirmation before closing', async () => {
     const onClose = vi.fn();
     renderInTask(<Block title="Draft" onClose={onClose} closeConfirmText="Really?" />);
     fireEvent.click(screen.getByRole('button', {name: 'Fermer'}));
@@ -159,6 +159,7 @@ describe('Block', () => {
     fireEvent.click(screen.getByRole('button', {name: 'Fermer'}));
     fireEvent.click(within(screen.getByRole('dialog')).getByText('Confirmer'));
     expect(onClose).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.queryByRole('dialog', {hidden: true})).toBeNull());
   });
 
   it('ContentBlock renders a titled section', () => {
@@ -195,7 +196,7 @@ describe('Modal', () => {
     );
   }
 
-  it('focuses the last footer button, traps Tab, closes on Escape and restores focus', () => {
+  it('focuses the last footer button, traps Tab, closes on Escape and restores focus', async () => {
     renderInTask(<Harness />);
     const opener = screen.getByText('open');
     opener.focus();
@@ -211,17 +212,17 @@ describe('Modal', () => {
     expect(document.activeElement).toBe(screen.getByText('last'));
 
     fireEvent.keyDown(document, {key: 'Escape'});
-    expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(opener);
+    await waitFor(() => expect(screen.queryByRole('dialog', {hidden: true})).toBeNull());
   });
 
-  it('closes on backdrop click, not on dialog click', () => {
+  it('closes on backdrop click, not on dialog click', async () => {
     renderInTask(<Harness />);
     fireEvent.click(screen.getByText('open'));
     fireEvent.mouseDown(screen.getByText('body'));
     expect(screen.getByRole('dialog')).toBeTruthy();
     fireEvent.mouseDown(screen.getByRole('dialog').parentElement!);
-    expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => expect(screen.queryByRole('dialog', {hidden: true})).toBeNull());
   });
 });
 

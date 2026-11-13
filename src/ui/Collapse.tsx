@@ -8,15 +8,18 @@ const DURATION_MS = 300;
  */
 export function Collapse({open, children, id}: {open: boolean; children: ReactNode; id?: string}) {
   const ref = useRef<HTMLDivElement>(null);
-  const firstRender = useRef(true);
+  // Last `open` value applied to the DOM: only a real change animates. A "first render" flag
+  // is not enough, as StrictMode runs effects twice on mount and the ref survives in between.
+  const appliedOpen = useRef<boolean | null>(null);
 
   useLayoutEffect(() => {
     const element = ref.current!;
-    if (firstRender.current) {
-      firstRender.current = false;
-      if (!open) element.style.display = 'none';
+    if (appliedOpen.current === null || appliedOpen.current === open) {
+      appliedOpen.current = open;
+      element.style.display = open ? '' : 'none';
       return undefined;
     }
+    appliedOpen.current = open;
 
     element.style.display = '';
     element.style.overflow = 'hidden';

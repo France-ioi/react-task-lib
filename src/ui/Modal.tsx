@@ -1,4 +1,4 @@
-import {useEffect, useId, useRef, type ReactNode} from 'react';
+import {useEffect, useId, useRef, useState, type ReactNode} from 'react';
 import {createPortal} from 'react-dom';
 import {useLibTranslation} from '../react/context';
 
@@ -15,6 +15,9 @@ export interface ModalProps {
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+/** Must match the exit animation duration in _modal.scss. */
+const CLOSE_DURATION_MS = 150;
+
 function focusables(root: HTMLElement): HTMLElement[] {
   return Array.prototype.slice.call(root.querySelectorAll<HTMLElement>(FOCUSABLE)) as HTMLElement[];
 }
@@ -22,13 +25,24 @@ function focusables(root: HTMLElement): HTMLElement[] {
 /**
  * Accessible modal dialog rendered in a portal (no <dialog>: not supported by the target
  * browsers). Focus moves into the dialog (footer button first), Tab stays inside it, Escape and
- * backdrop clicks close it, and focus returns to where it was.
+ * backdrop clicks close it, and focus returns to where it was. It fades in on opening and stays
+ * mounted for a short fade-out on closing.
  */
 export function Modal({open, title, onClose, children, footer, size = 'lg'}: ModalProps) {
   const t = useLibTranslation();
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  // Still rendered while the closing animation plays.
+  const [mounted, setMounted] = useState(open);
+  if (open && !mounted) setMounted(true);
+  const closing = mounted && !open;
+
+  useEffect(() => {
+    if (!closing) return undefined;
+    const timeout = window.setTimeout(() => setMounted(false), CLOSE_DURATION_MS);
+    return () => window.clearTimeout(timeout);
+  }, [closing]);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -76,13 +90,13 @@ export function Modal({open, title, onClose, children, footer, size = 'lg'}: Mod
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return createPortal(
     <div
-      className="fioi-root fioi-modal"
+      className={`fioi-root fioi-modal${closing ? ' fioi-modal--closing' : ''}`}
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (!closing && event.target === event.currentTarget) onClose();
       }}
     >
       <div
@@ -90,6 +104,7 @@ export function Modal({open, title, onClose, children, footer, size = 'lg'}: Mod
         className={`fioi-modal__dialog fioi-modal__dialog--${size}`}
         role="dialog"
         aria-modal="true"
+        aria-hidden={closing || undefined}
         aria-labelledby={titleId}
         tabIndex={-1}
       >
