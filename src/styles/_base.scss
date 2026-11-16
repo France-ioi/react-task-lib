@@ -64,12 +64,24 @@
 }
 
 .fioi-instructions {
+  ul,
+  ol {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-left: 2em;
+  }
+
   ul {
     list-style-type: disc;
   }
 
   ol {
     list-style-type: decimal;
+  }
+
+  li > ul,
+  li > ol {
+    margin-bottom: 0;
   }
 
   img {

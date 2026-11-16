@@ -109,6 +109,25 @@ describe('Tutorial / Carousel', () => {
     expect(heading().textContent).toBe('Last ');
   });
 
+  it('slides the old slide out, then removes it', () => {
+    vi.useFakeTimers();
+    try {
+      const {container} = renderInTask(<Carousel slides={[<p key="a">A</p>, <p key="b">B</p>]} />);
+      fireEvent.click(screen.getByRole('button', {name: 'Suivant'}));
+      const leaving = container.querySelector('.fioi-carousel__slide--leave-next');
+      expect(leaving?.getAttribute('aria-hidden')).toBe('true');
+      expect(leaving?.textContent).toBe('A');
+      expect(container.querySelector('.fioi-carousel__slide--enter-next')?.textContent).toBe('B');
+      act(() => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(container.querySelector('.fioi-carousel__slide--leave')).toBeNull();
+      expect(container.querySelector('.fioi-carousel__slide')?.className).toBe('fioi-carousel__slide');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('Carousel renders nothing without slides', () => {
     expect(renderInTask(<Carousel slides={[]} />).container.innerHTML).toBe('');
   });
